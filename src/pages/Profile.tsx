@@ -223,11 +223,13 @@ const Profile = () => {
   );
 };
 
-const AccountStat = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-muted/50 rounded-xl p-4">
-    <p className="text-sm text-muted-foreground mb-1">{label}</p>
-    <p className="font-medium">{value}</p>
-  </div>
-);
+function AccountStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-muted/50 rounded-xl p-4">
+      <p className="text-sm text-muted-foreground mb-1">{label}</p>
+      <p className="font-medium">{value}</p>
+    </div>
+  );
+}
 
 export default Profile;
