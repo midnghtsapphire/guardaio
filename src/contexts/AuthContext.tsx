@@ -9,6 +9,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,9 +21,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("AuthProvider: Setting up auth listener");
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -29,7 +34,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("getSession result:", session?.user?.email, error);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -39,9 +45,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
+    console.log("Attempting signup for:", email);
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -52,24 +59,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
     
+    console.log("Signup result:", data?.user?.email, error?.message);
     return { error: error as Error | null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    console.log("Attempting signin for:", email);
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
+    console.log("Signin result:", data?.user?.email, error?.message);
     return { error: error as Error | null };
   };
 
   const signOut = async () => {
+    console.log("Signing out");
     await supabase.auth.signOut();
   };
 
+  const resetPassword = async (email: string) => {
+    console.log("Requesting password reset for:", email);
+    const redirectUrl = `${window.location.origin}/auth?mode=reset`;
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+    
+    console.log("Reset password result:", error?.message);
+    return { error: error as Error | null };
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    console.log("Updating password");
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    
+    console.log("Update password result:", error?.message);
+    return { error: error as Error | null };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading, 
+      signUp, 
+      signIn, 
+      signOut, 
+      resetPassword,
+      updatePassword 
+    }}>
       {children}
     </AuthContext.Provider>
   );
