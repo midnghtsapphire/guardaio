@@ -1,13 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Helmet } from "react-helmet-async";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import FeaturesSection from "@/components/FeaturesSection";
+import AnalyzerSection from "@/components/AnalyzerSection";
+import PricingSection from "@/components/PricingSection";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <>
+      <Helmet>
+        <title>DeepGuard - AI-Powered Deepfake & Disinformation Detector</title>
+        <meta
+          name="description"
+          content="Protect yourself from AI-generated manipulation with DeepGuard's advanced deepfake detection technology. Analyze images, videos, and audio in real-time."
+        />
+        <meta name="keywords" content="deepfake detection, AI manipulation, disinformation, fact-checking, media analysis" />
+        <link rel="canonical" href="https://deepguard.ai" />
+      </Helmet>
+
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <HeroSection />
+        <section id="features">
+          <FeaturesSection />
+        </section>
+        <AnalyzerSection />
+        <PricingSection />
+        <Footer />
+      </main>
+    </>
   );
 };
 
