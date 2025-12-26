@@ -61,7 +61,7 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "glass py-4" : "py-6"
+        isScrolled || isMobileMenuOpen ? "bg-background/95 backdrop-blur-xl border-b border-border py-4" : "py-6"
       }`}
     >
       <div className="container mx-auto px-6">
@@ -156,7 +156,7 @@ const Navbar = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden mt-4 pb-4 border-t border-border pt-4"
+              className="md:hidden absolute left-0 right-0 top-full bg-background/95 backdrop-blur-xl border-b border-border px-6 pb-6 pt-4"
             >
               <div className="flex flex-col gap-4">
                 {navLinks.map((link) => (
