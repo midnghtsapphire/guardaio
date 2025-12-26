@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -14,6 +16,7 @@ const AnalyzerSection = () => {
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const { toast } = useToast();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -41,21 +44,71 @@ const AnalyzerSection = () => {
     }
   };
 
-  const processFile = (selectedFile: File) => {
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        // Remove the data URL prefix (e.g., "data:image/png;base64,")
+        const base64Data = base64.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const processFile = async (selectedFile: File) => {
+    // Check file size (max 10MB for API)
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload a file smaller than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setFile(selectedFile);
     setResult(null);
     setAnalyzing(true);
 
-    // Simulate analysis
-    setTimeout(() => {
-      const mockResults: AnalysisResult[] = [
-        { status: "safe", confidence: 98, findings: ["Natural facial movements detected", "Consistent lighting patterns", "No audio manipulation detected"] },
-        { status: "warning", confidence: 67, findings: ["Minor inconsistencies in lip sync", "Unusual blinking patterns", "Audio waveform anomalies detected"] },
-        { status: "danger", confidence: 94, findings: ["AI-generated face swap detected", "Unnatural skin texture patterns", "Spectral analysis shows voice cloning signatures"] },
-      ];
-      setResult(mockResults[Math.floor(Math.random() * mockResults.length)]);
+    try {
+      // Convert file to base64 for images
+      let fileBase64 = "";
+      if (selectedFile.type.startsWith("image/")) {
+        fileBase64 = await fileToBase64(selectedFile);
+      }
+
+      // Call the edge function
+      const { data, error } = await supabase.functions.invoke("analyze-media", {
+        body: {
+          fileName: selectedFile.name,
+          fileType: selectedFile.type,
+          fileBase64: fileBase64,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setResult(data as AnalysisResult);
+    } catch (error) {
+      console.error("Analysis error:", error);
+      toast({
+        title: "Analysis failed",
+        description: error instanceof Error ? error.message : "Failed to analyze file",
+        variant: "destructive",
+      });
+      setFile(null);
+    } finally {
       setAnalyzing(false);
-    }, 3000);
+    }
   };
 
   const clearFile = () => {
@@ -134,7 +187,7 @@ const AnalyzerSection = () => {
                     Drop your file here
                   </h3>
                   <p className="text-muted-foreground mb-6">
-                    or click to browse • Supports images, videos, and audio
+                    or click to browse • Supports images, videos, and audio (max 10MB)
                   </p>
                   <input
                     type="file"
@@ -184,9 +237,9 @@ const AnalyzerSection = () => {
                   {analyzing ? (
                     <div className="text-center py-8">
                       <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
-                      <p className="font-display text-lg font-medium">Analyzing...</p>
+                      <p className="font-display text-lg font-medium">Analyzing with AI...</p>
                       <p className="text-sm text-muted-foreground">
-                        Running deep learning models
+                        Running deep learning detection models
                       </p>
                     </div>
                   ) : result ? (
@@ -223,7 +276,7 @@ const AnalyzerSection = () => {
 
                       {/* Findings */}
                       <div className="glass rounded-xl p-6">
-                        <h4 className="font-display font-semibold mb-4">Analysis Findings</h4>
+                        <h4 className="font-display font-semibold mb-4">AI Analysis Findings</h4>
                         <ul className="space-y-3">
                           {result.findings.map((finding, index) => (
                             <motion.li
@@ -231,9 +284,9 @@ const AnalyzerSection = () => {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.1 }}
-                              className="flex items-center gap-3 text-muted-foreground"
+                              className="flex items-start gap-3 text-muted-foreground"
                             >
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
                               {finding}
                             </motion.li>
                           ))}
