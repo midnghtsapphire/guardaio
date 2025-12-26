@@ -4,6 +4,7 @@ import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -17,6 +18,7 @@ const AnalyzerSection = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -50,7 +52,6 @@ const AnalyzerSection = () => {
       reader.readAsDataURL(file);
       reader.onload = () => {
         const base64 = reader.result as string;
-        // Remove the data URL prefix (e.g., "data:image/png;base64,")
         const base64Data = base64.split(",")[1];
         resolve(base64Data);
       };
@@ -58,8 +59,27 @@ const AnalyzerSection = () => {
     });
   };
 
+  const saveToHistory = async (selectedFile: File, analysisResult: AnalysisResult) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.from("analysis_history").insert({
+        user_id: user.id,
+        file_name: selectedFile.name,
+        file_type: selectedFile.type,
+        file_size: selectedFile.size,
+        status: analysisResult.status,
+        confidence: analysisResult.confidence,
+        findings: analysisResult.findings,
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error saving to history:", error);
+    }
+  };
+
   const processFile = async (selectedFile: File) => {
-    // Check file size (max 10MB for API)
     if (selectedFile.size > 10 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -74,13 +94,11 @@ const AnalyzerSection = () => {
     setAnalyzing(true);
 
     try {
-      // Convert file to base64 for images
       let fileBase64 = "";
       if (selectedFile.type.startsWith("image/")) {
         fileBase64 = await fileToBase64(selectedFile);
       }
 
-      // Call the edge function
       const { data, error } = await supabase.functions.invoke("analyze-media", {
         body: {
           fileName: selectedFile.name,
@@ -89,15 +107,21 @@ const AnalyzerSection = () => {
         },
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      const analysisResult = data as AnalysisResult;
+      setResult(analysisResult);
 
-      setResult(data as AnalysisResult);
+      // Save to history if user is logged in
+      await saveToHistory(selectedFile, analysisResult);
+
+      if (user) {
+        toast({
+          title: "Analysis saved",
+          description: "Result added to your history",
+        });
+      }
     } catch (error) {
       console.error("Analysis error:", error);
       toast({
@@ -152,6 +176,11 @@ const AnalyzerSection = () => {
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Upload any image, video, or audio file to detect potential AI manipulation
+            {!user && (
+              <span className="block mt-2 text-sm">
+                Sign in to save your analysis history
+              </span>
+            )}
           </p>
         </motion.div>
 
@@ -209,7 +238,6 @@ const AnalyzerSection = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  {/* File info */}
                   <div className="flex items-center gap-4 mb-8">
                     <div className="w-14 h-14 rounded-xl glass flex items-center justify-center">
                       {(() => {
@@ -233,7 +261,6 @@ const AnalyzerSection = () => {
                     </Button>
                   </div>
 
-                  {/* Analysis state */}
                   {analyzing ? (
                     <div className="text-center py-8">
                       <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
@@ -248,7 +275,6 @@ const AnalyzerSection = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       className="space-y-6"
                     >
-                      {/* Result header */}
                       {(() => {
                         const config = getStatusConfig(result.status);
                         const StatusIcon = config.icon;
@@ -274,7 +300,6 @@ const AnalyzerSection = () => {
                         );
                       })()}
 
-                      {/* Findings */}
                       <div className="glass rounded-xl p-6">
                         <h4 className="font-display font-semibold mb-4">AI Analysis Findings</h4>
                         <ul className="space-y-3">
