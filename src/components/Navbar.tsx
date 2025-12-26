@@ -4,6 +4,7 @@ import { Menu, X, Shield, LogOut, User, History, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,7 +100,8 @@ const Navbar = () => {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             {loading ? null : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -190,15 +192,16 @@ const Navbar = () => {
                     </button>
                   </>
                 )}
-                <div className="flex flex-col gap-3 pt-4 border-t border-border">
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <ThemeToggle />
                   {loading ? null : user ? (
                     <Button variant="glass" onClick={handleSignOut} className="justify-start">
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
                     </Button>
                   ) : (
-                    <>
-                      <Button variant="ghost" className="justify-start" onClick={() => {
+                    <div className="flex gap-2">
+                      <Button variant="ghost" onClick={() => {
                         setIsMobileMenuOpen(false);
                         navigate("/auth");
                       }}>
@@ -210,7 +213,7 @@ const Navbar = () => {
                       }}>
                         Get Started
                       </Button>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
