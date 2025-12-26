@@ -6,6 +6,63 @@
 
 @layer base {
   :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 187 92% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 94%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 187 92% 42%;
+
+    --radius: 0.75rem;
+
+    /* Custom gradients - Light mode */
+    --gradient-primary: linear-gradient(135deg, hsl(187 92% 42%) 0%, hsl(220 92% 50%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(210 40% 96%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100% / 0.9) 0%, hsl(210 40% 98% / 0.8) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(187 92% 42% / 0.1) 0%, transparent 70%);
+
+    /* Shadows - Light mode */
+    --shadow-glow: 0 0 60px hsl(187 92% 42% / 0.2);
+    --shadow-card: 0 8px 32px hsl(222 47% 11% / 0.08);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 187 92% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 187 92% 42%;
+  }
+
+  .dark {
     --background: 222 47% 6%;
     --foreground: 210 40% 98%;
 
@@ -40,15 +97,13 @@
     --input: 222 30% 14%;
     --ring: 187 92% 52%;
 
-    --radius: 0.75rem;
-
-    /* Custom gradients */
+    /* Custom gradients - Dark mode */
     --gradient-primary: linear-gradient(135deg, hsl(187 92% 52%) 0%, hsl(220 92% 60%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(222 47% 6%) 0%, hsl(222 47% 10%) 100%);
     --gradient-card: linear-gradient(135deg, hsl(222 30% 12% / 0.8) 0%, hsl(222 30% 8% / 0.6) 100%);
     --gradient-glow: radial-gradient(ellipse at center, hsl(187 92% 52% / 0.15) 0%, transparent 70%);
 
-    /* Shadows */
+    /* Shadows - Dark mode */
     --shadow-glow: 0 0 60px hsl(187 92% 52% / 0.3);
     --shadow-card: 0 8px 32px hsl(222 47% 4% / 0.4);
 
@@ -60,28 +115,6 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 222 30% 18%;
     --sidebar-ring: 187 92% 52%;
-  }
-
-  .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 187 92% 52%;
-    --primary-foreground: 222 47% 6%;
-    --secondary: 222 30% 14%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 30% 18%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 222 30% 20%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 222 30% 18%;
-    --input: 222 30% 14%;
-    --ring: 187 92% 52%;
   }
 }
 
@@ -133,14 +166,14 @@
   }
 
   .glass {
-    background: hsl(222 30% 12% / 0.6);
+    background: hsl(var(--card) / 0.8);
     backdrop-filter: blur(20px);
-    border: 1px solid hsl(222 30% 20% / 0.5);
+    border: 1px solid hsl(var(--border) / 0.5);
   }
 
   .glass-hover:hover {
-    background: hsl(222 30% 14% / 0.8);
-    border-color: hsl(187 92% 52% / 0.3);
+    background: hsl(var(--accent) / 0.8);
+    border-color: hsl(var(--primary) / 0.3);
   }
 
   .animate-float {
@@ -166,14 +199,14 @@
   }
 
   @keyframes glow {
-    from { box-shadow: 0 0 20px hsl(187 92% 52% / 0.2); }
-    to { box-shadow: 0 0 40px hsl(187 92% 52% / 0.4); }
+    from { box-shadow: 0 0 20px hsl(var(--primary) / 0.2); }
+    to { box-shadow: 0 0 40px hsl(var(--primary) / 0.4); }
   }
 
   .grid-pattern {
     background-image: 
-      linear-gradient(hsl(222 30% 15% / 0.5) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(222 30% 15% / 0.5) 1px, transparent 1px);
+      linear-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.5) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 }
