@@ -21,7 +21,11 @@ import {
   ChevronDown,
   Download,
   FileSpreadsheet,
-  FileText
+  FileText,
+  Eye,
+  Clock,
+  HardDrive,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +61,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -86,6 +98,7 @@ const History = () => {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [detailRecord, setDetailRecord] = useState<AnalysisRecord | null>(null);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -936,8 +949,8 @@ const History = () => {
                               </p>
                             </div>
                             
-                            <div className="flex items-center gap-3 shrink-0">
-                              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${statusConfig.bg}`}>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full ${statusConfig.bg}`}>
                                 <StatusIcon className={`w-4 h-4 ${statusConfig.color}`} />
                                 <span className={`text-sm font-medium ${statusConfig.color}`}>
                                   {statusConfig.label}
@@ -952,10 +965,24 @@ const History = () => {
                                 size="icon"
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  setDetailRecord(record);
+                                }}
+                                className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                title="View details"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   deleteRecord(record.id);
                                 }}
                                 disabled={deleting === record.id}
                                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                title="Delete"
                               >
                                 {deleting === record.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -964,6 +991,14 @@ const History = () => {
                                 )}
                               </Button>
                             </div>
+                          </div>
+                          
+                          {/* Mobile status badge */}
+                          <div className={`sm:hidden mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${statusConfig.bg}`}>
+                            <StatusIcon className={`w-4 h-4 ${statusConfig.color}`} />
+                            <span className={`text-sm font-medium ${statusConfig.color}`}>
+                              {statusConfig.label} • {record.confidence}%
+                            </span>
                           </div>
                           
                           <div className="mt-3 flex flex-wrap gap-2">
@@ -976,9 +1011,15 @@ const History = () => {
                               </span>
                             ))}
                             {record.findings.length > 3 && (
-                              <span className="text-xs text-muted-foreground">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDetailRecord(record);
+                                }}
+                                className="text-xs text-primary hover:underline"
+                              >
                                 +{record.findings.length - 3} more
-                              </span>
+                              </button>
                             )}
                           </div>
                         </div>
@@ -991,6 +1032,162 @@ const History = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Detail Modal */}
+      <Dialog open={!!detailRecord} onOpenChange={(open) => !open && setDetailRecord(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          {detailRecord && (() => {
+            const FileIcon = getFileIcon(detailRecord.file_type);
+            const statusConfig = getStatusConfig(detailRecord.status);
+            const StatusIcon = statusConfig.icon;
+            
+            return (
+              <>
+                <DialogHeader className="shrink-0">
+                  <DialogTitle className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <FileIcon className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="truncate">{detailRecord.file_name}</span>
+                  </DialogTitle>
+                  <DialogDescription>
+                    Detailed analysis report
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+                  {/* Status Card */}
+                  <motion.div 
+                    className={`rounded-xl p-5 bg-gradient-to-br ${statusConfig.bg} border ${statusConfig.color.replace('text-', 'border-')}/30`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <StatusIcon className={`w-10 h-10 ${statusConfig.color}`} />
+                        <div>
+                          <p className={`text-xl font-bold ${statusConfig.color}`}>
+                            {statusConfig.label}
+                          </p>
+                          <p className="text-sm text-muted-foreground">Analysis Result</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-3xl font-bold ${statusConfig.color}`}>
+                          {detailRecord.confidence}%
+                        </p>
+                        <p className="text-xs text-muted-foreground">Confidence</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <Progress 
+                        value={detailRecord.confidence} 
+                        className="h-2"
+                      />
+                    </div>
+                  </motion.div>
+
+                  {/* File Details */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <motion.div 
+                      className="glass rounded-lg p-4"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                        <HardDrive className="w-4 h-4" />
+                        <span className="text-xs">File Size</span>
+                      </div>
+                      <p className="font-semibold">{formatFileSize(detailRecord.file_size)}</p>
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="glass rounded-lg p-4"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.15 }}
+                    >
+                      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                        <FileImage className="w-4 h-4" />
+                        <span className="text-xs">File Type</span>
+                      </div>
+                      <p className="font-semibold capitalize">{detailRecord.file_type.split('/')[0]}</p>
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="glass rounded-lg p-4 col-span-2"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-xs">Analyzed On</span>
+                      </div>
+                      <p className="font-semibold">{formatDate(detailRecord.created_at)}</p>
+                    </motion.div>
+                  </div>
+
+                  {/* Findings */}
+                  <motion.div 
+                    className="glass rounded-xl p-5"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold">AI Analysis Findings</h3>
+                      <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                        {detailRecord.findings.length} {detailRecord.findings.length === 1 ? 'finding' : 'findings'}
+                      </span>
+                    </div>
+                    
+                    <ul className="space-y-3">
+                      {detailRecord.findings.map((finding, index) => (
+                        <motion.li
+                          key={index}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + index * 0.05 }}
+                          className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center shrink-0 mt-0.5">
+                            {index + 1}
+                          </span>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{finding}</p>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="shrink-0 pt-4 border-t border-border flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setDetailRecord(null)}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      deleteRecord(detailRecord.id);
+                      setDetailRecord(null);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Record
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
