@@ -27,7 +27,10 @@ import {
   HardDrive,
   Sparkles,
   RefreshCw,
-  Upload
+  Upload,
+  GitCompare,
+  ArrowRight,
+  ArrowLeftRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,6 +105,7 @@ const History = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [detailRecord, setDetailRecord] = useState<AnalysisRecord | null>(null);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [showCompareView, setShowCompareView] = useState(false);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -532,6 +536,19 @@ const History = () => {
 
   const isAllSelected = filteredHistory.length > 0 && selectedIds.size === filteredHistory.length;
   const isSomeSelected = selectedIds.size > 0 && selectedIds.size < filteredHistory.length;
+  const canCompare = selectedIds.size === 2;
+  
+  // Get comparison records
+  const comparisonRecords = useMemo(() => {
+    if (selectedIds.size !== 2) return null;
+    const ids = Array.from(selectedIds);
+    const record1 = history.find(r => r.id === ids[0]);
+    const record2 = history.find(r => r.id === ids[1]);
+    if (record1 && record2) {
+      return [record1, record2] as const;
+    }
+    return null;
+  }, [selectedIds, history]);
 
   const getFileIcon = (type: string) => {
     if (type.startsWith("image")) return FileImage;
@@ -936,6 +953,18 @@ const History = () => {
                         Clear
                       </Button>
                       
+                      {canCompare && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setShowCompareView(true)}
+                          className="gap-2"
+                        >
+                          <GitCompare className="w-4 h-4" />
+                          Compare
+                        </Button>
+                      )}
+                      
                       <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
                         <AlertDialogTrigger asChild>
                           <Button
@@ -1297,6 +1326,171 @@ const History = () => {
               </>
             );
           })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Comparison View Modal */}
+      <Dialog open={showCompareView} onOpenChange={setShowCompareView}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="shrink-0">
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <GitCompare className="w-5 h-5 text-primary" />
+              </div>
+              <span>Compare Analysis Results</span>
+            </DialogTitle>
+            <DialogDescription>
+              Side-by-side comparison of two analysis records
+            </DialogDescription>
+          </DialogHeader>
+
+          {comparisonRecords && (
+            <div className="flex-1 overflow-y-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {comparisonRecords.map((record, idx) => {
+                  const FileIcon = getFileIcon(record.file_type);
+                  const statusConfig = getStatusConfig(record.status);
+                  const StatusIcon = statusConfig.icon;
+                  
+                  return (
+                    <motion.div
+                      key={record.id}
+                      initial={{ opacity: 0, x: idx === 0 ? -20 : 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="space-y-4"
+                    >
+                      {/* Header with file info */}
+                      <div className="glass rounded-xl p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <FileIcon className="w-5 h-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold truncate text-sm">{record.file_name}</h3>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(record.file_size)} • {record.file_type.split('/')[0]}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          {formatDate(record.created_at)}
+                        </div>
+                      </div>
+
+                      {/* Status Card */}
+                      <div className={`rounded-xl p-4 bg-gradient-to-br ${statusConfig.bg} border ${statusConfig.color.replace('text-', 'border-')}/30`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <StatusIcon className={`w-8 h-8 ${statusConfig.color}`} />
+                            <div>
+                              <p className={`text-lg font-bold ${statusConfig.color}`}>
+                                {statusConfig.label}
+                              </p>
+                              <p className="text-xs text-muted-foreground">Result</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-2xl font-bold ${statusConfig.color}`}>
+                              {record.confidence}%
+                            </p>
+                            <p className="text-xs text-muted-foreground">Confidence</p>
+                          </div>
+                        </div>
+                        <Progress value={record.confidence} className="h-2 mt-3" />
+                      </div>
+
+                      {/* Findings */}
+                      <div className="glass rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="w-4 h-4 text-primary" />
+                          <h4 className="font-semibold text-sm">Findings</h4>
+                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            {record.findings.length}
+                          </span>
+                        </div>
+                        <ul className="space-y-2 max-h-48 overflow-y-auto">
+                          {record.findings.map((finding, index) => (
+                            <motion.li
+                              key={index}
+                              initial={{ opacity: 0, x: -5 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.2 + index * 0.03 }}
+                              className="flex items-start gap-2 p-2 rounded-lg bg-muted/50 text-xs"
+                            >
+                              <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center shrink-0">
+                                {index + 1}
+                              </span>
+                              <p className="text-muted-foreground leading-relaxed">{finding}</p>
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Comparison Summary */}
+              {comparisonRecords[0] && comparisonRecords[1] && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="mt-6 glass rounded-xl p-4"
+                >
+                  <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <ArrowLeftRight className="w-4 h-4 text-primary" />
+                    Comparison Summary
+                  </h4>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Confidence Diff</p>
+                      <p className={`text-lg font-bold ${
+                        Math.abs(comparisonRecords[0].confidence - comparisonRecords[1].confidence) > 20 
+                          ? 'text-warning' 
+                          : 'text-foreground'
+                      }`}>
+                        {Math.abs(comparisonRecords[0].confidence - comparisonRecords[1].confidence)}%
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Status Match</p>
+                      <p className={`text-lg font-bold ${
+                        comparisonRecords[0].status === comparisonRecords[1].status 
+                          ? 'text-success' 
+                          : 'text-warning'
+                      }`}>
+                        {comparisonRecords[0].status === comparisonRecords[1].status ? 'Yes' : 'No'}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Findings Diff</p>
+                      <p className="text-lg font-bold">
+                        {Math.abs(comparisonRecords[0].findings.length - comparisonRecords[1].findings.length)}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          <div className="shrink-0 pt-4 border-t border-border flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setShowCompareView(false)}>
+              Close
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setShowCompareView(false);
+                setSelectedIds(new Set());
+              }}
+            >
+              Close & Clear Selection
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
