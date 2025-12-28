@@ -455,6 +455,113 @@ const History = () => {
     });
   };
 
+  // Export comparison to PDF
+  const exportComparisonToPDF = () => {
+    if (!comparisonRecords) return;
+    
+    const [record1, record2] = comparisonRecords;
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(20);
+    doc.setTextColor(99, 102, 241);
+    doc.text("DeepGuard Comparison Report", 14, 22);
+    
+    // Export date
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated on ${format(new Date(), "MMMM d, yyyy 'at' h:mm a")}`, 14, 30);
+    
+    // Comparison summary header
+    doc.setFontSize(14);
+    doc.setTextColor(60);
+    doc.text("Comparison Summary", 14, 45);
+    
+    // Summary metrics
+    const confidenceDiff = Math.abs(record1.confidence - record2.confidence);
+    const statusMatch = record1.status === record2.status ? "Yes" : "No";
+    const findingsDiff = Math.abs(record1.findings.length - record2.findings.length);
+    
+    doc.setFontSize(10);
+    doc.text(`Confidence Difference: ${confidenceDiff}%`, 14, 55);
+    doc.text(`Status Match: ${statusMatch}`, 14, 62);
+    doc.text(`Findings Difference: ${findingsDiff}`, 14, 69);
+    
+    // File 1 details
+    doc.setFontSize(14);
+    doc.setTextColor(99, 102, 241);
+    doc.text("File 1", 14, 85);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(60);
+    doc.text(`Name: ${record1.file_name}`, 14, 95);
+    doc.text(`Type: ${record1.file_type.split('/')[0]}`, 14, 102);
+    doc.text(`Size: ${formatFileSize(record1.file_size)}`, 14, 109);
+    doc.text(`Status: ${getStatusConfig(record1.status).label}`, 14, 116);
+    doc.text(`Confidence: ${record1.confidence}%`, 14, 123);
+    doc.text(`Analyzed: ${formatDate(record1.created_at)}`, 14, 130);
+    
+    // File 1 findings
+    doc.setFontSize(11);
+    doc.text(`Findings (${record1.findings.length}):`, 14, 140);
+    doc.setFontSize(9);
+    let yPos = 148;
+    record1.findings.slice(0, 5).forEach((finding, idx) => {
+      const truncated = finding.length > 80 ? finding.slice(0, 80) + "..." : finding;
+      doc.text(`${idx + 1}. ${truncated}`, 16, yPos);
+      yPos += 6;
+    });
+    if (record1.findings.length > 5) {
+      doc.text(`... and ${record1.findings.length - 5} more findings`, 16, yPos);
+      yPos += 6;
+    }
+    
+    // File 2 details
+    yPos += 10;
+    doc.setFontSize(14);
+    doc.setTextColor(99, 102, 241);
+    doc.text("File 2", 14, yPos);
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    doc.setTextColor(60);
+    doc.text(`Name: ${record2.file_name}`, 14, yPos);
+    yPos += 7;
+    doc.text(`Type: ${record2.file_type.split('/')[0]}`, 14, yPos);
+    yPos += 7;
+    doc.text(`Size: ${formatFileSize(record2.file_size)}`, 14, yPos);
+    yPos += 7;
+    doc.text(`Status: ${getStatusConfig(record2.status).label}`, 14, yPos);
+    yPos += 7;
+    doc.text(`Confidence: ${record2.confidence}%`, 14, yPos);
+    yPos += 7;
+    doc.text(`Analyzed: ${formatDate(record2.created_at)}`, 14, yPos);
+    yPos += 10;
+    
+    // File 2 findings
+    doc.setFontSize(11);
+    doc.text(`Findings (${record2.findings.length}):`, 14, yPos);
+    yPos += 8;
+    doc.setFontSize(9);
+    record2.findings.slice(0, 5).forEach((finding, idx) => {
+      if (yPos > 270) return;
+      const truncated = finding.length > 80 ? finding.slice(0, 80) + "..." : finding;
+      doc.text(`${idx + 1}. ${truncated}`, 16, yPos);
+      yPos += 6;
+    });
+    if (record2.findings.length > 5 && yPos <= 270) {
+      doc.text(`... and ${record2.findings.length - 5} more findings`, 16, yPos);
+    }
+    
+    // Save PDF
+    doc.save(`deepguard-comparison-${format(new Date(), "yyyy-MM-dd-HHmm")}.pdf`);
+    
+    toast({
+      title: "Export successful",
+      description: "Comparison report exported to PDF",
+    });
+  };
+
   const deleteRecord = async (id: string) => {
     setDeleting(id);
     try {
@@ -1495,19 +1602,29 @@ const History = () => {
             </div>
           )}
 
-          <div className="shrink-0 pt-4 border-t border-border flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setShowCompareView(false)}>
-              Close
-            </Button>
+          <div className="shrink-0 pt-4 border-t border-border flex justify-between gap-2">
             <Button 
               variant="outline"
-              onClick={() => {
-                setShowCompareView(false);
-                setSelectedIds(new Set());
-              }}
+              onClick={exportComparisonToPDF}
+              className="gap-2"
             >
-              Close & Clear Selection
+              <FileText className="w-4 h-4" />
+              Export PDF
             </Button>
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={() => setShowCompareView(false)}>
+                Close
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setShowCompareView(false);
+                  setSelectedIds(new Set());
+                }}
+              >
+                Close & Clear Selection
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
