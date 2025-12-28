@@ -78,6 +78,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { HistoryStats } from "@/components/HistoryStats";
 import { format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -636,6 +637,13 @@ const History = () => {
               </p>
             </div>
           </div>
+
+          {/* Statistics Dashboard */}
+          {history.length > 0 && (
+            <div className="mb-8">
+              <HistoryStats history={history} />
+            </div>
+          )}
 
           {history.length > 0 && (
             <motion.div 
