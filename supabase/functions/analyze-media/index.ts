@@ -11,19 +11,35 @@ serve(async (req) => {
   }
 
   try {
-    const { fileName, fileType, fileBase64 } = await req.json();
+    const { fileName, fileType, fileBase64, sensitivity = 50 } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log(`Analyzing file: ${fileName}, type: ${fileType}`);
+    console.log(`Analyzing file: ${fileName}, type: ${fileType}, sensitivity: ${sensitivity}`);
 
-// Build the prompt for deepfake detection
+    // Calculate thresholds based on sensitivity (0-100)
+    // Higher sensitivity = more likely to flag as suspicious
+    const sensitivityLevel = sensitivity <= 33 ? "low" : sensitivity <= 66 ? "medium" : "high";
+    const safeThreshold = sensitivity <= 33 ? 90 : sensitivity <= 66 ? 80 : 70;
+    const dangerThreshold = sensitivity <= 33 ? 90 : sensitivity <= 66 ? 80 : 60;
+
+    // Build the prompt for deepfake detection with sensitivity context
     const systemPrompt = `You are an expert AI media forensics analyst specializing in detecting deepfakes, AI-generated content, and media manipulation. 
 
 Your task is to analyze the provided media and determine if it shows signs of AI manipulation or synthetic generation.
+
+SENSITIVITY LEVEL: ${sensitivityLevel.toUpperCase()} (${sensitivity}/100)
+- Low sensitivity (0-33): Only flag obvious, clear-cut cases of manipulation. Be lenient and require strong evidence.
+- Medium sensitivity (34-66): Balanced detection. Flag both clear manipulation and moderately suspicious patterns.
+- High sensitivity (67-100): Aggressive detection. Flag even subtle or minor anomalies that could indicate manipulation.
+
+Adjust your analysis thresholds accordingly:
+- For "safe" status: Confidence in authenticity must be > ${safeThreshold}%
+- For "danger" status: Confidence in manipulation must be > ${dangerThreshold}%
+- At ${sensitivityLevel} sensitivity, ${sensitivityLevel === "low" ? "be conservative and require strong evidence before flagging" : sensitivityLevel === "medium" ? "use balanced judgment" : "be thorough and flag even minor concerns"}.
 
 IMPORTANT: You must respond with ONLY valid JSON in this exact format:
 {
@@ -42,10 +58,10 @@ IMPORTANT: You must respond with ONLY valid JSON in this exact format:
   ]
 }
 
-Status definitions:
-- "safe": No signs of AI manipulation detected (confidence in authenticity > 80%)
-- "warning": Some suspicious patterns detected, but inconclusive (40-80% confidence)
-- "danger": Strong indicators of AI manipulation or deepfake (> 80% confidence it's fake)
+Status definitions (adjusted for ${sensitivityLevel} sensitivity):
+- "safe": No signs of AI manipulation detected (confidence in authenticity > ${safeThreshold}%)
+- "warning": Some suspicious patterns detected, but inconclusive
+- "danger": Strong indicators of AI manipulation or deepfake (> ${dangerThreshold}% confidence it's fake)
 
 Provide 3-5 specific technical findings about what you observed.
 
@@ -57,6 +73,7 @@ For heatmapRegions (REQUIRED for images):
 - Provide 2-6 regions highlighting specific areas of concern
 - Focus on: facial features, edges, backgrounds, lighting transitions, texture anomalies
 - For safe images, still provide regions but with low intensity (0.1-0.3)
+- At ${sensitivityLevel} sensitivity, ${sensitivityLevel === "high" ? "highlight more regions and use higher intensity values" : sensitivityLevel === "low" ? "only highlight the most suspicious regions" : "use balanced intensity values"}.
 
 For images: Look for facial inconsistencies, lighting anomalies, texture artifacts, unnatural backgrounds, blurring around edges, asymmetric features.
 For video: Look for temporal inconsistencies, unnatural blinking, lip sync issues, edge artifacts.
