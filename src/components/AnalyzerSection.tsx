@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,15 @@ type AnalysisStage = {
   description: string;
 };
 
+type BatchFile = {
+  id: string;
+  file: File;
+  status: "pending" | "analyzing" | "complete" | "error";
+  result?: AnalysisResult;
+  error?: string;
+  progress: number;
+};
+
 const analysisStages: AnalysisStage[] = [
   { name: "Uploading", icon: Upload, description: "Preparing file for analysis" },
   { name: "Scanning", icon: Shield, description: "Running security scan" },
@@ -35,6 +44,11 @@ const AnalyzerSection = () => {
   const [currentStage, setCurrentStage] = useState(0);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Batch analysis state
+  const [batchMode, setBatchMode] = useState(false);
+  const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
+  const [batchAnalyzing, setBatchAnalyzing] = useState(false);
 
   // Simulate progress during analysis
   useEffect(() => {
@@ -86,17 +100,64 @@ const AnalyzerSection = () => {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile) {
-      processFile(droppedFile);
+    
+    if (batchMode) {
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      addBatchFiles(droppedFiles);
+    } else {
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile) {
+        processFile(droppedFile);
+      }
     }
-  }, []);
+  }, [batchMode]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      processFile(selectedFile);
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
+
+    if (batchMode) {
+      addBatchFiles(Array.from(selectedFiles));
+    } else {
+      const selectedFile = selectedFiles[0];
+      if (selectedFile) {
+        processFile(selectedFile);
+      }
     }
+    
+    // Reset the input
+    e.target.value = "";
+  };
+
+  const addBatchFiles = (files: File[]) => {
+    const validFiles = files.filter(f => {
+      if (f.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: `${f.name} exceeds 10MB limit`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    });
+
+    const newBatchFiles: BatchFile[] = validFiles.map(f => ({
+      id: crypto.randomUUID(),
+      file: f,
+      status: "pending",
+      progress: 0,
+    }));
+
+    setBatchFiles(prev => [...prev, ...newBatchFiles]);
+  };
+
+  const removeBatchFile = (id: string) => {
+    setBatchFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const clearBatchFiles = () => {
+    setBatchFiles([]);
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -132,6 +193,26 @@ const AnalyzerSection = () => {
     }
   };
 
+  const analyzeFile = async (selectedFile: File): Promise<AnalysisResult> => {
+    let fileBase64 = "";
+    if (selectedFile.type.startsWith("image/")) {
+      fileBase64 = await fileToBase64(selectedFile);
+    }
+
+    const { data, error } = await supabase.functions.invoke("analyze-media", {
+      body: {
+        fileName: selectedFile.name,
+        fileType: selectedFile.type,
+        fileBase64: fileBase64,
+      },
+    });
+
+    if (error) throw error;
+    if (data.error) throw new Error(data.error);
+
+    return data as AnalysisResult;
+  };
+
   const processFile = async (selectedFile: File) => {
     if (selectedFile.size > 10 * 1024 * 1024) {
       toast({
@@ -149,23 +230,7 @@ const AnalyzerSection = () => {
     setCurrentStage(0);
 
     try {
-      let fileBase64 = "";
-      if (selectedFile.type.startsWith("image/")) {
-        fileBase64 = await fileToBase64(selectedFile);
-      }
-
-      const { data, error } = await supabase.functions.invoke("analyze-media", {
-        body: {
-          fileName: selectedFile.name,
-          fileType: selectedFile.type,
-          fileBase64: fileBase64,
-        },
-      });
-
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-
-      const analysisResult = data as AnalysisResult;
+      const analysisResult = await analyzeFile(selectedFile);
       setResult(analysisResult);
 
       await saveToHistory(selectedFile, analysisResult);
@@ -187,6 +252,64 @@ const AnalyzerSection = () => {
     } finally {
       setAnalyzing(false);
     }
+  };
+
+  const startBatchAnalysis = async () => {
+    if (batchFiles.length === 0) return;
+
+    setBatchAnalyzing(true);
+    
+    for (let i = 0; i < batchFiles.length; i++) {
+      const batchFile = batchFiles[i];
+      if (batchFile.status !== "pending") continue;
+
+      // Update status to analyzing
+      setBatchFiles(prev => prev.map(f => 
+        f.id === batchFile.id ? { ...f, status: "analyzing" as const, progress: 0 } : f
+      ));
+
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setBatchFiles(prev => prev.map(f => {
+          if (f.id !== batchFile.id || f.status !== "analyzing") return f;
+          const newProgress = Math.min(f.progress + Math.random() * 15 + 5, 90);
+          return { ...f, progress: newProgress };
+        }));
+      }, 300);
+
+      try {
+        const analysisResult = await analyzeFile(batchFile.file);
+        
+        clearInterval(progressInterval);
+        
+        setBatchFiles(prev => prev.map(f => 
+          f.id === batchFile.id ? { ...f, status: "complete" as const, result: analysisResult, progress: 100 } : f
+        ));
+
+        await saveToHistory(batchFile.file, analysisResult);
+      } catch (error) {
+        clearInterval(progressInterval);
+        
+        setBatchFiles(prev => prev.map(f => 
+          f.id === batchFile.id ? { 
+            ...f, 
+            status: "error" as const, 
+            error: error instanceof Error ? error.message : "Analysis failed",
+            progress: 0 
+          } : f
+        ));
+      }
+    }
+
+    setBatchAnalyzing(false);
+    
+    const completedCount = batchFiles.filter(f => f.status === "complete" || f.result).length + 
+      batchFiles.filter(f => f.status === "pending").length;
+    
+    toast({
+      title: "Batch analysis complete",
+      description: `Analyzed ${batchFiles.length} files`,
+    });
   };
 
   const clearFile = () => {
@@ -221,6 +344,9 @@ const AnalyzerSection = () => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
+
+  const batchComplete = batchFiles.length > 0 && batchFiles.every(f => f.status === "complete" || f.status === "error");
+  const batchPending = batchFiles.some(f => f.status === "pending");
 
   return (
     <section id="analyzer" className="py-24 relative overflow-hidden">
@@ -279,6 +405,34 @@ const AnalyzerSection = () => {
               </span>
             )}
           </p>
+
+          {/* Mode toggle */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <Button
+              variant={batchMode ? "outline" : "default"}
+              size="sm"
+              onClick={() => {
+                setBatchMode(false);
+                clearBatchFiles();
+              }}
+              disabled={batchAnalyzing}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Single File
+            </Button>
+            <Button
+              variant={batchMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setBatchMode(true);
+                clearFile();
+              }}
+              disabled={analyzing}
+            >
+              <Files className="w-4 h-4 mr-2" />
+              Batch Analysis
+            </Button>
+          </div>
         </motion.div>
 
         <motion.div
@@ -287,320 +441,515 @@ const AnalyzerSection = () => {
           viewport={{ once: true }}
           className="max-w-3xl mx-auto"
         >
-          <div
-            className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 backdrop-blur-sm ${
-              isDragging
-                ? "border-primary bg-primary/10 scale-[1.02] shadow-lg shadow-primary/20"
-                : file
-                ? "border-border/50 bg-card/50"
-                : "border-border hover:border-primary/50 hover:bg-card/30"
-            } ${file ? "p-8" : "p-12"}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            {/* Drag overlay animation */}
-            <AnimatePresence>
-              {isDragging && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent pointer-events-none"
-                />
-              )}
-            </AnimatePresence>
+          {batchMode ? (
+            // Batch mode UI
+            <div className="space-y-4">
+              {/* Drop zone for batch */}
+              <div
+                className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 backdrop-blur-sm p-8 ${
+                  isDragging
+                    ? "border-primary bg-primary/10 scale-[1.02] shadow-lg shadow-primary/20"
+                    : "border-border hover:border-primary/50 hover:bg-card/30"
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <AnimatePresence>
+                  {isDragging && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent pointer-events-none"
+                    />
+                  )}
+                </AnimatePresence>
 
-            <AnimatePresence mode="wait">
-              {!file ? (
-                <motion.div
-                  key="upload"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-center"
-                >
+                <div className="text-center">
                   <motion.div 
-                    className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center transition-all duration-300 ${
-                      isDragging 
-                        ? "bg-primary/20 scale-110" 
-                        : "glass"
+                    className={`w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center transition-all duration-300 ${
+                      isDragging ? "bg-primary/20 scale-110" : "glass"
                     }`}
                     animate={isDragging ? { scale: [1.1, 1.15, 1.1] } : {}}
                     transition={{ duration: 1, repeat: Infinity }}
                   >
-                    <Upload className={`w-10 h-10 transition-colors duration-300 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
+                    <Files className={`w-8 h-8 transition-colors duration-300 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
                   </motion.div>
                   
-                  <h3 className="font-display text-xl font-semibold mb-2">
-                    {isDragging ? "Drop to analyze" : "Drag & drop your file"}
+                  <h3 className="font-display text-lg font-semibold mb-2">
+                    {isDragging ? "Drop files to add" : "Drop multiple files here"}
                   </h3>
-                  <p className="text-muted-foreground mb-6">
-                    or click to browse • Images, videos, audio (max 10MB)
+                  <p className="text-muted-foreground text-sm mb-4">
+                    or click to browse • Up to 10MB per file
                   </p>
-                  
-                  {/* File type badges */}
-                  <div className="flex items-center justify-center gap-3 mb-6">
-                    {[
-                      { icon: FileImage, label: "Images" },
-                      { icon: FileVideo, label: "Videos" },
-                      { icon: FileAudio, label: "Audio" },
-                    ].map(({ icon: Icon, label }) => (
-                      <div key={label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 text-xs text-muted-foreground">
-                        <Icon className="w-3.5 h-3.5" />
-                        {label}
-                      </div>
-                    ))}
-                  </div>
                   
                   <input
                     type="file"
                     accept="image/*,video/*,audio/*"
                     onChange={handleFileSelect}
                     className="hidden"
-                    id="file-upload"
+                    id="batch-file-upload"
+                    multiple
+                    disabled={batchAnalyzing}
                   />
-                  <label htmlFor="file-upload">
-                    <Button variant="default" size="lg" asChild className="group">
+                  <label htmlFor="batch-file-upload">
+                    <Button variant="outline" size="sm" asChild disabled={batchAnalyzing}>
                       <span className="cursor-pointer">
-                        <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                        Browse Files
+                        <Upload className="w-4 h-4 mr-2" />
+                        Add Files
                       </span>
                     </Button>
                   </label>
-                </motion.div>
-              ) : (
+                </div>
+              </div>
+
+              {/* Batch file list */}
+              {batchFiles.length > 0 && (
                 <motion.div
-                  key="file"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                  className="glass rounded-xl p-4 space-y-3"
                 >
-                  {/* File info header */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <motion.div 
-                      className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", delay: 0.1 }}
-                    >
-                      {(() => {
-                        const FileIcon = getFileIcon(file.type);
-                        return <FileIcon className="w-7 h-7 text-primary" />;
-                      })()}
-                    </motion.div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate text-lg">{file.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatFileSize(file.size)} • {file.type.split('/')[0]}
-                      </p>
-                    </div>
-                    {!analyzing && (
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-sm">
+                      Files ({batchFiles.length})
+                    </h4>
+                    {!batchAnalyzing && (
                       <Button
                         variant="ghost"
-                        size="icon"
-                        onClick={clearFile}
-                        className="shrink-0 hover:bg-destructive/10 hover:text-destructive"
+                        size="sm"
+                        onClick={clearBatchFiles}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
-                        <X className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Clear All
                       </Button>
                     )}
                   </div>
 
-                  {analyzing ? (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="space-y-6"
-                    >
-                      {/* Progress bar */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Analyzing...</span>
-                          <span className="font-mono text-primary">{Math.round(progress)}%</span>
-                        </div>
-                        <Progress value={progress} className="h-2" />
-                      </div>
-
-                      {/* Analysis stages */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {analysisStages.map((stage, index) => {
-                          const StageIcon = stage.icon;
-                          const isActive = index === currentStage;
-                          const isComplete = index < currentStage;
-                          
-                          return (
-                            <motion.div
-                              key={stage.name}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                              className={`relative p-3 rounded-xl border transition-all duration-300 ${
-                                isActive 
-                                  ? "bg-primary/10 border-primary/30" 
-                                  : isComplete 
-                                  ? "bg-success/10 border-success/30" 
-                                  : "bg-muted/30 border-border/50"
-                              }`}
-                            >
-                              <div className="flex items-center gap-2 mb-1">
-                                {isActive ? (
-                                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                                ) : isComplete ? (
-                                  <CheckCircle2 className="w-4 h-4 text-success" />
-                                ) : (
-                                  <StageIcon className="w-4 h-4 text-muted-foreground" />
-                                )}
-                                <span className={`text-xs font-medium ${
-                                  isActive ? "text-primary" : isComplete ? "text-success" : "text-muted-foreground"
-                                }`}>
-                                  {stage.name}
-                                </span>
-                              </div>
-                              <p className="text-[10px] text-muted-foreground leading-tight">
-                                {stage.description}
-                              </p>
-                              
-                              {/* Pulse animation for active stage */}
-                              {isActive && (
-                                <motion.div
-                                  className="absolute inset-0 rounded-xl border border-primary/50"
-                                  animate={{ opacity: [0.5, 0, 0.5] }}
-                                  transition={{ duration: 1.5, repeat: Infinity }}
-                                />
-                              )}
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Scanning animation */}
-                      <div className="flex items-center justify-center gap-3 py-4">
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {batchFiles.map((batchFile) => {
+                      const FileIcon = getFileIcon(batchFile.file.type);
+                      const statusConfig = batchFile.result ? getStatusConfig(batchFile.result.status) : null;
+                      
+                      return (
                         <motion.div
-                          className="flex items-center gap-1"
+                          key={batchFile.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                            batchFile.status === "complete" 
+                              ? `${statusConfig?.bg} ${statusConfig?.border}` 
+                              : batchFile.status === "error"
+                              ? "bg-destructive/10 border-destructive/30"
+                              : batchFile.status === "analyzing"
+                              ? "bg-primary/10 border-primary/30"
+                              : "bg-muted/30 border-border"
+                          }`}
                         >
-                          {[...Array(4)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              className="w-1.5 h-8 bg-primary/40 rounded-full"
-                              animate={{
-                                scaleY: [0.3, 1, 0.3],
-                                opacity: [0.4, 1, 0.4],
-                              }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                delay: i * 0.15,
-                              }}
-                            />
-                          ))}
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            batchFile.status === "complete" 
+                              ? statusConfig?.bg 
+                              : batchFile.status === "error"
+                              ? "bg-destructive/20"
+                              : "bg-muted/50"
+                          }`}>
+                            {batchFile.status === "analyzing" ? (
+                              <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            ) : batchFile.status === "complete" && statusConfig ? (
+                              <statusConfig.icon className={`w-5 h-5 ${statusConfig.color}`} />
+                            ) : batchFile.status === "error" ? (
+                              <XCircle className="w-5 h-5 text-destructive" />
+                            ) : (
+                              <FileIcon className="w-5 h-5 text-muted-foreground" />
+                            )}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{batchFile.file.name}</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">
+                                {formatFileSize(batchFile.file.size)}
+                              </span>
+                              {batchFile.status === "complete" && batchFile.result && (
+                                <span className={`text-xs font-medium ${statusConfig?.color}`}>
+                                  {statusConfig?.label} • {batchFile.result.confidence}%
+                                </span>
+                              )}
+                              {batchFile.status === "error" && (
+                                <span className="text-xs text-destructive">
+                                  {batchFile.error}
+                                </span>
+                              )}
+                            </div>
+                            {batchFile.status === "analyzing" && (
+                              <Progress value={batchFile.progress} className="h-1 mt-1" />
+                            )}
+                          </div>
+                          
+                          {batchFile.status === "pending" && !batchAnalyzing && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeBatchFile(batchFile.id)}
+                              className="shrink-0 h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
                         </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Batch actions */}
+                  <div className="flex items-center gap-2 pt-2 border-t border-border">
+                    {batchPending && !batchAnalyzing && (
+                      <Button onClick={startBatchAnalysis} className="flex-1">
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Analyze {batchFiles.filter(f => f.status === "pending").length} Files
+                      </Button>
+                    )}
+                    {batchAnalyzing && (
+                      <div className="flex-1 flex items-center justify-center gap-2 py-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                         <span className="text-sm text-muted-foreground">
-                          {analysisStages[currentStage]?.description || "Processing..."}
+                          Analyzing {batchFiles.filter(f => f.status === "analyzing").length > 0 ? 
+                            `${batchFiles.findIndex(f => f.status === "analyzing") + 1} of ${batchFiles.length}` : 
+                            "..."
+                          }
                         </span>
                       </div>
-                    </motion.div>
-                  ) : result ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="space-y-6"
-                    >
-                      {(() => {
-                        const config = getStatusConfig(result.status);
-                        const StatusIcon = config.icon;
-                        return (
-                          <motion.div 
-                            className={`relative rounded-xl p-6 overflow-hidden bg-gradient-to-br ${config.gradient} border ${config.border}`}
-                            initial={{ y: 20 }}
-                            animate={{ y: 0 }}
-                          >
-                            {/* Animated background shimmer */}
-                            <motion.div
-                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
-                              animate={{ x: ["-100%", "100%"] }}
-                              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                            />
-                            
-                            <div className="relative flex items-center gap-4">
-                              <motion.div
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: "spring", delay: 0.2 }}
-                              >
-                                <StatusIcon className={`w-14 h-14 ${config.color}`} />
-                              </motion.div>
-                              <div className="flex-1">
-                                <motion.p 
-                                  className={`font-display text-2xl font-bold ${config.color}`}
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: 0.3 }}
-                                >
-                                  {config.label}
-                                </motion.p>
-                                <p className="text-muted-foreground">
-                                  Analysis complete
-                                </p>
-                              </div>
-                              <motion.div 
-                                className="text-right"
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ type: "spring", delay: 0.4 }}
-                              >
-                                <div className={`text-4xl font-display font-bold ${config.color}`}>
-                                  {result.confidence}%
-                                </div>
-                                <p className="text-xs text-muted-foreground">confidence</p>
-                              </motion.div>
-                            </div>
-                          </motion.div>
-                        );
-                      })()}
-
-                      <motion.div 
-                        className="glass rounded-xl p-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-primary" />
-                          AI Analysis Findings
-                        </h4>
-                        <ul className="space-y-3">
-                          {result.findings.map((finding, index) => (
-                            <motion.li
-                              key={index}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.4 + index * 0.1 }}
-                              className="flex items-start gap-3 text-muted-foreground"
-                            >
-                              <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
-                              {finding}
-                            </motion.li>
-                          ))}
-                        </ul>
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
-                      >
-                        <Button variant="outline" onClick={clearFile} className="w-full group">
-                          <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                          Analyze Another File
-                        </Button>
-                      </motion.div>
-                    </motion.div>
-                  ) : null}
+                    )}
+                    {batchComplete && (
+                      <Button variant="outline" onClick={clearBatchFiles} className="flex-1">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Analyze More Files
+                      </Button>
+                    )}
+                  </div>
                 </motion.div>
               )}
-            </AnimatePresence>
-          </div>
+            </div>
+          ) : (
+            // Single file mode UI (existing)
+            <div
+              className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 backdrop-blur-sm ${
+                isDragging
+                  ? "border-primary bg-primary/10 scale-[1.02] shadow-lg shadow-primary/20"
+                  : file
+                  ? "border-border/50 bg-card/50"
+                  : "border-border hover:border-primary/50 hover:bg-card/30"
+              } ${file ? "p-8" : "p-12"}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {/* Drag overlay animation */}
+              <AnimatePresence>
+                {isDragging && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent pointer-events-none"
+                  />
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {!file ? (
+                  <motion.div
+                    key="upload"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-center"
+                  >
+                    <motion.div 
+                      className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center transition-all duration-300 ${
+                        isDragging 
+                          ? "bg-primary/20 scale-110" 
+                          : "glass"
+                      }`}
+                      animate={isDragging ? { scale: [1.1, 1.15, 1.1] } : {}}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      <Upload className={`w-10 h-10 transition-colors duration-300 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
+                    </motion.div>
+                    
+                    <h3 className="font-display text-xl font-semibold mb-2">
+                      {isDragging ? "Drop to analyze" : "Drag & drop your file"}
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      or click to browse • Images, videos, audio (max 10MB)
+                    </p>
+                    
+                    {/* File type badges */}
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                      {[
+                        { icon: FileImage, label: "Images" },
+                        { icon: FileVideo, label: "Videos" },
+                        { icon: FileAudio, label: "Audio" },
+                      ].map(({ icon: Icon, label }) => (
+                        <div key={label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 text-xs text-muted-foreground">
+                          <Icon className="w-3.5 h-3.5" />
+                          {label}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <input
+                      type="file"
+                      accept="image/*,video/*,audio/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label htmlFor="file-upload">
+                      <Button variant="default" size="lg" asChild className="group">
+                        <span className="cursor-pointer">
+                          <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                          Browse Files
+                        </span>
+                      </Button>
+                    </label>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="file"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    {/* File info header */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <motion.div 
+                        className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", delay: 0.1 }}
+                      >
+                        {(() => {
+                          const FileIcon = getFileIcon(file.type);
+                          return <FileIcon className="w-7 h-7 text-primary" />;
+                        })()}
+                      </motion.div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold truncate text-lg">{file.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatFileSize(file.size)} • {file.type.split('/')[0]}
+                        </p>
+                      </div>
+                      {!analyzing && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={clearFile}
+                          className="shrink-0 hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <X className="w-5 h-5" />
+                        </Button>
+                      )}
+                    </div>
+
+                    {analyzing ? (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="space-y-6"
+                      >
+                        {/* Progress bar */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Analyzing...</span>
+                            <span className="font-mono text-primary">{Math.round(progress)}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2" />
+                        </div>
+
+                        {/* Analysis stages */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {analysisStages.map((stage, index) => {
+                            const StageIcon = stage.icon;
+                            const isActive = index === currentStage;
+                            const isComplete = index < currentStage;
+                            
+                            return (
+                              <motion.div
+                                key={stage.name}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className={`relative p-3 rounded-xl border transition-all duration-300 ${
+                                  isActive 
+                                    ? "bg-primary/10 border-primary/30" 
+                                    : isComplete 
+                                    ? "bg-success/10 border-success/30" 
+                                    : "bg-muted/30 border-border/50"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 mb-1">
+                                  {isActive ? (
+                                    <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                                  ) : isComplete ? (
+                                    <CheckCircle2 className="w-4 h-4 text-success" />
+                                  ) : (
+                                    <StageIcon className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                  <span className={`text-xs font-medium ${
+                                    isActive ? "text-primary" : isComplete ? "text-success" : "text-muted-foreground"
+                                  }`}>
+                                    {stage.name}
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground leading-tight">
+                                  {stage.description}
+                                </p>
+                                
+                                {/* Pulse animation for active stage */}
+                                {isActive && (
+                                  <motion.div
+                                    className="absolute inset-0 rounded-xl border border-primary/50"
+                                    animate={{ opacity: [0.5, 0, 0.5] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                  />
+                                )}
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Scanning animation */}
+                        <div className="flex items-center justify-center gap-3 py-4">
+                          <motion.div
+                            className="flex items-center gap-1"
+                          >
+                            {[...Array(4)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="w-1.5 h-8 bg-primary/40 rounded-full"
+                                animate={{
+                                  scaleY: [0.3, 1, 0.3],
+                                  opacity: [0.4, 1, 0.4],
+                                }}
+                                transition={{
+                                  duration: 1,
+                                  repeat: Infinity,
+                                  delay: i * 0.15,
+                                }}
+                              />
+                            ))}
+                          </motion.div>
+                          <span className="text-sm text-muted-foreground">
+                            {analysisStages[currentStage]?.description || "Processing..."}
+                          </span>
+                        </div>
+                      </motion.div>
+                    ) : result ? (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="space-y-6"
+                      >
+                        {(() => {
+                          const config = getStatusConfig(result.status);
+                          const StatusIcon = config.icon;
+                          return (
+                            <motion.div 
+                              className={`relative rounded-xl p-6 overflow-hidden bg-gradient-to-br ${config.gradient} border ${config.border}`}
+                              initial={{ y: 20 }}
+                              animate={{ y: 0 }}
+                            >
+                              {/* Animated background shimmer */}
+                              <motion.div
+                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+                                animate={{ x: ["-100%", "100%"] }}
+                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                              />
+                              
+                              <div className="relative flex items-center gap-4">
+                                <motion.div
+                                  initial={{ scale: 0, rotate: -180 }}
+                                  animate={{ scale: 1, rotate: 0 }}
+                                  transition={{ type: "spring", delay: 0.2 }}
+                                >
+                                  <StatusIcon className={`w-14 h-14 ${config.color}`} />
+                                </motion.div>
+                                <div className="flex-1">
+                                  <motion.p 
+                                    className={`font-display text-2xl font-bold ${config.color}`}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                  >
+                                    {config.label}
+                                  </motion.p>
+                                  <p className="text-muted-foreground">
+                                    Analysis complete
+                                  </p>
+                                </div>
+                                <motion.div 
+                                  className="text-right"
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: "spring", delay: 0.4 }}
+                                >
+                                  <div className={`text-4xl font-display font-bold ${config.color}`}>
+                                    {result.confidence}%
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">confidence</p>
+                                </motion.div>
+                              </div>
+                            </motion.div>
+                          );
+                        })()}
+
+                        <motion.div 
+                          className="glass rounded-xl p-6"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                        >
+                          <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            AI Analysis Findings
+                          </h4>
+                          <ul className="space-y-3">
+                            {result.findings.map((finding, index) => (
+                              <motion.li
+                                key={index}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.4 + index * 0.1 }}
+                                className="flex items-start gap-3 text-muted-foreground"
+                              >
+                                <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
+                                {finding}
+                              </motion.li>
+                            ))}
+                          </ul>
+                        </motion.div>
+
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.6 }}
+                        >
+                          <Button variant="outline" onClick={clearFile} className="w-full group">
+                            <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                            Analyze Another File
+                          </Button>
+                        </motion.div>
+                      </motion.div>
+                    ) : null}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </motion.div>
       </div>
     </section>
