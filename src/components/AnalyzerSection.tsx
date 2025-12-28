@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
@@ -13,6 +13,7 @@ import UrlAnalyzer from "@/components/UrlAnalyzer";
 import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
 import HeatmapOverlay, { HeatmapRegion } from "@/components/HeatmapOverlay";
+import { exportAnalysisToPDF } from "@/lib/pdf-export";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -1248,10 +1249,34 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.6 }}
+                          className="flex gap-2"
                         >
-                          <Button variant="outline" onClick={clearFile} className="w-full group">
+                          <Button 
+                            variant="default" 
+                            onClick={() => {
+                              if (file && result) {
+                                exportAnalysisToPDF(
+                                  result,
+                                  file.name,
+                                  file.type,
+                                  file.size,
+                                  filePreviewUrl,
+                                  sensitivity
+                                );
+                                toast({
+                                  title: "Report exported",
+                                  description: "PDF report has been downloaded",
+                                });
+                              }
+                            }} 
+                            className="flex-1 group"
+                          >
+                            <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                            Export PDF Report
+                          </Button>
+                          <Button variant="outline" onClick={clearFile} className="flex-1 group">
                             <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                            Analyze Another File
+                            Analyze Another
                           </Button>
                         </motion.div>
                       </motion.div>
