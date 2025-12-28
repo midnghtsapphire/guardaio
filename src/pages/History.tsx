@@ -266,11 +266,21 @@ const History = () => {
     }
 
     // Delete or Backspace - delete selected (only on History page with items selected)
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedIds.size > 0 && !detailRecord) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedIds.size > 0 && !detailRecord && !showCompareView) {
       e.preventDefault();
       setShowBulkDeleteDialog(true);
     }
-  }, [detailRecord, showBulkDeleteDialog, showFilters, selectedIds, filteredHistory, toast]);
+
+    // C - compare when exactly 2 items selected
+    if (e.key === 'c' && selectedIds.size === 2 && !detailRecord && !showCompareView && !showBulkDeleteDialog) {
+      e.preventDefault();
+      setShowCompareView(true);
+      toast({
+        title: "Comparison view",
+        description: "Comparing 2 selected analyses",
+      });
+    }
+  }, [detailRecord, showBulkDeleteDialog, showCompareView, showFilters, selectedIds, filteredHistory, toast]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -930,7 +940,7 @@ const History = () => {
                       }
                     </span>
                     <span className="hidden sm:inline text-xs text-muted-foreground/60 ml-2">
-                      • ⌘A select all • Del delete • Esc clear
+                      • ⌘A select all • Del delete • C compare • Esc clear
                     </span>
                   </div>
                 </div>
