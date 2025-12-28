@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import UrlAnalyzer from "@/components/UrlAnalyzer";
 import ReverseImageSearch from "@/components/ReverseImageSearch";
+import AudioAnalyzer from "@/components/AudioAnalyzer";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -40,7 +41,7 @@ type BatchFile = {
   progress: number;
 };
 
-type AnalysisMode = "file" | "batch" | "url" | "reverse";
+type AnalysisMode = "file" | "batch" | "url" | "reverse" | "audio";
 
 const analysisStages: AnalysisStage[] = [
   { name: "Uploading", icon: Upload, description: "Preparing file for analysis" },
@@ -482,6 +483,19 @@ const AnalyzerSection = () => {
               <Search className="w-4 h-4 mr-2" />
               Reverse Search
             </Button>
+            <Button
+              variant={analysisMode === "audio" ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setAnalysisMode("audio");
+                clearFile();
+                clearBatchFiles();
+              }}
+              disabled={analyzing || batchAnalyzing}
+            >
+              <Volume2 className="w-4 h-4 mr-2" />
+              Voice Detection
+            </Button>
           </div>
         </motion.div>
 
@@ -491,7 +505,10 @@ const AnalyzerSection = () => {
           viewport={{ once: true }}
           className="max-w-3xl mx-auto"
         >
-          {analysisMode === "reverse" ? (
+          {analysisMode === "audio" ? (
+            // Audio deepfake detection mode
+            <AudioAnalyzer user={user} toast={toast} />
+          ) : analysisMode === "reverse" ? (
             // Reverse image search mode
             <ReverseImageSearch />
           ) : analysisMode === "url" ? (
