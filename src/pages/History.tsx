@@ -45,6 +45,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -72,6 +84,8 @@ const History = () => {
   const [history, setHistory] = useState<AnalysisRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -358,6 +372,11 @@ const History = () => {
       if (error) throw error;
       
       setHistory(history.filter(item => item.id !== id));
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       toast({
         title: "Deleted",
         description: "Analysis record removed",
@@ -373,6 +392,67 @@ const History = () => {
       setDeleting(null);
     }
   };
+
+  // Bulk selection handlers
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredHistory.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredHistory.map(r => r.id)));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+  };
+
+  const bulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    
+    setBulkDeleting(true);
+    try {
+      const idsToDelete = Array.from(selectedIds);
+      const { error } = await supabase
+        .from("analysis_history")
+        .delete()
+        .in("id", idsToDelete);
+
+      if (error) throw error;
+      
+      setHistory(history.filter(item => !selectedIds.has(item.id)));
+      const deletedCount = selectedIds.size;
+      setSelectedIds(new Set());
+      
+      toast({
+        title: "Deleted",
+        description: `${deletedCount} ${deletedCount === 1 ? "record" : "records"} removed`,
+      });
+    } catch (error) {
+      console.error("Error bulk deleting:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete records",
+        variant: "destructive",
+      });
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const isAllSelected = filteredHistory.length > 0 && selectedIds.size === filteredHistory.length;
+  const isSomeSelected = selectedIds.size > 0 && selectedIds.size < filteredHistory.length;
 
   const getFileIcon = (type: string) => {
     if (type.startsWith("image")) return FileImage;
@@ -733,11 +813,90 @@ const History = () => {
             </motion.div>
           ) : (
             <div className="space-y-4">
+              {/* Bulk selection header */}
+              <motion.div 
+                className="flex items-center justify-between glass rounded-xl px-4 py-3"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={toggleSelectAll}
+                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    aria-label="Select all"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {selectedIds.size > 0 
+                      ? `${selectedIds.size} of ${filteredHistory.length} selected`
+                      : `Select all (${filteredHistory.length})`
+                    }
+                  </span>
+                </div>
+                
+                <AnimatePresence>
+                  {selectedIds.size > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="flex items-center gap-2"
+                    >
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearSelection}
+                        className="text-muted-foreground"
+                      >
+                        <X className="w-4 h-4 mr-1" />
+                        Clear
+                      </Button>
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            disabled={bulkDeleting}
+                            className="gap-2"
+                          >
+                            {bulkDeleting ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                            Delete {selectedIds.size} {selectedIds.size === 1 ? "item" : "items"}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete {selectedIds.size} {selectedIds.size === 1 ? "record" : "records"}?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. The selected analysis records will be permanently deleted.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={bulkDelete}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
               <AnimatePresence mode="popLayout">
                 {filteredHistory.map((record, index) => {
                   const FileIcon = getFileIcon(record.file_type);
                   const statusConfig = getStatusConfig(record.status);
                   const StatusIcon = statusConfig.icon;
+                  const isSelected = selectedIds.has(record.id);
 
                   return (
                     <motion.div
@@ -747,11 +906,25 @@ const History = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.03 }}
-                      className="glass rounded-xl p-6 hover:bg-card/60 transition-colors"
+                      className={`glass rounded-xl p-6 transition-all cursor-pointer ${
+                        isSelected 
+                          ? "bg-primary/5 border border-primary/30 ring-1 ring-primary/20" 
+                          : "hover:bg-card/60"
+                      }`}
+                      onClick={() => toggleSelect(record.id)}
                     >
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <FileIcon className="w-6 h-6 text-primary" />
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => toggleSelect(record.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            aria-label={`Select ${record.file_name}`}
+                          />
+                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <FileIcon className="w-6 h-6 text-primary" />
+                          </div>
                         </div>
                         
                         <div className="flex-1 min-w-0">
@@ -777,7 +950,10 @@ const History = () => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => deleteRecord(record.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteRecord(record.id);
+                                }}
                                 disabled={deleting === record.id}
                                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                               >
