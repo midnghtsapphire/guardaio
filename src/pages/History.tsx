@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -101,6 +101,7 @@ const History = () => {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [detailRecord, setDetailRecord] = useState<AnalysisRecord | null>(null);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -210,6 +211,69 @@ const History = () => {
 
     return result;
   }, [history, searchQuery, fileTypeFilter, statusFilter, sortOption, dateFrom, dateTo]);
+
+  // Keyboard shortcuts
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Don't trigger shortcuts when typing in input fields
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      return;
+    }
+
+    // Escape - close modals/dialogs and clear selection
+    if (e.key === 'Escape') {
+      if (detailRecord) {
+        setDetailRecord(null);
+        e.preventDefault();
+      } else if (showBulkDeleteDialog) {
+        setShowBulkDeleteDialog(false);
+        e.preventDefault();
+      } else if (showFilters) {
+        setShowFilters(false);
+        e.preventDefault();
+      } else if (selectedIds.size > 0) {
+        setSelectedIds(new Set());
+        e.preventDefault();
+        toast({
+          title: "Selection cleared",
+          description: "All items have been deselected",
+        });
+      }
+    }
+
+    // Ctrl+A or Cmd+A - select all
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      if (filteredHistory.length > 0) {
+        e.preventDefault();
+        if (selectedIds.size === filteredHistory.length) {
+          setSelectedIds(new Set());
+          toast({
+            title: "Selection cleared",
+            description: "All items have been deselected",
+          });
+        } else {
+          setSelectedIds(new Set(filteredHistory.map(r => r.id)));
+          toast({
+            title: "All selected",
+            description: `${filteredHistory.length} items selected`,
+          });
+        }
+      }
+    }
+
+    // Delete or Backspace - delete selected (only on History page with items selected)
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedIds.size > 0 && !detailRecord) {
+      e.preventDefault();
+      setShowBulkDeleteDialog(true);
+    }
+  }, [detailRecord, showBulkDeleteDialog, showFilters, selectedIds, filteredHistory, toast]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -841,12 +905,17 @@ const History = () => {
                     className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     aria-label="Select all"
                   />
-                  <span className="text-sm text-muted-foreground">
-                    {selectedIds.size > 0 
-                      ? `${selectedIds.size} of ${filteredHistory.length} selected`
-                      : `Select all (${filteredHistory.length})`
-                    }
-                  </span>
+                  <div>
+                    <span className="text-sm text-muted-foreground">
+                      {selectedIds.size > 0 
+                        ? `${selectedIds.size} of ${filteredHistory.length} selected`
+                        : `Select all (${filteredHistory.length})`
+                      }
+                    </span>
+                    <span className="hidden sm:inline text-xs text-muted-foreground/60 ml-2">
+                      • ⌘A select all • Del delete • Esc clear
+                    </span>
+                  </div>
                 </div>
                 
                 <AnimatePresence>
@@ -867,7 +936,7 @@ const History = () => {
                         Clear
                       </Button>
                       
-                      <AlertDialog>
+                      <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="destructive"
@@ -888,12 +957,18 @@ const History = () => {
                             <AlertDialogTitle>Delete {selectedIds.size} {selectedIds.size === 1 ? "record" : "records"}?</AlertDialogTitle>
                             <AlertDialogDescription>
                               This action cannot be undone. The selected analysis records will be permanently deleted.
+                              <span className="block mt-2 text-xs text-muted-foreground">
+                                Tip: Press Delete or Backspace to quickly delete selected items
+                              </span>
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={bulkDelete}
+                              onClick={() => {
+                                bulkDelete();
+                                setShowBulkDeleteDialog(false);
+                              }}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
                               Delete
