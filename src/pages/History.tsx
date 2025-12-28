@@ -18,7 +18,10 @@ import {
   SortDesc,
   Calendar,
   X,
-  ChevronDown
+  ChevronDown,
+  Download,
+  FileSpreadsheet,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +37,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +50,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import { format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface AnalysisRecord {
   id: string;
@@ -189,6 +200,153 @@ const History = () => {
     setSortOption("date-desc");
   };
 
+  // Export to CSV
+  const exportToCSV = () => {
+    const dataToExport = filteredHistory.length > 0 ? filteredHistory : history;
+    
+    if (dataToExport.length === 0) {
+      toast({
+        title: "No data to export",
+        description: "There are no records to export",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = ["File Name", "File Type", "File Size", "Status", "Confidence", "Findings", "Date"];
+    const rows = dataToExport.map(record => [
+      record.file_name,
+      record.file_type,
+      formatFileSize(record.file_size),
+      getStatusConfig(record.status).label,
+      `${record.confidence}%`,
+      record.findings.join("; "),
+      formatDate(record.created_at)
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `deepguard-analysis-history-${format(new Date(), "yyyy-MM-dd")}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export successful",
+      description: `Exported ${dataToExport.length} records to CSV`,
+    });
+  };
+
+  // Export to PDF
+  const exportToPDF = () => {
+    const dataToExport = filteredHistory.length > 0 ? filteredHistory : history;
+    
+    if (dataToExport.length === 0) {
+      toast({
+        title: "No data to export",
+        description: "There are no records to export",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.setTextColor(99, 102, 241); // Primary color
+    doc.text("DeepGuard Analysis History", 14, 22);
+    
+    // Add export date
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Exported on ${format(new Date(), "MMMM d, yyyy 'at' h:mm a")}`, 14, 30);
+    doc.text(`Total records: ${dataToExport.length}`, 14, 36);
+
+    // Prepare table data
+    const tableData = dataToExport.map(record => [
+      record.file_name.length > 25 ? record.file_name.slice(0, 25) + "..." : record.file_name,
+      record.file_type.split("/")[0],
+      formatFileSize(record.file_size),
+      getStatusConfig(record.status).label,
+      `${record.confidence}%`,
+      format(new Date(record.created_at), "MMM d, yyyy")
+    ]);
+
+    // Add table
+    autoTable(doc, {
+      head: [["File Name", "Type", "Size", "Status", "Confidence", "Date"]],
+      body: tableData,
+      startY: 42,
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+      },
+      headStyles: {
+        fillColor: [99, 102, 241],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 250],
+      },
+      columnStyles: {
+        0: { cellWidth: 50 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 25 },
+        5: { cellWidth: 35 },
+      },
+    });
+
+    // Add findings section if space allows
+    let yPosition = (doc as any).lastAutoTable.finalY + 15;
+    
+    if (yPosition < 250) {
+      doc.setFontSize(12);
+      doc.setTextColor(99, 102, 241);
+      doc.text("Detailed Findings", 14, yPosition);
+      yPosition += 8;
+      
+      doc.setFontSize(8);
+      doc.setTextColor(60);
+      
+      dataToExport.slice(0, 5).forEach(record => {
+        if (yPosition > 270) return;
+        
+        doc.setFont(undefined, "bold");
+        doc.text(record.file_name.slice(0, 40), 14, yPosition);
+        yPosition += 4;
+        
+        doc.setFont(undefined, "normal");
+        record.findings.slice(0, 2).forEach(finding => {
+          if (yPosition > 270) return;
+          const truncatedFinding = finding.length > 80 ? finding.slice(0, 80) + "..." : finding;
+          doc.text(`• ${truncatedFinding}`, 16, yPosition);
+          yPosition += 4;
+        });
+        yPosition += 3;
+      });
+    }
+
+    // Save the PDF
+    doc.save(`deepguard-analysis-history-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+
+    toast({
+      title: "Export successful",
+      description: `Exported ${dataToExport.length} records to PDF`,
+    });
+  };
+
   const deleteRecord = async (id: string) => {
     setDeleting(id);
     try {
@@ -321,7 +479,7 @@ const History = () => {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button
                     variant={showFilters ? "secondary" : "outline"}
                     onClick={() => setShowFilters(!showFilters)}
@@ -354,6 +512,26 @@ const History = () => {
                       <SelectItem value="confidence-asc">Lowest confidence</SelectItem>
                     </SelectContent>
                   </Select>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-2">
+                        <Download className="w-4 h-4" />
+                        Export
+                        <ChevronDown className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={exportToCSV} className="gap-2 cursor-pointer">
+                        <FileSpreadsheet className="w-4 h-4" />
+                        Export as CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={exportToPDF} className="gap-2 cursor-pointer">
+                        <FileText className="w-4 h-4" />
+                        Export as PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
 
