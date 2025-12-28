@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Image, ExternalLink, Loader2, Globe, CheckCircle2, AlertCircle, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,18 @@ const ReverseImageSearch = ({ initialImageUrl, onClose }: ReverseImageSearchProp
   const [searching, setSearching] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ReverseSearchResult | null>(null);
+  const [autoSearchTriggered, setAutoSearchTriggered] = useState(false);
+
+  // Auto-trigger search when external URL is provided (from bookmarklet)
+  useEffect(() => {
+    if (initialImageUrl && !autoSearchTriggered && !searching) {
+      setAutoSearchTriggered(true);
+      // Delay to let the UI render first
+      setTimeout(() => {
+        performSearch();
+      }, 500);
+    }
+  }, [initialImageUrl, autoSearchTriggered, searching]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

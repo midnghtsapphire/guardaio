@@ -57,7 +57,12 @@ const urlAnalysisStages: AnalysisStage[] = [
   { name: "Finalizing", icon: Zap, description: "Generating report" },
 ];
 
-const AnalyzerSection = () => {
+interface AnalyzerSectionProps {
+  externalImageUrl?: string | null;
+  onExternalImageProcessed?: () => void;
+}
+
+const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: AnalyzerSectionProps = {}) => {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -74,7 +79,12 @@ const AnalyzerSection = () => {
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
 
-
+  // Handle external image URL from bookmarklet
+  useEffect(() => {
+    if (externalImageUrl) {
+      setAnalysisMode("reverse");
+    }
+  }, [externalImageUrl]);
   // Simulate progress during analysis
   useEffect(() => {
     if (!analyzing) {
@@ -510,7 +520,12 @@ const AnalyzerSection = () => {
             <AudioAnalyzer user={user} toast={toast} />
           ) : analysisMode === "reverse" ? (
             // Reverse image search mode
-            <ReverseImageSearch />
+            <ReverseImageSearch 
+              initialImageUrl={externalImageUrl || undefined} 
+              onClose={() => {
+                onExternalImageProcessed?.();
+              }}
+            />
           ) : analysisMode === "url" ? (
             // URL analysis mode
             <UrlAnalyzer user={user} toast={toast} />
