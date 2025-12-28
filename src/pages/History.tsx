@@ -25,7 +25,9 @@ import {
   Eye,
   Clock,
   HardDrive,
-  Sparkles
+  Sparkles,
+  RefreshCw,
+  Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1165,23 +1167,57 @@ const History = () => {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="shrink-0 pt-4 border-t border-border flex justify-end gap-2">
+                <div className="shrink-0 pt-4 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
                   <Button
                     variant="outline"
-                    onClick={() => setDetailRecord(null)}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    variant="destructive"
                     onClick={() => {
-                      deleteRecord(detailRecord.id);
+                      const fileName = detailRecord.file_name;
                       setDetailRecord(null);
+                      navigate("/#analyzer");
+                      toast({
+                        title: "Re-analyze file",
+                        description: `Upload "${fileName}" again to run a new analysis`,
+                        action: (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const analyzerSection = document.getElementById("analyzer");
+                              if (analyzerSection) {
+                                analyzerSection.scrollIntoView({ behavior: "smooth" });
+                              }
+                            }}
+                          >
+                            <Upload className="w-3 h-3 mr-1" />
+                            Go
+                          </Button>
+                        ),
+                      });
                     }}
+                    className="gap-2"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Record
+                    <RefreshCw className="w-4 h-4" />
+                    Re-analyze File
                   </Button>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setDetailRecord(null)}
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        deleteRecord(detailRecord.id);
+                        setDetailRecord(null);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </>
             );
