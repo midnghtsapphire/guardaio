@@ -1,12 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/use-notifications";
+import { useSoundEffects } from "@/hooks/use-sound-effects";
 import UrlAnalyzer from "@/components/UrlAnalyzer";
 import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
@@ -73,7 +74,9 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   const { toast } = useToast();
   const { user } = useAuth();
   const { isSupported: notificationsSupported, permission, requestPermission, notifyAnalysisComplete } = useNotifications();
+  const { playAnalysisComplete, setEnabled: setSoundEnabled, isEnabled: isSoundEnabled } = useSoundEffects();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabledState] = useState(true);
 
   // Analysis mode state
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("file");
@@ -102,7 +105,12 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     }
   };
 
-  // Handle external image URL from bookmarklet
+  const toggleSound = () => {
+    const newState = !soundEnabled;
+    setSoundEnabledState(newState);
+    setSoundEnabled(newState);
+  };
+
   useEffect(() => {
     if (externalImageUrl) {
       setAnalysisMode("reverse");
@@ -293,6 +301,11 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
 
       await saveToHistory(selectedFile, analysisResult);
 
+      // Play sound effect for analysis result
+      if (soundEnabled) {
+        playAnalysisComplete(analysisResult.status);
+      }
+
       // Send browser notification if enabled
       if (notificationsEnabled) {
         notifyAnalysisComplete(analysisResult.status, selectedFile.name);
@@ -369,13 +382,19 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     const completedCount = batchFiles.filter(f => f.status === "complete" || f.result).length + 
       batchFiles.filter(f => f.status === "pending").length;
 
+    // Determine overall status for sound/notification
+    const safeCount = batchFiles.filter(f => f.result?.status === "safe").length;
+    const warningCount = batchFiles.filter(f => f.result?.status === "warning").length;
+    const dangerCount = batchFiles.filter(f => f.result?.status === "danger").length;
+    const overallStatus = dangerCount > 0 ? "danger" : warningCount > 0 ? "warning" : "safe";
+
+    // Play sound effect for batch completion
+    if (soundEnabled) {
+      playAnalysisComplete(overallStatus);
+    }
+
     // Send browser notification for batch completion
     if (notificationsEnabled) {
-      const safeCount = batchFiles.filter(f => f.result?.status === "safe").length;
-      const warningCount = batchFiles.filter(f => f.result?.status === "warning").length;
-      const dangerCount = batchFiles.filter(f => f.result?.status === "danger").length;
-      
-      const overallStatus = dangerCount > 0 ? "danger" : warningCount > 0 ? "warning" : "safe";
       notifyAnalysisComplete(overallStatus, `${batchFiles.length} files analyzed`);
     }
     
@@ -550,7 +569,6 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                 variant={notificationsEnabled ? "default" : "outline"}
                 size="sm"
                 onClick={toggleNotifications}
-                className="ml-2"
                 title={notificationsEnabled ? "Notifications enabled" : "Enable notifications"}
               >
                 {notificationsEnabled ? (
@@ -560,6 +578,19 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                 )}
               </Button>
             )}
+            {/* Sound toggle */}
+            <Button
+              variant={soundEnabled ? "default" : "outline"}
+              size="sm"
+              onClick={toggleSound}
+              title={soundEnabled ? "Sound effects enabled" : "Sound effects disabled"}
+            >
+              {soundEnabled ? (
+                <Volume1 className="w-4 h-4" />
+              ) : (
+                <VolumeX className="w-4 h-4" />
+              )}
+            </Button>
           </div>
         </motion.div>
 
