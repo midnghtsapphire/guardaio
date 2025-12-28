@@ -1,12 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import UrlAnalyzer from "@/components/UrlAnalyzer";
+import ReverseImageSearch from "@/components/ReverseImageSearch";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -39,7 +40,7 @@ type BatchFile = {
   progress: number;
 };
 
-type AnalysisMode = "file" | "batch" | "url";
+type AnalysisMode = "file" | "batch" | "url" | "reverse";
 
 const analysisStages: AnalysisStage[] = [
   { name: "Uploading", icon: Upload, description: "Preparing file for analysis" },
@@ -468,6 +469,19 @@ const AnalyzerSection = () => {
               <Link className="w-4 h-4 mr-2" />
               Analyze URL
             </Button>
+            <Button
+              variant={analysisMode === "reverse" ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setAnalysisMode("reverse");
+                clearFile();
+                clearBatchFiles();
+              }}
+              disabled={analyzing || batchAnalyzing}
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Reverse Search
+            </Button>
           </div>
         </motion.div>
 
@@ -477,7 +491,10 @@ const AnalyzerSection = () => {
           viewport={{ once: true }}
           className="max-w-3xl mx-auto"
         >
-          {analysisMode === "url" ? (
+          {analysisMode === "reverse" ? (
+            // Reverse image search mode
+            <ReverseImageSearch />
+          ) : analysisMode === "url" ? (
             // URL analysis mode
             <UrlAnalyzer user={user} toast={toast} />
           ) : analysisMode === "batch" ? (
