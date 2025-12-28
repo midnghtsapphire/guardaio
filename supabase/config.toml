@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.get-shared-analysis]
 verify_jwt = false
+
+[functions.analyze-url]
+verify_jwt = false
