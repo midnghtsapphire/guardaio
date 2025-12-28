@@ -1,16 +1,27 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2 } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import UrlAnalyzer from "@/components/UrlAnalyzer";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
   confidence: number;
   findings: string[];
+};
+
+type UrlAnalysisResult = AnalysisResult & {
+  platform?: string;
+  contentType?: string;
+  riskFactors?: string[];
+  recommendation?: string;
+  sourceUrl?: string;
+  screenshot?: string;
+  analysisType?: string;
 };
 
 type AnalysisStage = {
@@ -28,9 +39,18 @@ type BatchFile = {
   progress: number;
 };
 
+type AnalysisMode = "file" | "batch" | "url";
+
 const analysisStages: AnalysisStage[] = [
   { name: "Uploading", icon: Upload, description: "Preparing file for analysis" },
   { name: "Scanning", icon: Shield, description: "Running security scan" },
+  { name: "AI Analysis", icon: Sparkles, description: "Deep learning detection" },
+  { name: "Finalizing", icon: Zap, description: "Generating report" },
+];
+
+const urlAnalysisStages: AnalysisStage[] = [
+  { name: "Fetching", icon: Link, description: "Capturing page content" },
+  { name: "Scanning", icon: Shield, description: "Analyzing visual elements" },
   { name: "AI Analysis", icon: Sparkles, description: "Deep learning detection" },
   { name: "Finalizing", icon: Zap, description: "Generating report" },
 ];
@@ -45,10 +65,13 @@ const AnalyzerSection = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  // Analysis mode state
+  const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("file");
+  
   // Batch analysis state
-  const [batchMode, setBatchMode] = useState(false);
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
+
 
   // Simulate progress during analysis
   useEffect(() => {
@@ -101,22 +124,22 @@ const AnalyzerSection = () => {
     e.preventDefault();
     setIsDragging(false);
     
-    if (batchMode) {
+    if (analysisMode === "batch") {
       const droppedFiles = Array.from(e.dataTransfer.files);
       addBatchFiles(droppedFiles);
-    } else {
+    } else if (analysisMode === "file") {
       const droppedFile = e.dataTransfer.files[0];
       if (droppedFile) {
         processFile(droppedFile);
       }
     }
-  }, [batchMode]);
+  }, [analysisMode]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
-    if (batchMode) {
+    if (analysisMode === "batch") {
       addBatchFiles(Array.from(selectedFiles));
     } else {
       const selectedFile = selectedFiles[0];
@@ -407,30 +430,43 @@ const AnalyzerSection = () => {
           </p>
 
           {/* Mode toggle */}
-          <div className="flex items-center justify-center gap-2 mt-6">
+          <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
             <Button
-              variant={batchMode ? "outline" : "default"}
+              variant={analysisMode === "file" ? "default" : "outline"}
               size="sm"
               onClick={() => {
-                setBatchMode(false);
+                setAnalysisMode("file");
                 clearBatchFiles();
               }}
-              disabled={batchAnalyzing}
+              disabled={batchAnalyzing || analyzing}
             >
               <Upload className="w-4 h-4 mr-2" />
               Single File
             </Button>
             <Button
-              variant={batchMode ? "default" : "outline"}
+              variant={analysisMode === "batch" ? "default" : "outline"}
               size="sm"
               onClick={() => {
-                setBatchMode(true);
+                setAnalysisMode("batch");
                 clearFile();
               }}
-              disabled={analyzing}
+              disabled={analyzing || batchAnalyzing}
             >
               <Files className="w-4 h-4 mr-2" />
               Batch Analysis
+            </Button>
+            <Button
+              variant={analysisMode === "url" ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setAnalysisMode("url");
+                clearFile();
+                clearBatchFiles();
+              }}
+              disabled={analyzing || batchAnalyzing}
+            >
+              <Link className="w-4 h-4 mr-2" />
+              Analyze URL
             </Button>
           </div>
         </motion.div>
@@ -441,7 +477,10 @@ const AnalyzerSection = () => {
           viewport={{ once: true }}
           className="max-w-3xl mx-auto"
         >
-          {batchMode ? (
+          {analysisMode === "url" ? (
+            // URL analysis mode
+            <UrlAnalyzer user={user} toast={toast} />
+          ) : analysisMode === "batch" ? (
             // Batch mode UI
             <div className="space-y-4">
               {/* Drop zone for batch */}
