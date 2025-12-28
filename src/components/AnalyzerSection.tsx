@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,11 +11,13 @@ import { useSoundEffects } from "@/hooks/use-sound-effects";
 import UrlAnalyzer from "@/components/UrlAnalyzer";
 import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
+import HeatmapOverlay, { HeatmapRegion } from "@/components/HeatmapOverlay";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
   confidence: number;
   findings: string[];
+  heatmapRegions?: HeatmapRegion[];
 };
 
 type UrlAnalysisResult = AnalysisResult & {
@@ -67,10 +69,12 @@ interface AnalyzerSectionProps {
 const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: AnalyzerSectionProps = {}) => {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
+  const [showHeatmap, setShowHeatmap] = useState(true);
   const { toast } = useToast();
   const { user } = useAuth();
   const { isSupported: notificationsSupported, permission, requestPermission, notifyAnalysisComplete } = useNotifications();
@@ -294,6 +298,15 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setAnalyzing(true);
     setProgress(0);
     setCurrentStage(0);
+    setShowHeatmap(true);
+
+    // Create preview URL for images
+    if (selectedFile.type.startsWith("image/")) {
+      const url = URL.createObjectURL(selectedFile);
+      setFilePreviewUrl(url);
+    } else {
+      setFilePreviewUrl(null);
+    }
 
     try {
       const analysisResult = await analyzeFile(selectedFile);
@@ -405,10 +418,15 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   };
 
   const clearFile = () => {
+    if (filePreviewUrl) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
     setFile(null);
+    setFilePreviewUrl(null);
     setResult(null);
     setProgress(0);
     setCurrentStage(0);
+    setShowHeatmap(true);
   };
 
   const getFileIcon = (type: string) => {
@@ -1079,6 +1097,60 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                             </motion.div>
                           );
                         })()}
+
+                        {/* Heatmap visualization for images */}
+                        {filePreviewUrl && result.heatmapRegions && result.heatmapRegions.length > 0 && (
+                          <motion.div 
+                            className="glass rounded-xl p-4"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25 }}
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-display font-semibold flex items-center gap-2">
+                                <Eye className="w-4 h-4 text-primary" />
+                                Detection Heatmap
+                              </h4>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowHeatmap(!showHeatmap)}
+                                className="h-8 px-2 text-xs"
+                              >
+                                {showHeatmap ? (
+                                  <>
+                                    <EyeOff className="w-3.5 h-3.5 mr-1" />
+                                    Hide
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="w-3.5 h-3.5 mr-1" />
+                                    Show
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                            
+                            <AnimatePresence>
+                              {showHeatmap && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                >
+                                  <HeatmapOverlay
+                                    imageUrl={filePreviewUrl}
+                                    regions={result.heatmapRegions}
+                                  />
+                                  <p className="text-xs text-muted-foreground mt-2 text-center">
+                                    Hover over highlighted regions to see details
+                                  </p>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.div>
+                        )}
 
                         <motion.div 
                           className="glass rounded-xl p-6"
