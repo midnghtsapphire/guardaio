@@ -20,7 +20,7 @@ serve(async (req) => {
 
     console.log(`Analyzing file: ${fileName}, type: ${fileType}`);
 
-    // Build the prompt for deepfake detection
+// Build the prompt for deepfake detection
     const systemPrompt = `You are an expert AI media forensics analyst specializing in detecting deepfakes, AI-generated content, and media manipulation. 
 
 Your task is to analyze the provided media and determine if it shows signs of AI manipulation or synthetic generation.
@@ -29,7 +29,17 @@ IMPORTANT: You must respond with ONLY valid JSON in this exact format:
 {
   "status": "safe" | "warning" | "danger",
   "confidence": <number 0-100>,
-  "findings": ["<finding 1>", "<finding 2>", "<finding 3>"]
+  "findings": ["<finding 1>", "<finding 2>", "<finding 3>"],
+  "heatmapRegions": [
+    {
+      "x": <number 0-100>,
+      "y": <number 0-100>,
+      "width": <number 5-40>,
+      "height": <number 5-40>,
+      "intensity": <number 0-1>,
+      "label": "<description of what was detected>"
+    }
+  ]
 }
 
 Status definitions:
@@ -38,6 +48,16 @@ Status definitions:
 - "danger": Strong indicators of AI manipulation or deepfake (> 80% confidence it's fake)
 
 Provide 3-5 specific technical findings about what you observed.
+
+For heatmapRegions (REQUIRED for images):
+- x, y: Position of the region as percentage from top-left (0-100)
+- width, height: Size as percentage of image (5-40 range)
+- intensity: 0-1 where 0 = no suspicion, 1 = high suspicion of manipulation
+- label: Brief description like "Facial boundary artifacts", "Unnatural lighting", "Texture inconsistency"
+- Provide 2-6 regions highlighting specific areas of concern
+- Focus on: facial features, edges, backgrounds, lighting transitions, texture anomalies
+- For safe images, still provide regions but with low intensity (0.1-0.3)
+
 For images: Look for facial inconsistencies, lighting anomalies, texture artifacts, unnatural backgrounds, blurring around edges, asymmetric features.
 For video: Look for temporal inconsistencies, unnatural blinking, lip sync issues, edge artifacts.
 For audio: Look for voice cloning signatures, unnatural pauses, spectral anomalies.`;
