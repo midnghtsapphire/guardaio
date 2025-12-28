@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2 } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,13 +13,65 @@ type AnalysisResult = {
   findings: string[];
 };
 
+type AnalysisStage = {
+  name: string;
+  icon: typeof Shield;
+  description: string;
+};
+
+const analysisStages: AnalysisStage[] = [
+  { name: "Uploading", icon: Upload, description: "Preparing file for analysis" },
+  { name: "Scanning", icon: Shield, description: "Running security scan" },
+  { name: "AI Analysis", icon: Sparkles, description: "Deep learning detection" },
+  { name: "Finalizing", icon: Zap, description: "Generating report" },
+];
+
 const AnalyzerSection = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [currentStage, setCurrentStage] = useState(0);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Simulate progress during analysis
+  useEffect(() => {
+    if (!analyzing) {
+      setProgress(0);
+      setCurrentStage(0);
+      return;
+    }
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) return prev;
+        const increment = Math.random() * 8 + 2;
+        return Math.min(prev + increment, 95);
+      });
+    }, 300);
+
+    const stageInterval = setInterval(() => {
+      setCurrentStage((prev) => {
+        if (prev >= analysisStages.length - 1) return prev;
+        return prev + 1;
+      });
+    }, 1500);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearInterval(stageInterval);
+    };
+  }, [analyzing]);
+
+  // Complete progress when result arrives
+  useEffect(() => {
+    if (result && analyzing) {
+      setProgress(100);
+      setCurrentStage(analysisStages.length - 1);
+    }
+  }, [result, analyzing]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -92,6 +145,8 @@ const AnalyzerSection = () => {
     setFile(selectedFile);
     setResult(null);
     setAnalyzing(true);
+    setProgress(0);
+    setCurrentStage(0);
 
     try {
       let fileBase64 = "";
@@ -113,13 +168,12 @@ const AnalyzerSection = () => {
       const analysisResult = data as AnalysisResult;
       setResult(analysisResult);
 
-      // Save to history if user is logged in
       await saveToHistory(selectedFile, analysisResult);
 
       if (user) {
         toast({
-          title: "Analysis saved",
-          description: "Result added to your history",
+          title: "Analysis complete",
+          description: "Result saved to your history",
         });
       }
     } catch (error) {
@@ -138,6 +192,8 @@ const AnalyzerSection = () => {
   const clearFile = () => {
     setFile(null);
     setResult(null);
+    setProgress(0);
+    setCurrentStage(0);
   };
 
   const getFileIcon = (type: string) => {
@@ -150,19 +206,49 @@ const AnalyzerSection = () => {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "safe":
-        return { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/30", label: "Authentic" };
+        return { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/30", label: "Authentic", gradient: "from-success/20 to-success/5" };
       case "warning":
-        return { icon: AlertTriangle, color: "text-warning", bg: "bg-warning/10", border: "border-warning/30", label: "Suspicious" };
+        return { icon: AlertTriangle, color: "text-warning", bg: "bg-warning/10", border: "border-warning/30", label: "Suspicious", gradient: "from-warning/20 to-warning/5" };
       case "danger":
-        return { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/30", label: "Likely Fake" };
+        return { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/30", label: "Likely Fake", gradient: "from-destructive/20 to-destructive/5" };
       default:
-        return { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/30", label: "Authentic" };
+        return { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", border: "border-success/30", label: "Authentic", gradient: "from-success/20 to-success/5" };
     }
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+  };
+
   return (
-    <section id="analyzer" className="py-24 relative">
+    <section id="analyzer" className="py-24 relative overflow-hidden">
       <div className="absolute inset-0 gradient-glow opacity-30" />
+      
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-primary/20"
+            animate={{
+              x: [0, Math.random() * 100 - 50],
+              y: [0, Math.random() * 100 - 50],
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 2,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+            style={{
+              left: `${10 + i * 15}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+          />
+        ))}
+      </div>
       
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
@@ -171,13 +257,24 @@ const AnalyzerSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6"
+          >
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">Powered by Advanced AI</span>
+          </motion.div>
+          
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">
             Try the <span className="text-gradient">Analyzer</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Upload any image, video, or audio file to detect potential AI manipulation
             {!user && (
-              <span className="block mt-2 text-sm">
+              <span className="block mt-2 text-sm text-primary/80">
                 Sign in to save your analysis history
               </span>
             )}
@@ -191,33 +288,71 @@ const AnalyzerSection = () => {
           className="max-w-3xl mx-auto"
         >
           <div
-            className={`relative rounded-2xl border-2 border-dashed transition-all duration-300 ${
+            className={`relative rounded-2xl border-2 border-dashed transition-all duration-500 backdrop-blur-sm ${
               isDragging
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50"
+                ? "border-primary bg-primary/10 scale-[1.02] shadow-lg shadow-primary/20"
+                : file
+                ? "border-border/50 bg-card/50"
+                : "border-border hover:border-primary/50 hover:bg-card/30"
             } ${file ? "p-8" : "p-12"}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
+            {/* Drag overlay animation */}
+            <AnimatePresence>
+              {isDragging && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent pointer-events-none"
+                />
+              )}
+            </AnimatePresence>
+
             <AnimatePresence mode="wait">
               {!file ? (
                 <motion.div
                   key="upload"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
                   className="text-center"
                 >
-                  <div className="w-20 h-20 rounded-full glass mx-auto mb-6 flex items-center justify-center">
-                    <Upload className="w-8 h-8 text-primary" />
-                  </div>
+                  <motion.div 
+                    className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center transition-all duration-300 ${
+                      isDragging 
+                        ? "bg-primary/20 scale-110" 
+                        : "glass"
+                    }`}
+                    animate={isDragging ? { scale: [1.1, 1.15, 1.1] } : {}}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <Upload className={`w-10 h-10 transition-colors duration-300 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
+                  </motion.div>
+                  
                   <h3 className="font-display text-xl font-semibold mb-2">
-                    Drop your file here
+                    {isDragging ? "Drop to analyze" : "Drag & drop your file"}
                   </h3>
                   <p className="text-muted-foreground mb-6">
-                    or click to browse • Supports images, videos, and audio (max 10MB)
+                    or click to browse • Images, videos, audio (max 10MB)
                   </p>
+                  
+                  {/* File type badges */}
+                  <div className="flex items-center justify-center gap-3 mb-6">
+                    {[
+                      { icon: FileImage, label: "Images" },
+                      { icon: FileVideo, label: "Videos" },
+                      { icon: FileAudio, label: "Audio" },
+                    ].map(({ icon: Icon, label }) => (
+                      <div key={label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 text-xs text-muted-foreground">
+                        <Icon className="w-3.5 h-3.5" />
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                  
                   <input
                     type="file"
                     accept="image/*,video/*,audio/*"
@@ -226,8 +361,11 @@ const AnalyzerSection = () => {
                     id="file-upload"
                   />
                   <label htmlFor="file-upload">
-                    <Button variant="glass" size="lg" asChild>
-                      <span className="cursor-pointer">Browse Files</span>
+                    <Button variant="default" size="lg" asChild className="group">
+                      <span className="cursor-pointer">
+                        <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                        Browse Files
+                      </span>
                     </Button>
                   </label>
                 </motion.div>
@@ -238,37 +376,130 @@ const AnalyzerSection = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                 >
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-14 h-14 rounded-xl glass flex items-center justify-center">
+                  {/* File info header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <motion.div 
+                      className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", delay: 0.1 }}
+                    >
                       {(() => {
                         const FileIcon = getFileIcon(file.type);
-                        return <FileIcon className="w-6 h-6 text-primary" />;
+                        return <FileIcon className="w-7 h-7 text-primary" />;
                       })()}
-                    </div>
+                    </motion.div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{file.name}</p>
+                      <p className="font-semibold truncate text-lg">{file.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                        {formatFileSize(file.size)} • {file.type.split('/')[0]}
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={clearFile}
-                      className="shrink-0"
-                    >
-                      <X className="w-5 h-5" />
-                    </Button>
+                    {!analyzing && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={clearFile}
+                        className="shrink-0 hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <X className="w-5 h-5" />
+                      </Button>
+                    )}
                   </div>
 
                   {analyzing ? (
-                    <div className="text-center py-8">
-                      <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
-                      <p className="font-display text-lg font-medium">Analyzing with AI...</p>
-                      <p className="text-sm text-muted-foreground">
-                        Running deep learning detection models
-                      </p>
-                    </div>
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-6"
+                    >
+                      {/* Progress bar */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Analyzing...</span>
+                          <span className="font-mono text-primary">{Math.round(progress)}%</span>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                      </div>
+
+                      {/* Analysis stages */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {analysisStages.map((stage, index) => {
+                          const StageIcon = stage.icon;
+                          const isActive = index === currentStage;
+                          const isComplete = index < currentStage;
+                          
+                          return (
+                            <motion.div
+                              key={stage.name}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className={`relative p-3 rounded-xl border transition-all duration-300 ${
+                                isActive 
+                                  ? "bg-primary/10 border-primary/30" 
+                                  : isComplete 
+                                  ? "bg-success/10 border-success/30" 
+                                  : "bg-muted/30 border-border/50"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 mb-1">
+                                {isActive ? (
+                                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                                ) : isComplete ? (
+                                  <CheckCircle2 className="w-4 h-4 text-success" />
+                                ) : (
+                                  <StageIcon className="w-4 h-4 text-muted-foreground" />
+                                )}
+                                <span className={`text-xs font-medium ${
+                                  isActive ? "text-primary" : isComplete ? "text-success" : "text-muted-foreground"
+                                }`}>
+                                  {stage.name}
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground leading-tight">
+                                {stage.description}
+                              </p>
+                              
+                              {/* Pulse animation for active stage */}
+                              {isActive && (
+                                <motion.div
+                                  className="absolute inset-0 rounded-xl border border-primary/50"
+                                  animate={{ opacity: [0.5, 0, 0.5] }}
+                                  transition={{ duration: 1.5, repeat: Infinity }}
+                                />
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Scanning animation */}
+                      <div className="flex items-center justify-center gap-3 py-4">
+                        <motion.div
+                          className="flex items-center gap-1"
+                        >
+                          {[...Array(4)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="w-1.5 h-8 bg-primary/40 rounded-full"
+                              animate={{
+                                scaleY: [0.3, 1, 0.3],
+                                opacity: [0.4, 1, 0.4],
+                              }}
+                              transition={{
+                                duration: 1,
+                                repeat: Infinity,
+                                delay: i * 0.15,
+                              }}
+                            />
+                          ))}
+                        </motion.div>
+                        <span className="text-sm text-muted-foreground">
+                          {analysisStages[currentStage]?.description || "Processing..."}
+                        </span>
+                      </div>
+                    </motion.div>
                   ) : result ? (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
@@ -279,48 +510,91 @@ const AnalyzerSection = () => {
                         const config = getStatusConfig(result.status);
                         const StatusIcon = config.icon;
                         return (
-                          <div className={`rounded-xl p-6 ${config.bg} border ${config.border}`}>
-                            <div className="flex items-center gap-4">
-                              <StatusIcon className={`w-12 h-12 ${config.color}`} />
+                          <motion.div 
+                            className={`relative rounded-xl p-6 overflow-hidden bg-gradient-to-br ${config.gradient} border ${config.border}`}
+                            initial={{ y: 20 }}
+                            animate={{ y: 0 }}
+                          >
+                            {/* Animated background shimmer */}
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+                              animate={{ x: ["-100%", "100%"] }}
+                              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                            />
+                            
+                            <div className="relative flex items-center gap-4">
+                              <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: "spring", delay: 0.2 }}
+                              >
+                                <StatusIcon className={`w-14 h-14 ${config.color}`} />
+                              </motion.div>
                               <div className="flex-1">
-                                <p className={`font-display text-2xl font-bold ${config.color}`}>
+                                <motion.p 
+                                  className={`font-display text-2xl font-bold ${config.color}`}
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: 0.3 }}
+                                >
                                   {config.label}
-                                </p>
+                                </motion.p>
                                 <p className="text-muted-foreground">
-                                  {result.confidence}% confidence
+                                  Analysis complete
                                 </p>
                               </div>
-                              <div className="text-right">
+                              <motion.div 
+                                className="text-right"
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", delay: 0.4 }}
+                              >
                                 <div className={`text-4xl font-display font-bold ${config.color}`}>
                                   {result.confidence}%
                                 </div>
-                              </div>
+                                <p className="text-xs text-muted-foreground">confidence</p>
+                              </motion.div>
                             </div>
-                          </div>
+                          </motion.div>
                         );
                       })()}
 
-                      <div className="glass rounded-xl p-6">
-                        <h4 className="font-display font-semibold mb-4">AI Analysis Findings</h4>
+                      <motion.div 
+                        className="glass rounded-xl p-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-primary" />
+                          AI Analysis Findings
+                        </h4>
                         <ul className="space-y-3">
                           {result.findings.map((finding, index) => (
                             <motion.li
                               key={index}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.1 }}
+                              transition={{ delay: 0.4 + index * 0.1 }}
                               className="flex items-start gap-3 text-muted-foreground"
                             >
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                              <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
                               {finding}
                             </motion.li>
                           ))}
                         </ul>
-                      </div>
+                      </motion.div>
 
-                      <Button variant="glass" onClick={clearFile} className="w-full">
-                        Analyze Another File
-                      </Button>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                      >
+                        <Button variant="outline" onClick={clearFile} className="w-full group">
+                          <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                          Analyze Another File
+                        </Button>
+                      </motion.div>
                     </motion.div>
                   ) : null}
                 </motion.div>
