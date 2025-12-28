@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2 } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/hooks/use-notifications";
 import UrlAnalyzer from "@/components/UrlAnalyzer";
 import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
@@ -71,6 +72,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   const [currentStage, setCurrentStage] = useState(0);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { isSupported: notificationsSupported, permission, requestPermission, notifyAnalysisComplete } = useNotifications();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   // Analysis mode state
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("file");
@@ -78,6 +81,26 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   // Batch analysis state
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
+
+  // Sync notifications state with permission
+  useEffect(() => {
+    setNotificationsEnabled(permission === "granted");
+  }, [permission]);
+
+  const toggleNotifications = async () => {
+    if (permission === "granted") {
+      setNotificationsEnabled(!notificationsEnabled);
+    } else {
+      const granted = await requestPermission();
+      setNotificationsEnabled(granted);
+      if (granted) {
+        toast({
+          title: "Notifications enabled",
+          description: "You'll be notified when analysis is complete",
+        });
+      }
+    }
+  };
 
   // Handle external image URL from bookmarklet
   useEffect(() => {
@@ -270,6 +293,11 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
 
       await saveToHistory(selectedFile, analysisResult);
 
+      // Send browser notification if enabled
+      if (notificationsEnabled) {
+        notifyAnalysisComplete(analysisResult.status, selectedFile.name);
+      }
+
       if (user) {
         toast({
           title: "Analysis complete",
@@ -340,6 +368,16 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     
     const completedCount = batchFiles.filter(f => f.status === "complete" || f.result).length + 
       batchFiles.filter(f => f.status === "pending").length;
+
+    // Send browser notification for batch completion
+    if (notificationsEnabled) {
+      const safeCount = batchFiles.filter(f => f.result?.status === "safe").length;
+      const warningCount = batchFiles.filter(f => f.result?.status === "warning").length;
+      const dangerCount = batchFiles.filter(f => f.result?.status === "danger").length;
+      
+      const overallStatus = dangerCount > 0 ? "danger" : warningCount > 0 ? "warning" : "safe";
+      notifyAnalysisComplete(overallStatus, `${batchFiles.length} files analyzed`);
+    }
     
     toast({
       title: "Batch analysis complete",
@@ -506,6 +544,22 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
               <Volume2 className="w-4 h-4 mr-2" />
               Voice Detection
             </Button>
+            {/* Notification toggle */}
+            {notificationsSupported && (
+              <Button
+                variant={notificationsEnabled ? "default" : "outline"}
+                size="sm"
+                onClick={toggleNotifications}
+                className="ml-2"
+                title={notificationsEnabled ? "Notifications enabled" : "Enable notifications"}
+              >
+                {notificationsEnabled ? (
+                  <Bell className="w-4 h-4" />
+                ) : (
+                  <BellOff className="w-4 h-4" />
+                )}
+              </Button>
+            )}
           </div>
         </motion.div>
 
