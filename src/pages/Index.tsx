@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -7,6 +9,21 @@ import PricingSection from "@/components/PricingSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  const [searchParams] = useSearchParams();
+  const [externalImageUrl, setExternalImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const analyzeUrl = searchParams.get("analyze");
+    if (analyzeUrl) {
+      setExternalImageUrl(analyzeUrl);
+      // Scroll to analyzer section
+      setTimeout(() => {
+        const element = document.querySelector("#analyzer");
+        element?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [searchParams]);
+
   return (
     <>
       <Helmet>
@@ -25,7 +42,7 @@ const Index = () => {
         <section id="features">
           <FeaturesSection />
         </section>
-        <AnalyzerSection />
+        <AnalyzerSection externalImageUrl={externalImageUrl} onExternalImageProcessed={() => setExternalImageUrl(null)} />
         <PricingSection />
         <Footer />
       </main>
