@@ -31,7 +31,11 @@ import {
   GitCompare,
   ArrowRight,
   ArrowLeftRight,
-  BarChart3
+  BarChart3,
+  Share2,
+  Copy,
+  Check,
+  Link
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,6 +97,7 @@ interface AnalysisRecord {
   confidence: number;
   findings: string[];
   created_at: string;
+  share_token?: string | null;
 }
 
 type SortOption = "date-desc" | "date-asc" | "name-asc" | "name-desc" | "confidence-desc" | "confidence-asc";
@@ -109,6 +114,8 @@ const History = () => {
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [showCompareView, setShowCompareView] = useState(false);
   const [showStats, setShowStats] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -562,6 +569,94 @@ const History = () => {
       title: "Export successful",
       description: "Comparison report exported to PDF",
     });
+  };
+
+  // Generate share link
+  const generateShareLink = async (record: AnalysisRecord) => {
+    if (record.share_token) {
+      // Already has a share token, just copy the link
+      const shareUrl = `${window.location.origin}/shared?token=${record.share_token}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+      toast({
+        title: "Link copied!",
+        description: "Share link copied to clipboard",
+      });
+      return;
+    }
+
+    setSharing(true);
+    try {
+      // Generate a unique token
+      const token = crypto.randomUUID();
+      
+      const { error } = await supabase
+        .from("analysis_history")
+        .update({ share_token: token })
+        .eq("id", record.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setHistory(prev => prev.map(r => 
+        r.id === record.id ? { ...r, share_token: token } : r
+      ));
+      if (detailRecord?.id === record.id) {
+        setDetailRecord({ ...detailRecord, share_token: token });
+      }
+
+      // Copy to clipboard
+      const shareUrl = `${window.location.origin}/shared?token=${token}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+
+      toast({
+        title: "Share link created!",
+        description: "Link copied to clipboard",
+      });
+    } catch (error) {
+      console.error("Error generating share link:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate share link",
+        variant: "destructive",
+      });
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  // Remove share link
+  const removeShareLink = async (record: AnalysisRecord) => {
+    try {
+      const { error } = await supabase
+        .from("analysis_history")
+        .update({ share_token: null })
+        .eq("id", record.id);
+
+      if (error) throw error;
+
+      setHistory(prev => prev.map(r => 
+        r.id === record.id ? { ...r, share_token: null } : r
+      ));
+      if (detailRecord?.id === record.id) {
+        setDetailRecord({ ...detailRecord, share_token: null });
+      }
+
+      toast({
+        title: "Share link removed",
+        description: "This analysis is no longer shared",
+      });
+    } catch (error) {
+      console.error("Error removing share link:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove share link",
+        variant: "destructive",
+      });
+    }
   };
 
   const deleteRecord = async (id: string) => {
@@ -1428,37 +1523,69 @@ const History = () => {
 
                 {/* Footer Actions */}
                 <div className="shrink-0 pt-4 border-t border-border flex flex-col sm:flex-row justify-between gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const fileName = detailRecord.file_name;
-                      setDetailRecord(null);
-                      navigate("/#analyzer");
-                      toast({
-                        title: "Re-analyze file",
-                        description: `Upload "${fileName}" again to run a new analysis`,
-                        action: (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              const analyzerSection = document.getElementById("analyzer");
-                              if (analyzerSection) {
-                                analyzerSection.scrollIntoView({ behavior: "smooth" });
-                              }
-                            }}
-                          >
-                            <Upload className="w-3 h-3 mr-1" />
-                            Go
-                          </Button>
-                        ),
-                      });
-                    }}
-                    className="gap-2"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Re-analyze File
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const fileName = detailRecord.file_name;
+                        setDetailRecord(null);
+                        navigate("/#analyzer");
+                        toast({
+                          title: "Re-analyze file",
+                          description: `Upload "${fileName}" again to run a new analysis`,
+                          action: (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const analyzerSection = document.getElementById("analyzer");
+                                if (analyzerSection) {
+                                  analyzerSection.scrollIntoView({ behavior: "smooth" });
+                                }
+                              }}
+                            >
+                              <Upload className="w-3 h-3 mr-1" />
+                              Go
+                            </Button>
+                          ),
+                        });
+                      }}
+                      className="gap-2"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Re-analyze
+                    </Button>
+                    
+                    <Button
+                      variant={detailRecord.share_token ? "secondary" : "outline"}
+                      onClick={() => generateShareLink(detailRecord)}
+                      disabled={sharing}
+                      className="gap-2"
+                    >
+                      {sharing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : copiedLink ? (
+                        <Check className="w-4 h-4" />
+                      ) : detailRecord.share_token ? (
+                        <Copy className="w-4 h-4" />
+                      ) : (
+                        <Share2 className="w-4 h-4" />
+                      )}
+                      {copiedLink ? "Copied!" : detailRecord.share_token ? "Copy Link" : "Share"}
+                    </Button>
+                    
+                    {detailRecord.share_token && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeShareLink(detailRecord)}
+                        title="Remove share link"
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                   
                   <div className="flex gap-2">
                     <Button
