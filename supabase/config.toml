@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.analyze-url]
 verify_jwt = false
+
+[functions.reverse-image-search]
+verify_jwt = false
