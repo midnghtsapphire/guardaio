@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,6 +82,10 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   const { playAnalysisComplete, setEnabled: setSoundEnabled, isEnabled: isSoundEnabled } = useSoundEffects();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(true);
+
+  // Sensitivity control state
+  const [sensitivity, setSensitivity] = useState(50);
+  const [showSensitivityPanel, setShowSensitivityPanel] = useState(false);
 
   // Analysis mode state
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("file");
@@ -274,6 +279,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
         fileName: selectedFile.name,
         fileType: selectedFile.type,
         fileBase64: fileBase64,
+        sensitivity: sensitivity,
       },
     });
 
@@ -281,6 +287,12 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     if (data.error) throw new Error(data.error);
 
     return data as AnalysisResult;
+  };
+
+  const getSensitivityLabel = (value: number) => {
+    if (value <= 33) return { label: "Low", color: "text-success" };
+    if (value <= 66) return { label: "Medium", color: "text-warning" };
+    return { label: "High", color: "text-destructive" };
   };
 
   const processFile = async (selectedFile: File) => {
@@ -609,7 +621,61 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                 <VolumeX className="w-4 h-4" />
               )}
             </Button>
+            {/* Sensitivity toggle */}
+            <Button
+              variant={showSensitivityPanel ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowSensitivityPanel(!showSensitivityPanel)}
+              title="Adjust detection sensitivity"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </Button>
           </div>
+
+          {/* Sensitivity Panel */}
+          <AnimatePresence>
+            {showSensitivityPanel && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4 max-w-md mx-auto"
+              >
+                <div className="glass rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-medium flex items-center gap-2">
+                      <SlidersHorizontal className="w-4 h-4 text-primary" />
+                      Detection Sensitivity
+                    </h4>
+                    <span className={`text-sm font-semibold ${getSensitivityLabel(sensitivity).color}`}>
+                      {getSensitivityLabel(sensitivity).label} ({sensitivity}%)
+                    </span>
+                  </div>
+                  <Slider
+                    value={[sensitivity]}
+                    onValueChange={(value) => setSensitivity(value[0])}
+                    min={0}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                    disabled={analyzing || batchAnalyzing}
+                  />
+                  <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                    <span>Lenient</span>
+                    <span>Balanced</span>
+                    <span>Strict</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    {sensitivity <= 33 
+                      ? "Low: Only flags obvious manipulation. Best for reducing false positives."
+                      : sensitivity <= 66
+                      ? "Medium: Balanced detection for most use cases."
+                      : "High: Aggressive detection, flags even subtle anomalies. May increase false positives."}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         <motion.div
