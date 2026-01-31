@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
@@ -14,6 +14,7 @@ import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
 import HeatmapOverlay, { HeatmapRegion } from "@/components/HeatmapOverlay";
 import { exportAnalysisToPDF } from "@/lib/pdf-export";
+import EmailShareDialog from "@/components/EmailShareDialog";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -87,6 +88,9 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   // Sensitivity control state
   const [sensitivity, setSensitivity] = useState(50);
   const [showSensitivityPanel, setShowSensitivityPanel] = useState(false);
+
+  // Email share dialog state
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
 
   // Analysis mode state
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("file");
@@ -1249,7 +1253,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.6 }}
-                          className="flex gap-2"
+                          className="flex flex-wrap gap-2"
                         >
                           <Button 
                             variant="default" 
@@ -1269,12 +1273,20 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                                 });
                               }
                             }} 
-                            className="flex-1 group"
+                            className="flex-1 min-w-[140px] group"
                           >
                             <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                            Export PDF Report
+                            Export PDF
                           </Button>
-                          <Button variant="outline" onClick={clearFile} className="flex-1 group">
+                          <Button 
+                            variant="secondary" 
+                            onClick={() => setShowEmailDialog(true)}
+                            className="flex-1 min-w-[140px] group"
+                          >
+                            <Mail className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                            Share via Email
+                          </Button>
+                          <Button variant="outline" onClick={clearFile} className="flex-1 min-w-[140px] group">
                             <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                             Analyze Another
                           </Button>
@@ -1288,6 +1300,19 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
           )}
         </motion.div>
       </div>
+
+      {/* Email Share Dialog */}
+      {file && result && (
+        <EmailShareDialog
+          open={showEmailDialog}
+          onOpenChange={setShowEmailDialog}
+          result={result}
+          fileName={file.name}
+          fileType={file.type}
+          fileSize={file.size}
+          sensitivity={sensitivity}
+        />
+      )}
     </section>
   );
 };
