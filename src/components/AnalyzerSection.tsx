@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
@@ -91,6 +91,11 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
 
   // Email share dialog state
   const [showEmailDialog, setShowEmailDialog] = useState(false);
+
+  // Copy link state
+  const [lastAnalysisId, setLastAnalysisId] = useState<string | null>(null);
+  const [copyingLink, setCopyingLink] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Analysis mode state
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("file");
@@ -253,11 +258,11 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     });
   };
 
-  const saveToHistory = async (selectedFile: File, analysisResult: AnalysisResult) => {
-    if (!user) return;
+  const saveToHistory = async (selectedFile: File, analysisResult: AnalysisResult): Promise<string | null> => {
+    if (!user) return null;
 
     try {
-      const { error } = await supabase.from("analysis_history").insert({
+      const { data, error } = await supabase.from("analysis_history").insert({
         user_id: user.id,
         file_name: selectedFile.name,
         file_type: selectedFile.type,
@@ -265,11 +270,65 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
         status: analysisResult.status,
         confidence: analysisResult.confidence,
         findings: analysisResult.findings,
-      });
+      }).select("id").single();
 
       if (error) throw error;
+      return data?.id || null;
     } catch (error) {
       console.error("Error saving to history:", error);
+      return null;
+    }
+  };
+
+  const generateShareLink = async () => {
+    if (!lastAnalysisId || !user) {
+      toast({
+        title: "Cannot share",
+        description: "Please sign in and analyze a file first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCopyingLink(true);
+    setLinkCopied(false);
+
+    try {
+      // Generate a unique share token
+      const shareToken = crypto.randomUUID();
+
+      // Update the analysis with the share token
+      const { error } = await supabase
+        .from("analysis_history")
+        .update({ share_token: shareToken })
+        .eq("id", lastAnalysisId)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      // Generate the shareable URL
+      const shareUrl = `${window.location.origin}/shared?token=${shareToken}`;
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(shareUrl);
+
+      setLinkCopied(true);
+      toast({
+        title: "Link copied!",
+        description: "Shareable link has been copied to your clipboard",
+      });
+
+      // Reset the copied state after 3 seconds
+      setTimeout(() => setLinkCopied(false), 3000);
+    } catch (error) {
+      console.error("Error generating share link:", error);
+      toast({
+        title: "Failed to generate link",
+        description: error instanceof Error ? error.message : "Could not create shareable link",
+        variant: "destructive",
+      });
+    } finally {
+      setCopyingLink(false);
     }
   };
 
@@ -316,6 +375,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setProgress(0);
     setCurrentStage(0);
     setShowHeatmap(true);
+    setLastAnalysisId(null);
+    setLinkCopied(false);
 
     // Create preview URL for images
     if (selectedFile.type.startsWith("image/")) {
@@ -329,7 +390,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
       const analysisResult = await analyzeFile(selectedFile);
       setResult(analysisResult);
 
-      await saveToHistory(selectedFile, analysisResult);
+      const analysisId = await saveToHistory(selectedFile, analysisResult);
+      setLastAnalysisId(analysisId);
 
       // Play sound effect for analysis result
       if (soundEnabled) {
@@ -444,6 +506,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setProgress(0);
     setCurrentStage(0);
     setShowHeatmap(true);
+    setLastAnalysisId(null);
+    setLinkCopied(false);
   };
 
   const getFileIcon = (type: string) => {
@@ -1281,12 +1345,28 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                           <Button 
                             variant="secondary" 
                             onClick={() => setShowEmailDialog(true)}
-                            className="flex-1 min-w-[140px] group"
+                            className="flex-1 min-w-[120px] group"
                           >
                             <Mail className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                            Share via Email
+                            Email
                           </Button>
-                          <Button variant="outline" onClick={clearFile} className="flex-1 min-w-[140px] group">
+                          <Button 
+                            variant="secondary" 
+                            onClick={generateShareLink}
+                            disabled={copyingLink || !user}
+                            className="flex-1 min-w-[120px] group"
+                            title={!user ? "Sign in to share links" : "Copy shareable link"}
+                          >
+                            {copyingLink ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : linkCopied ? (
+                              <Check className="w-4 h-4 mr-2 text-success" />
+                            ) : (
+                              <Link2 className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                            )}
+                            {linkCopied ? "Copied!" : "Copy Link"}
+                          </Button>
+                          <Button variant="outline" onClick={clearFile} className="flex-1 min-w-[120px] group">
                             <Upload className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                             Analyze Another
                           </Button>
