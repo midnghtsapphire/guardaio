@@ -203,8 +203,8 @@ We will notify you of any material changes by posting the new policy on this pag
                   <h2 className="font-display text-xl font-semibold mb-4">Contact Us</h2>
                   <div className="text-muted-foreground">
                     <p>If you have questions about our use of cookies, please contact us:</p>
-                    <p className="mt-2"><strong>Email:</strong> privacy@deepguard.ai</p>
-                    <p><strong>Address:</strong> DeepGuard Inc., 123 AI Security Lane, San Francisco, CA 94102</p>
+                    <p className="mt-2"><strong>Email:</strong> support</p>
+                    <p><strong>Address:</strong> PO Box 1433, Wellington Colorado 80549</p>
                   </div>
                 </motion.div>
               </div>

@@ -126,8 +126,8 @@ We only transfer data to third parties who demonstrate adequate protection measu
       content: `We have appointed a Data Protection Officer (DPO) to oversee our data protection strategy and compliance.
 
 **Contact our DPO:**
-Email: dpo@deepguard.ai
-Address: Data Protection Officer, DeepGuard Inc., 123 AI Security Lane, San Francisco, CA 94102
+Email: support
+Address: PO Box 1433, Wellington Colorado 80549
 
 You may contact our DPO for any data protection related inquiries.`
     },
@@ -142,7 +142,7 @@ We encourage you to contact us first so we can address your concerns directly.`
   ];
 
   const handleDataRequest = () => {
-    window.location.href = "mailto:dpo@deepguard.ai?subject=GDPR Data Request";
+    window.location.href = "mailto:support?subject=GDPR Data Request";
   };
 
   return (
