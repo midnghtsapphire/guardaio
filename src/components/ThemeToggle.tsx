@@ -2,11 +2,14 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useThemeTransitionTrigger } from "@/hooks/use-theme-transition";
 
 export function ThemeToggle() {
-  const { setTheme, theme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const themeTransition = useThemeTransitionTrigger();
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -15,6 +18,15 @@ export function ThemeToggle() {
 
   const toggleTheme = () => {
     const newTheme = resolvedTheme === "dark" ? "light" : "dark";
+    
+    // Get button position for the circular reveal effect
+    if (buttonRef.current && themeTransition) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      themeTransition.triggerTransition(x, y);
+    }
+    
     setTheme(newTheme);
   };
 
@@ -30,6 +42,7 @@ export function ThemeToggle() {
 
   return (
     <Button
+      ref={buttonRef}
       variant="ghost"
       size="icon"
       className="relative h-9 w-9 overflow-hidden"
