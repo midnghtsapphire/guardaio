@@ -4,7 +4,8 @@ import {
   Youtube, Twitter, Linkedin, Instagram, Facebook,
   Megaphone, BarChart3, Target, Calendar, 
   ExternalLink, Copy, Check, TrendingUp, Users,
-  Video, FileText, Podcast, Mail
+  Video, FileText, Podcast, Mail, Camera, Palette,
+  Monitor, Mic, Scissors, Clapperboard
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -197,6 +198,78 @@ RT to help others stay safe! 🔄`
     { metric: "Website Traffic", current: 0, target: 50000, timeline: "6 months" },
   ];
 
+  const videoProductionGuide = {
+    equipment: {
+      essential: [
+        { item: "Camera", recommendation: "Sony ZV-E10 or iPhone 14+", budget: "$600-1200" },
+        { item: "Microphone", recommendation: "Rode VideoMicro II or Blue Yeti", budget: "$70-130" },
+        { item: "Lighting", recommendation: "Elgato Key Light or ring light", budget: "$50-200" },
+        { item: "Tripod", recommendation: "Manfrotto PIXI or Joby GorillaPod", budget: "$30-80" },
+      ],
+      advanced: [
+        { item: "4K Camera", recommendation: "Sony A7C II or Canon R6 II", budget: "$2000-2500" },
+        { item: "Shotgun Mic", recommendation: "Rode NTG5 or Sennheiser MKE 600", budget: "$400-500" },
+        { item: "3-Point Lighting", recommendation: "Aputure 120D II kit", budget: "$600-1200" },
+        { item: "Teleprompter", recommendation: "Elgato Prompter or iPad setup", budget: "$100-300" },
+        { item: "Green Screen", recommendation: "Elgato Green Screen XL", budget: "$150-200" },
+      ],
+    },
+    software: [
+      { name: "DaVinci Resolve", purpose: "Video editing (free)", tier: "Essential" },
+      { name: "Adobe Premiere Pro", purpose: "Professional video editing", tier: "Advanced" },
+      { name: "Canva Pro", purpose: "Thumbnails & graphics", tier: "Essential" },
+      { name: "Descript", purpose: "AI transcription & editing", tier: "Essential" },
+      { name: "VidIQ / TubeBuddy", purpose: "YouTube SEO optimization", tier: "Essential" },
+      { name: "Adobe After Effects", purpose: "Motion graphics & intros", tier: "Advanced" },
+      { name: "Epidemic Sound", purpose: "Royalty-free music", tier: "Essential" },
+    ],
+    thumbnailFormula: {
+      elements: [
+        "High-contrast colors (red/yellow for danger)",
+        "Face with strong emotion (surprise/concern)",
+        "FAKE/REAL stamp or checkmark",
+        "Before/After split composition",
+        "Max 3 words of text",
+        "Dark background for pop",
+      ],
+      tools: ["Canva Pro", "Photoshop", "Figma"],
+      size: "1280x720 pixels (16:9)",
+    },
+    scriptTemplate: `[HOOK - 0:00-0:15]
+- Start with a shocking statistic or visual
+- "This image fooled 10 million people..."
+- Show the deepfake before revealing it's fake
+
+[INTRO - 0:15-0:45]
+- Brief channel intro (2-3 seconds max)
+- State what viewers will learn
+- "By the end of this video, you'll know exactly how to spot this"
+
+[MAIN CONTENT - 0:45-8:00]
+Section 1: The Problem (1-2 min)
+- Why this matters, real-world impact
+- Statistics on deepfake prevalence
+
+Section 2: The Signs (3-4 min)
+- Specific detection techniques
+- Visual examples with annotations
+- "Notice how the edges blur here..."
+
+Section 3: The Solution (2 min)
+- Introduce DeepGuard tool
+- Live demo with real analysis
+- Show the confidence score and findings
+
+[CTA - 8:00-8:30]
+- "Try DeepGuard free at deepguard.app"
+- Like, subscribe, notification bell
+- Tease next video topic
+
+[OUTRO - 8:30-9:00]
+- End screen with related videos
+- Final reminder of key takeaway`,
+  };
+
   return (
     <Card className="glass border-border/50">
       <CardHeader>
@@ -210,22 +283,26 @@ RT to help others stay safe! 🔄`
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="youtube" className="space-y-4">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="youtube" className="gap-1 text-xs">
               <Youtube className="w-3 h-3" />
-              YouTube
+              <span className="hidden sm:inline">YouTube</span>
+            </TabsTrigger>
+            <TabsTrigger value="production" className="gap-1 text-xs">
+              <Clapperboard className="w-3 h-3" />
+              <span className="hidden sm:inline">Production</span>
             </TabsTrigger>
             <TabsTrigger value="social" className="gap-1 text-xs">
               <Users className="w-3 h-3" />
-              Social
+              <span className="hidden sm:inline">Social</span>
             </TabsTrigger>
             <TabsTrigger value="templates" className="gap-1 text-xs">
               <FileText className="w-3 h-3" />
-              Templates
+              <span className="hidden sm:inline">Templates</span>
             </TabsTrigger>
             <TabsTrigger value="metrics" className="gap-1 text-xs">
               <BarChart3 className="w-3 h-3" />
-              Metrics
+              <span className="hidden sm:inline">Metrics</span>
             </TabsTrigger>
           </TabsList>
 
@@ -307,6 +384,114 @@ RT to help others stay safe! 🔄`
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </TabsContent>
+
+            {/* Video Production Tab */}
+            <TabsContent value="production" className="space-y-4 mt-0">
+              <div className="p-4 rounded-lg bg-primary/10 border border-primary/30 mb-4">
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-primary" />
+                  Video Production Guide
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Equipment, software, and workflows for creating professional deepfake detection content.
+                </p>
+              </div>
+
+              {/* Equipment */}
+              <div className="space-y-3">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Monitor className="w-4 h-4" />
+                  Essential Equipment
+                </h4>
+                {videoProductionGuide.equipment.essential.map((eq) => (
+                  <div key={eq.item} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <div>
+                      <p className="font-medium text-sm">{eq.item}</p>
+                      <p className="text-xs text-muted-foreground">{eq.recommendation}</p>
+                    </div>
+                    <Badge variant="outline">{eq.budget}</Badge>
+                  </div>
+                ))}
+
+                <h4 className="font-semibold flex items-center gap-2 pt-4">
+                  <Video className="w-4 h-4" />
+                  Advanced Equipment
+                </h4>
+                {videoProductionGuide.equipment.advanced.map((eq) => (
+                  <div key={eq.item} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <div>
+                      <p className="font-medium text-sm">{eq.item}</p>
+                      <p className="text-xs text-muted-foreground">{eq.recommendation}</p>
+                    </div>
+                    <Badge variant="secondary">{eq.budget}</Badge>
+                  </div>
+                ))}
+              </div>
+
+              {/* Software */}
+              <div className="space-y-3 pt-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Scissors className="w-4 h-4" />
+                  Software Stack
+                </h4>
+                <div className="grid gap-2">
+                  {videoProductionGuide.software.map((sw) => (
+                    <div key={sw.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                      <div>
+                        <p className="font-medium text-sm">{sw.name}</p>
+                        <p className="text-xs text-muted-foreground">{sw.purpose}</p>
+                      </div>
+                      <Badge variant={sw.tier === "Essential" ? "default" : "outline"}>
+                        {sw.tier}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Thumbnail Formula */}
+              <div className="space-y-3 pt-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Palette className="w-4 h-4" />
+                  Thumbnail Formula
+                </h4>
+                <div className="p-4 rounded-lg bg-muted/30">
+                  <p className="text-xs text-muted-foreground mb-2">Size: {videoProductionGuide.thumbnailFormula.size}</p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {videoProductionGuide.thumbnailFormula.elements.map((el) => (
+                      <Badge key={el} variant="outline" className="text-xs">
+                        {el}
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Tools: {videoProductionGuide.thumbnailFormula.tools.join(", ")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Script Template */}
+              <div className="space-y-3 pt-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Video Script Template
+                </h4>
+                <div className="p-4 rounded-lg bg-muted/30">
+                  <div className="flex justify-end mb-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => copyText(videoProductionGuide.scriptTemplate, "script")}
+                      className="gap-1"
+                    >
+                      {copiedText === "script" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      Copy
+                    </Button>
+                  </div>
+                  <pre className="text-xs whitespace-pre-wrap">{videoProductionGuide.scriptTemplate}</pre>
+                </div>
               </div>
             </TabsContent>
 

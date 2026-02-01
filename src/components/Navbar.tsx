@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import AccessibilityMenu from "@/components/AccessibilityMenu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,6 +103,7 @@ const Navbar = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-2">
+            <AccessibilityMenu />
             <ThemeToggle />
             {loading ? null : user ? (
               <DropdownMenu>
@@ -198,7 +200,10 @@ const Navbar = () => {
                   </>
                 )}
                 <div className="flex items-center justify-between pt-4 border-t border-border">
-                  <ThemeToggle />
+                  <div className="flex items-center gap-2">
+                    <AccessibilityMenu />
+                    <ThemeToggle />
+                  </div>
                   {loading ? null : user ? (
                     <Button variant="glass" onClick={handleSignOut} className="justify-start">
                       <LogOut className="w-4 h-4 mr-2" />

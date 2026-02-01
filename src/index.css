@@ -227,3 +227,183 @@
     background-size: 60px 60px;
   }
 }
+
+/* ========================================
+   ACCESSIBILITY STYLES - Neuroinclusive Design
+   POUR Principles: Perceivable, Operable, Understandable, Robust
+   Supports: ADHD, Autism, Dyslexia
+   ======================================== */
+
+/* High Contrast Mode */
+body.a11y-high-contrast {
+  --foreground: 0 0% 0%;
+  --background: 0 0% 100%;
+  --muted-foreground: 0 0% 20%;
+  --border: 0 0% 0%;
+}
+
+.dark body.a11y-high-contrast,
+body.a11y-high-contrast.dark {
+  --foreground: 0 0% 100%;
+  --background: 0 0% 0%;
+  --muted-foreground: 0 0% 80%;
+  --border: 0 0% 100%;
+}
+
+/* Soft/Sepia Mode - Reduced eye strain */
+body.a11y-soft-mode {
+  --background: 40 30% 96%;
+  --foreground: 30 10% 20%;
+  --card: 40 25% 94%;
+  --muted: 40 20% 90%;
+  --muted-foreground: 30 10% 40%;
+}
+
+.dark body.a11y-soft-mode,
+body.a11y-soft-mode.dark {
+  --background: 30 15% 12%;
+  --foreground: 40 20% 90%;
+  --card: 30 15% 15%;
+  --muted: 30 15% 20%;
+}
+
+/* Reduced Motion - Critical for vestibular disorders and ADHD */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body.a11y-reduce-motion *,
+body.a11y-reduce-motion ::before,
+body.a11y-reduce-motion ::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+body.a11y-reduce-motion .animate-float,
+body.a11y-reduce-motion .animate-pulse-slow,
+body.a11y-reduce-motion .animate-glow {
+  animation: none !important;
+}
+
+/* Dyslexia-Friendly Typography */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://fonts.cdnfonts.com/s/15264/OpenDyslexic-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+body.a11y-dyslexia-font {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Verdana', sans-serif !important;
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
+  line-height: 1.8;
+}
+
+body.a11y-dyslexia-font h1,
+body.a11y-dyslexia-font h2,
+body.a11y-dyslexia-font h3,
+body.a11y-dyslexia-font h4,
+body.a11y-dyslexia-font h5,
+body.a11y-dyslexia-font h6 {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Verdana', sans-serif !important;
+  letter-spacing: 0.08em;
+}
+
+body.a11y-dyslexia-font p,
+body.a11y-dyslexia-font li,
+body.a11y-dyslexia-font span {
+  text-align: left !important; /* Avoid justified text */
+  hyphens: none !important;
+}
+
+/* Large Text Mode */
+body.a11y-large-text {
+  font-size: 125% !important;
+}
+
+body.a11y-large-text h1 { font-size: 2.5rem !important; }
+body.a11y-large-text h2 { font-size: 2rem !important; }
+body.a11y-large-text h3 { font-size: 1.75rem !important; }
+body.a11y-large-text p { font-size: 1.25rem !important; }
+
+/* Focus Mode - Reading mask for ADHD */
+body.a11y-focus-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsl(var(--background) / var(--focus-mode-opacity, 0));
+  pointer-events: none;
+  z-index: 9998;
+  transition: opacity 0.3s ease;
+}
+
+body.a11y-focus-mode *:focus,
+body.a11y-focus-mode *:focus-within,
+body.a11y-focus-mode *:hover {
+  position: relative;
+  z-index: 9999;
+}
+
+/* Screen Reader Optimized */
+body.a11y-sr-optimized [aria-hidden="true"] {
+  display: none !important;
+}
+
+body.a11y-sr-optimized .sr-only {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* Enhanced Focus Indicators for Keyboard Navigation */
+body.a11y-high-contrast *:focus,
+body.a11y-sr-optimized *:focus {
+  outline: 3px solid hsl(var(--primary)) !important;
+  outline-offset: 2px !important;
+}
+
+/* Skip Link for Keyboard Navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  z-index: 10000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Ensure minimum touch target size (44x44px) for motor impairments */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
