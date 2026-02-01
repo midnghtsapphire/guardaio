@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Shield, Github, Twitter, Linkedin } from "lucide-react";
+import { Shield, Github, Twitter, Linkedin, RotateCcw } from "lucide-react";
+import { restartOnboardingTour } from "@/components/OnboardingTour";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -75,6 +76,13 @@ const Footer = () => {
           <p className="text-sm text-muted-foreground">
             © {currentYear} DeepGuard. All rights reserved.
           </p>
+          <button
+            onClick={restartOnboardingTour}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Restart Tour
+          </button>
           <p className="text-sm text-muted-foreground">
             Made with care to protect truth online.
           </p>
