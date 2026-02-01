@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 
 interface AuthContextType {
   user: User | null;
@@ -76,16 +77,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithGoogle = async () => {
-    console.log("Attempting Google signin");
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
+    console.log("Attempting Google signin via Lovable Cloud");
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
     });
     
-    console.log("Google signin result:", error?.message);
-    return { error: error as Error | null };
+    if (result.error) {
+      console.log("Google signin error:", result.error.message);
+      return { error: result.error };
+    }
+    
+    return { error: null };
   };
 
   const signOut = async () => {
