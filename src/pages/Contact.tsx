@@ -25,25 +25,25 @@ const Contact = () => {
       icon: HelpCircle,
       title: "Support",
       description: "Get help with your account or technical issues",
-      email: "support@deepguard.ai",
+      email: "support",
     },
     {
       icon: Briefcase,
       title: "Sales",
       description: "Learn about enterprise plans and pricing",
-      email: "sales@deepguard.ai",
+      email: "support",
     },
     {
       icon: MessageSquare,
       title: "Press",
       description: "Media inquiries and interview requests",
-      email: "press@deepguard.ai",
+      email: "support",
     },
     {
       icon: Building,
       title: "Partnerships",
       description: "Explore integration and partnership opportunities",
-      email: "partnerships@deepguard.ai",
+      email: "support",
     },
   ];
 
@@ -200,43 +200,21 @@ const Contact = () => {
               >
                 <Card className="glass border-border/50">
                   <CardHeader>
-                    <CardTitle>Headquarters</CardTitle>
+                    <CardTitle>Mailing Address</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-medium">San Francisco Office</p>
-                        <p className="text-muted-foreground">123 AI Security Lane<br />San Francisco, CA 94102<br />United States</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-medium">Phone</p>
-                        <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                        <p className="font-medium">DeepGuard</p>
+                        <p className="text-muted-foreground">PO Box 1433<br />Wellington, Colorado 80549<br />United States</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                       <div>
                         <p className="font-medium">General Inquiries</p>
-                        <p className="text-muted-foreground">hello@deepguard.ai</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="glass border-border/50">
-                  <CardHeader>
-                    <CardTitle>European Office</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-medium">London Office</p>
-                        <p className="text-muted-foreground">45 Tech Square<br />London, EC2A 4BX<br />United Kingdom</p>
+                        <p className="text-muted-foreground">support</p>
                       </div>
                     </div>
                   </CardContent>
@@ -250,11 +228,11 @@ const Contact = () => {
                     <div className="space-y-2 text-muted-foreground">
                       <div className="flex justify-between">
                         <span>Monday - Friday</span>
-                        <span>9:00 AM - 6:00 PM PST</span>
+                        <span>9:00 AM - 6:00 PM MST</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Saturday</span>
-                        <span>10:00 AM - 2:00 PM PST</span>
+                        <span>10:00 AM - 2:00 PM MST</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Sunday</span>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,9 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SecurityModule from "@/components/SecurityModule";
+import FileRegistry from "@/components/admin/FileRegistry";
+import DocumentationCenter from "@/components/admin/DocumentationCenter";
+import ProjectPlanning from "@/components/admin/ProjectPlanning";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -297,7 +300,7 @@ const Admin = () => {
 
             {/* Main Tabs */}
             <Tabs defaultValue="tests" className="space-y-6">
-              <TabsList>
+              <TabsList className="flex flex-wrap gap-1">
                 <TabsTrigger value="tests" className="gap-2">
                   <TestTube className="w-4 h-4" />
                   Test Suite
@@ -305,6 +308,18 @@ const Admin = () => {
                 <TabsTrigger value="security" className="gap-2">
                   <Shield className="w-4 h-4" />
                   Security
+                </TabsTrigger>
+                <TabsTrigger value="files" className="gap-2">
+                  <FileCode className="w-4 h-4" />
+                  Files
+                </TabsTrigger>
+                <TabsTrigger value="docs" className="gap-2">
+                  <Book className="w-4 h-4" />
+                  Docs
+                </TabsTrigger>
+                <TabsTrigger value="planning" className="gap-2">
+                  <Map className="w-4 h-4" />
+                  Planning
                 </TabsTrigger>
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="w-4 h-4" />
@@ -415,6 +430,21 @@ const Admin = () => {
               {/* Security Tab */}
               <TabsContent value="security">
                 <SecurityModule />
+              </TabsContent>
+
+              {/* Files Tab */}
+              <TabsContent value="files">
+                <FileRegistry />
+              </TabsContent>
+
+              {/* Docs Tab */}
+              <TabsContent value="docs">
+                <DocumentationCenter />
+              </TabsContent>
+
+              {/* Planning Tab */}
+              <TabsContent value="planning">
+                <ProjectPlanning />
               </TabsContent>
 
               {/* Users Tab */}

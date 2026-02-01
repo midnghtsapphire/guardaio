@@ -82,8 +82,8 @@ To exercise these rights, contact us at privacy@deepguard.ai`
       title: "7. Contact Us",
       content: `If you have questions about this Privacy Policy, please contact us:
 
-**Email:** privacy@deepguard.ai
-**Address:** DeepGuard Inc., 123 AI Security Lane, San Francisco, CA 94102`
+**Email:** support
+**Address:** PO Box 1433, Wellington Colorado 80549`
     }
   ];
 
