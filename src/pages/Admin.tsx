@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +18,11 @@ import FileRegistry from "@/components/admin/FileRegistry";
 import DocumentationCenter from "@/components/admin/DocumentationCenter";
 import ProjectPlanning from "@/components/admin/ProjectPlanning";
 import ProjectHistory from "@/components/admin/ProjectHistory";
+import ChangelogTracker from "@/components/admin/ChangelogTracker";
+import AdminSearch from "@/components/admin/AdminSearch";
+import DependencyMap from "@/components/admin/DependencyMap";
+import DocumentationExport from "@/components/admin/DocumentationExport";
+import SampleData from "@/components/admin/SampleData";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -326,9 +331,17 @@ const Admin = () => {
                   <History className="w-4 h-4" />
                   History
                 </TabsTrigger>
-                <TabsTrigger value="users" className="gap-2">
-                  <Users className="w-4 h-4" />
-                  Users
+                <TabsTrigger value="changelog" className="gap-2">
+                  <GitCommit className="w-4 h-4" />
+                  Changelog
+                </TabsTrigger>
+                <TabsTrigger value="deps" className="gap-2">
+                  <Network className="w-4 h-4" />
+                  Deps
+                </TabsTrigger>
+                <TabsTrigger value="data" className="gap-2">
+                  <Database className="w-4 h-4" />
+                  Data
                 </TabsTrigger>
                 <TabsTrigger value="settings" className="gap-2">
                   <Settings className="w-4 h-4" />
@@ -457,28 +470,35 @@ const Admin = () => {
                 <ProjectHistory />
               </TabsContent>
 
-              {/* Users Tab */}
-              <TabsContent value="users">
-                <Card className="glass border-border/50">
-                  <CardHeader>
-                    <CardTitle>User Management</CardTitle>
-                    <CardDescription>View and manage user accounts</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">User management interface coming soon...</p>
-                  </CardContent>
-                </Card>
+              {/* Changelog Tab */}
+              <TabsContent value="changelog">
+                <ChangelogTracker />
+              </TabsContent>
+
+              {/* Dependency Map Tab */}
+              <TabsContent value="deps">
+                <DependencyMap />
+              </TabsContent>
+
+              {/* Sample Data Tab */}
+              <TabsContent value="data">
+                <SampleData />
               </TabsContent>
 
               {/* Settings Tab */}
               <TabsContent value="settings">
                 <Card className="glass border-border/50">
                   <CardHeader>
-                    <CardTitle>System Settings</CardTitle>
-                    <CardDescription>Configure system-wide settings</CardDescription>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle>System Settings</CardTitle>
+                        <CardDescription>Configure system-wide settings and export documentation</CardDescription>
+                      </div>
+                      <DocumentationExport />
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">Settings interface coming soon...</p>
+                    <p className="text-muted-foreground">Additional settings coming soon...</p>
                   </CardContent>
                 </Card>
               </TabsContent>
