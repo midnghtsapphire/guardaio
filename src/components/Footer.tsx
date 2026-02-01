@@ -28,6 +28,8 @@ const Footer = () => {
       { label: "Community", href: "/community" },
       { label: "Sustainability", href: "/sustainability" },
       { label: "Team Hub", href: "/team" },
+      { label: "Status", href: "/status" },
+      { label: "Admin", href: "/admin" },
     ],
     legal: [
       { label: "Privacy Policy", href: "/privacy" },
