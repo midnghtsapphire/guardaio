@@ -7,6 +7,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import AnalyzerSection from "@/components/AnalyzerSection";
 import PricingSection from "@/components/PricingSection";
 import Footer from "@/components/Footer";
+import KeyboardShortcutsHelp from "@/components/KeyboardShortcutsHelp";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -45,6 +46,7 @@ const Index = () => {
         <AnalyzerSection externalImageUrl={externalImageUrl} onExternalImageProcessed={() => setExternalImageUrl(null)} />
         <PricingSection />
         <Footer />
+        <KeyboardShortcutsHelp />
       </main>
     </>
   );
