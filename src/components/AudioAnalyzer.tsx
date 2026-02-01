@@ -4,7 +4,7 @@ import { Mic, Upload, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-
+import AudioForensicPanel from "@/components/AudioForensicPanel";
 type VoiceAnalysis = {
   naturalness: "high" | "medium" | "low" | "uncertain";
   consistencyIssues: string[];
@@ -574,6 +574,9 @@ const AudioAnalyzer = ({ user, toast }: AudioAnalyzerProps) => {
                 <p className="text-sm text-muted-foreground">{result.recommendation}</p>
               </div>
             )}
+
+            {/* Client-Side Forensic Analysis */}
+            <AudioForensicPanel audioBlob={audioFile || recordedBlob} />
 
             {/* Clear button */}
             <Button variant="outline" onClick={clearAudio} className="w-full">

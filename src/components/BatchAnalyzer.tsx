@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, Trash2, Play, CheckCircle, XCircle, Loader2, Download, FolderOpen } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, Trash2, Play, CheckCircle, XCircle, Loader2, Download, FolderOpen, Activity, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -8,6 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { runForensicAnalysis as runImageForensics } from "@/lib/forensic-analysis";
+import { generateBatchPdfReport } from "@/lib/batch-pdf-export";
+interface ForensicResult {
+  overallScore: number;
+  findings: string[];
+}
 
 interface BatchFile {
   id: string;
@@ -18,6 +24,7 @@ interface BatchFile {
     status: string;
     findings: string[];
   };
+  forensicResult?: ForensicResult;
 }
 
 const BatchAnalyzer = () => {
@@ -77,6 +84,23 @@ const BatchAnalyzer = () => {
 
       if (error) throw error;
 
+      // Run client-side forensic analysis for images
+      let forensicResult: ForensicResult | undefined;
+      if (batchFile.file.type.startsWith("image/")) {
+        try {
+          const img = new Image();
+          img.src = base64;
+          await new Promise((resolve) => { img.onload = resolve; });
+          const forensics = await runImageForensics(img, batchFile.file);
+          forensicResult = {
+            overallScore: forensics.overallScore,
+            findings: generateForensicFindings(forensics),
+          };
+        } catch (forensicErr) {
+          console.warn("Forensic analysis failed:", forensicErr);
+        }
+      }
+
       return {
         ...batchFile,
         status: "complete",
@@ -85,11 +109,22 @@ const BatchAnalyzer = () => {
           status: data.status,
           findings: data.findings || [],
         },
+        forensicResult,
       };
     } catch (err) {
       console.error("Analysis error:", err);
       return { ...batchFile, status: "error" };
     }
+  };
+
+  const generateForensicFindings = (forensics: any): string[] => {
+    const findings: string[] = [];
+    if (forensics.ela?.score > 50) findings.push(`ELA detected ${forensics.ela.suspiciousAreas} suspicious areas`);
+    if (forensics.noise?.anomalies?.length > 0) findings.push(...forensics.noise.anomalies);
+    if (forensics.histogram?.anomalies?.length > 0) findings.push(...forensics.histogram.anomalies);
+    if (forensics.frequency?.anomalies?.length > 0) findings.push(...forensics.frequency.anomalies);
+    if (forensics.metadata?.suspiciousFlags?.length > 0) findings.push(...forensics.metadata.suspiciousFlags);
+    return findings;
   };
 
   const startBatchAnalysis = async () => {
@@ -124,17 +159,37 @@ const BatchAnalyzer = () => {
     toast.success(`Batch analysis complete! ${completed} files processed.`);
   };
 
-  const exportResults = () => {
-    const results = files
-      .filter((f) => f.status === "complete")
-      .map((f) => ({
+  const exportResults = (format: "json" | "pdf" = "json") => {
+    const completedFiles = files.filter((f) => f.status === "complete");
+    
+    if (format === "pdf") {
+      const resultsForPdf = completedFiles.map((f) => ({
         fileName: f.file.name,
         fileType: f.file.type,
         fileSize: f.file.size,
-        confidence: f.result?.confidence,
-        status: f.result?.status,
-        findings: f.result?.findings,
+        confidence: f.result?.confidence || 0,
+        status: f.result?.status || "unknown",
+        findings: f.result?.findings || [],
+        forensicScore: f.forensicResult?.overallScore,
+        forensicFindings: f.forensicResult?.findings,
       }));
+      generateBatchPdfReport(resultsForPdf);
+      toast.success("PDF report generated!");
+      return;
+    }
+
+    const results = completedFiles.map((f) => ({
+      fileName: f.file.name,
+      fileType: f.file.type,
+      fileSize: f.file.size,
+      confidence: f.result?.confidence,
+      status: f.result?.status,
+      findings: f.result?.findings,
+      forensicAnalysis: f.forensicResult ? {
+        score: f.forensicResult.overallScore,
+        findings: f.forensicResult.findings,
+      } : null,
+    }));
 
     const blob = new Blob([JSON.stringify(results, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -245,17 +300,25 @@ const BatchAnalyzer = () => {
                     <Loader2 className="w-4 h-4 animate-spin text-primary" />
                   )}
                   {file.status === "complete" && file.result && (
-                    <Badge
-                      variant={file.result.status === "authentic" ? "default" : "destructive"}
-                      className="gap-1"
-                    >
-                      {file.result.status === "authentic" ? (
-                        <CheckCircle className="w-3 h-3" />
-                      ) : (
-                        <XCircle className="w-3 h-3" />
+                    <div className="flex items-center gap-1">
+                      <Badge
+                        variant={file.result.status === "authentic" || file.result.status === "safe" ? "default" : "destructive"}
+                        className="gap-1"
+                      >
+                        {file.result.status === "authentic" || file.result.status === "safe" ? (
+                          <CheckCircle className="w-3 h-3" />
+                        ) : (
+                          <XCircle className="w-3 h-3" />
+                        )}
+                        {file.result.confidence}%
+                      </Badge>
+                      {file.forensicResult && (
+                        <Badge variant="outline" className="gap-1 text-xs">
+                          <Activity className="w-2.5 h-2.5" />
+                          {file.forensicResult.overallScore}%
+                        </Badge>
                       )}
-                      {file.result.confidence}%
-                    </Badge>
+                    </div>
                   )}
                   {file.status === "error" && (
                     <Badge variant="destructive">Error</Badge>
@@ -291,10 +354,16 @@ const BatchAnalyzer = () => {
               {isAnalyzing ? "Analyzing..." : `Analyze ${pendingCount} Files`}
             </Button>
             {completeCount > 0 && (
-              <Button variant="outline" onClick={exportResults} className="gap-2">
-                <Download className="w-4 h-4" />
-                Export
-              </Button>
+              <>
+                <Button variant="outline" onClick={() => exportResults("json")} className="gap-2">
+                  <Download className="w-4 h-4" />
+                  JSON
+                </Button>
+                <Button variant="outline" onClick={() => exportResults("pdf")} className="gap-2">
+                  <FileText className="w-4 h-4" />
+                  PDF
+                </Button>
+              </>
             )}
           </div>
         )}
