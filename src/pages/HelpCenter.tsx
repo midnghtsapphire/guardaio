@@ -1,16 +1,21 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { HelpCircle, Search, MessageCircle, Book, Video, ArrowRight, ChevronDown } from "lucide-react";
+import { HelpCircle, Search, MessageCircle, Book, Video, ArrowRight, ChevronDown, FileText, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import HelpArticles from "@/components/help/HelpArticles";
+import HelpPublications from "@/components/help/HelpPublications";
 
 const HelpCenter = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
 
   const categories = [
     { icon: "🚀", title: "Getting Started", articles: 12, description: "New to DeepGuard? Start here." },
@@ -61,7 +66,7 @@ const HelpCenter = () => {
     <>
       <Helmet>
         <title>Help Center | DeepGuard</title>
-        <meta name="description" content="Find answers to common questions about DeepGuard. Browse our help center for guides, tutorials, and FAQs." />
+        <meta name="description" content="Find answers to common questions about DeepGuard. Browse our help center for guides, tutorials, FAQs, articles, and publications." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -80,104 +85,144 @@ const HelpCenter = () => {
               </div>
               <h1 className="font-display text-5xl font-bold mb-4">Help Center</h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Find answers, browse guides, and get support.
+                Find answers, browse guides, articles, and publications.
               </p>
-              
-              <div className="relative max-w-xl mx-auto">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Search for help articles..."
-                  className="pl-12 h-12 text-lg"
-                />
-              </div>
             </motion.div>
 
-            {/* Categories */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
-            >
-              {categories.map((category) => (
-                <Card key={category.title} className="glass border-border/50 hover:border-primary/50 transition-colors cursor-pointer">
-                  <CardHeader>
-                    <div className="text-4xl mb-2">{category.icon}</div>
-                    <CardTitle>{category.title}</CardTitle>
-                    <CardDescription>{category.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <span className="text-sm text-primary">{category.articles} articles →</span>
-                  </CardContent>
-                </Card>
-              ))}
-            </motion.div>
+            {/* Tab Navigation */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+              <TabsList className="w-full justify-center flex-wrap h-auto gap-2 bg-muted/50 p-2 rounded-xl">
+                <TabsTrigger value="overview" className="gap-2">
+                  <HelpCircle className="w-4 h-4" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="articles" className="gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  Articles
+                </TabsTrigger>
+                <TabsTrigger value="publications" className="gap-2">
+                  <FileText className="w-4 h-4" />
+                  Publications
+                </TabsTrigger>
+              </TabsList>
 
-            {/* FAQ */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="max-w-3xl mx-auto mb-16"
-            >
-              <h2 className="font-display text-2xl font-bold mb-6">Frequently Asked Questions</h2>
-              <Accordion type="single" collapsible className="glass rounded-2xl px-6">
-                {faqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </motion.div>
-
-            {/* Popular Articles */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="max-w-3xl mx-auto mb-16"
-            >
-              <h2 className="font-display text-2xl font-bold mb-6">Popular Articles</h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                {popularArticles.map((article) => (
-                  <Card key={article} className="glass border-border/50 hover:border-primary/50 transition-colors cursor-pointer">
-                    <CardContent className="py-4 flex items-center justify-between">
-                      <span className="text-sm">{article}</span>
-                      <ArrowRight className="w-4 h-4 shrink-0" />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Contact Support */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="glass rounded-3xl p-8 max-w-3xl mx-auto"
-            >
-              <div className="text-center">
-                <MessageCircle className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h2 className="font-display text-2xl font-bold mb-2">Still need help?</h2>
-                <p className="text-muted-foreground mb-6">
-                  Our support team is available Monday-Friday, 9am-6pm PST.
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Button onClick={() => navigate("/contact")} className="gap-2">
-                    <MessageCircle className="w-4 h-4" />
-                    Contact Support
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate("/docs")} className="gap-2">
-                    <Book className="w-4 h-4" />
-                    Browse Docs
-                  </Button>
+              {/* Overview Tab */}
+              <TabsContent value="overview" className="mt-8">
+                {/* Search */}
+                <div className="relative max-w-xl mx-auto mb-12">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Search for help articles..."
+                    className="pl-12 h-12 text-lg"
+                  />
                 </div>
-              </div>
-            </motion.div>
+
+                {/* Categories */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
+                >
+                  {categories.map((category) => (
+                    <Card 
+                      key={category.title} 
+                      className="glass border-border/50 hover:border-primary/50 transition-colors cursor-pointer"
+                      onClick={() => setActiveTab("articles")}
+                    >
+                      <CardHeader>
+                        <div className="text-4xl mb-2">{category.icon}</div>
+                        <CardTitle>{category.title}</CardTitle>
+                        <CardDescription>{category.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <span className="text-sm text-primary">{category.articles} articles →</span>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </motion.div>
+
+                {/* FAQ */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="max-w-3xl mx-auto mb-16"
+                >
+                  <h2 className="font-display text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+                  <Accordion type="single" collapsible className="glass rounded-2xl px-6">
+                    {faqs.map((faq, index) => (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
+                        <AccordionContent className="text-muted-foreground">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </motion.div>
+
+                {/* Popular Articles */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="max-w-3xl mx-auto mb-16"
+                >
+                  <h2 className="font-display text-2xl font-bold mb-6">Popular Articles</h2>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {popularArticles.map((article) => (
+                      <Card 
+                        key={article} 
+                        className="glass border-border/50 hover:border-primary/50 transition-colors cursor-pointer"
+                        onClick={() => setActiveTab("articles")}
+                      >
+                        <CardContent className="py-4 flex items-center justify-between">
+                          <span className="text-sm">{article}</span>
+                          <ArrowRight className="w-4 h-4 shrink-0" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* Contact Support */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="glass rounded-3xl p-8 max-w-3xl mx-auto"
+                >
+                  <div className="text-center">
+                    <MessageCircle className="w-12 h-12 text-primary mx-auto mb-4" />
+                    <h2 className="font-display text-2xl font-bold mb-2">Still need help?</h2>
+                    <p className="text-muted-foreground mb-6">
+                      Our support team is available Monday-Friday, 9am-6pm MST.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-4">
+                      <Button onClick={() => navigate("/contact")} className="gap-2">
+                        <MessageCircle className="w-4 h-4" />
+                        Contact Support
+                      </Button>
+                      <Button variant="outline" onClick={() => navigate("/docs")} className="gap-2">
+                        <Book className="w-4 h-4" />
+                        Browse Docs
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+
+              {/* Articles Tab */}
+              <TabsContent value="articles" className="mt-8">
+                <HelpArticles />
+              </TabsContent>
+
+              {/* Publications Tab */}
+              <TabsContent value="publications" className="mt-8">
+                <HelpPublications />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
 
