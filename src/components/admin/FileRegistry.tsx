@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileCode, Search, Filter, FolderOpen, Component, FileText, Zap, Settings } from "lucide-react";
+import { FileCode, Search, FolderOpen, Component, FileText, Zap, Settings, Database, Palette, Wrench } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface FileEntry {
   name: string;
   path: string;
   description: string;
-  type: "component" | "page" | "hook" | "util" | "edge-function" | "context";
+  type: "component" | "page" | "hook" | "util" | "edge-function" | "context" | "ui" | "config" | "integration";
 }
 
 const FileRegistry = () => {
@@ -47,10 +46,17 @@ const FileRegistry = () => {
     { name: "VoiceDetector.tsx", path: "src/components/", description: "Audio voice cloning detection with live microphone recording", type: "component" },
   ];
 
+  const adminComponents: FileEntry[] = [
+    { name: "FileRegistry.tsx", path: "src/components/admin/", description: "Complete project file inventory with search and categorization", type: "component" },
+    { name: "DocumentationCenter.tsx", path: "src/components/admin/", description: "Tech, developer, and user documentation hub", type: "component" },
+    { name: "ProjectPlanning.tsx", path: "src/components/admin/", description: "Roadmap, architecture, wireframes, and BOM", type: "component" },
+    { name: "ProjectHistory.tsx", path: "src/components/admin/", description: "Chronological changelog of all project development", type: "component" },
+  ];
+
   const pages: FileEntry[] = [
     { name: "Index.tsx", path: "src/pages/", description: "Landing page with hero, features, pricing, and tabbed analyzer interface", type: "page" },
     { name: "Auth.tsx", path: "src/pages/", description: "Authentication page with login/signup forms and OAuth providers", type: "page" },
-    { name: "Admin.tsx", path: "src/pages/", description: "Admin command center with test suite, security, and user management", type: "page" },
+    { name: "Admin.tsx", path: "src/pages/", description: "Admin command center with test suite, security, files, docs, planning, and history tabs", type: "page" },
     { name: "AdminLogin.tsx", path: "src/pages/", description: "Admin authentication gateway with role verification", type: "page" },
     { name: "Dashboard.tsx", path: "src/pages/", description: "User dashboard with usage stats and detection rate charts", type: "page" },
     { name: "History.tsx", path: "src/pages/", description: "Analysis history with filtering, search, and bulk actions", type: "page" },
@@ -58,7 +64,7 @@ const FileRegistry = () => {
     { name: "About.tsx", path: "src/pages/", description: "Company about page with team, mission, and values", type: "page" },
     { name: "Blog.tsx", path: "src/pages/", description: "Blog listing page with article cards and categories", type: "page" },
     { name: "Careers.tsx", path: "src/pages/", description: "Job listings and company culture information", type: "page" },
-    { name: "Contact.tsx", path: "src/pages/", description: "Contact form with email integration via Resend", type: "page" },
+    { name: "Contact.tsx", path: "src/pages/", description: "Contact form with Resend email integration", type: "page" },
     { name: "API.tsx", path: "src/pages/", description: "API documentation with code snippets and endpoints", type: "page" },
     { name: "Documentation.tsx", path: "src/pages/", description: "Product documentation and integration guides", type: "page" },
     { name: "HelpCenter.tsx", path: "src/pages/", description: "FAQ and support resources with search", type: "page" },
@@ -86,23 +92,117 @@ const FileRegistry = () => {
     { name: "use-toast.ts", path: "src/hooks/", description: "Toast notification system wrapper", type: "hook" },
   ];
 
+  const utils: FileEntry[] = [
+    { name: "utils.ts", path: "src/lib/", description: "Utility functions including cn() for class merging", type: "util" },
+    { name: "pdf-export.ts", path: "src/lib/", description: "Single analysis PDF report generation with jsPDF", type: "util" },
+    { name: "batch-pdf-export.ts", path: "src/lib/", description: "Batch analysis PDF export with multiple results", type: "util" },
+  ];
+
+  const uiComponents: FileEntry[] = [
+    { name: "accordion.tsx", path: "src/components/ui/", description: "Collapsible accordion component (Radix)", type: "ui" },
+    { name: "alert-dialog.tsx", path: "src/components/ui/", description: "Modal alert dialog with confirm/cancel (Radix)", type: "ui" },
+    { name: "alert.tsx", path: "src/components/ui/", description: "Alert message component with variants", type: "ui" },
+    { name: "aspect-ratio.tsx", path: "src/components/ui/", description: "Responsive aspect ratio container (Radix)", type: "ui" },
+    { name: "avatar.tsx", path: "src/components/ui/", description: "User avatar with fallback (Radix)", type: "ui" },
+    { name: "badge.tsx", path: "src/components/ui/", description: "Badge/tag component with variants", type: "ui" },
+    { name: "breadcrumb.tsx", path: "src/components/ui/", description: "Navigation breadcrumb trail", type: "ui" },
+    { name: "button.tsx", path: "src/components/ui/", description: "Button component with multiple variants and sizes", type: "ui" },
+    { name: "calendar.tsx", path: "src/components/ui/", description: "Date picker calendar (react-day-picker)", type: "ui" },
+    { name: "card.tsx", path: "src/components/ui/", description: "Card container with header, content, footer", type: "ui" },
+    { name: "carousel.tsx", path: "src/components/ui/", description: "Image/content carousel (Embla)", type: "ui" },
+    { name: "chart.tsx", path: "src/components/ui/", description: "Chart wrapper for Recharts integration", type: "ui" },
+    { name: "checkbox.tsx", path: "src/components/ui/", description: "Checkbox input (Radix)", type: "ui" },
+    { name: "collapsible.tsx", path: "src/components/ui/", description: "Collapsible content section (Radix)", type: "ui" },
+    { name: "command.tsx", path: "src/components/ui/", description: "Command palette/search (cmdk)", type: "ui" },
+    { name: "context-menu.tsx", path: "src/components/ui/", description: "Right-click context menu (Radix)", type: "ui" },
+    { name: "dialog.tsx", path: "src/components/ui/", description: "Modal dialog component (Radix)", type: "ui" },
+    { name: "drawer.tsx", path: "src/components/ui/", description: "Slide-out drawer component (Vaul)", type: "ui" },
+    { name: "dropdown-menu.tsx", path: "src/components/ui/", description: "Dropdown menu (Radix)", type: "ui" },
+    { name: "form.tsx", path: "src/components/ui/", description: "Form wrapper with react-hook-form integration", type: "ui" },
+    { name: "hover-card.tsx", path: "src/components/ui/", description: "Hover tooltip card (Radix)", type: "ui" },
+    { name: "input-otp.tsx", path: "src/components/ui/", description: "OTP/PIN input fields", type: "ui" },
+    { name: "input.tsx", path: "src/components/ui/", description: "Text input component", type: "ui" },
+    { name: "label.tsx", path: "src/components/ui/", description: "Form label component (Radix)", type: "ui" },
+    { name: "menubar.tsx", path: "src/components/ui/", description: "Horizontal menu bar (Radix)", type: "ui" },
+    { name: "navigation-menu.tsx", path: "src/components/ui/", description: "Navigation menu with dropdowns (Radix)", type: "ui" },
+    { name: "pagination.tsx", path: "src/components/ui/", description: "Pagination controls", type: "ui" },
+    { name: "popover.tsx", path: "src/components/ui/", description: "Popover tooltip (Radix)", type: "ui" },
+    { name: "progress.tsx", path: "src/components/ui/", description: "Progress bar (Radix)", type: "ui" },
+    { name: "radio-group.tsx", path: "src/components/ui/", description: "Radio button group (Radix)", type: "ui" },
+    { name: "resizable.tsx", path: "src/components/ui/", description: "Resizable panels (react-resizable-panels)", type: "ui" },
+    { name: "scroll-area.tsx", path: "src/components/ui/", description: "Custom scrollbar container (Radix)", type: "ui" },
+    { name: "select.tsx", path: "src/components/ui/", description: "Select dropdown (Radix)", type: "ui" },
+    { name: "separator.tsx", path: "src/components/ui/", description: "Visual separator line (Radix)", type: "ui" },
+    { name: "sheet.tsx", path: "src/components/ui/", description: "Side sheet/drawer (Radix Dialog)", type: "ui" },
+    { name: "sidebar.tsx", path: "src/components/ui/", description: "Collapsible sidebar navigation", type: "ui" },
+    { name: "skeleton.tsx", path: "src/components/ui/", description: "Loading skeleton placeholder", type: "ui" },
+    { name: "slider.tsx", path: "src/components/ui/", description: "Range slider (Radix)", type: "ui" },
+    { name: "sonner.tsx", path: "src/components/ui/", description: "Toast notifications (Sonner)", type: "ui" },
+    { name: "switch.tsx", path: "src/components/ui/", description: "Toggle switch (Radix)", type: "ui" },
+    { name: "table.tsx", path: "src/components/ui/", description: "Data table components", type: "ui" },
+    { name: "tabs.tsx", path: "src/components/ui/", description: "Tab navigation (Radix)", type: "ui" },
+    { name: "textarea.tsx", path: "src/components/ui/", description: "Multi-line text input", type: "ui" },
+    { name: "toast.tsx", path: "src/components/ui/", description: "Toast notification component", type: "ui" },
+    { name: "toaster.tsx", path: "src/components/ui/", description: "Toast container/provider", type: "ui" },
+    { name: "toggle-group.tsx", path: "src/components/ui/", description: "Toggle button group (Radix)", type: "ui" },
+    { name: "toggle.tsx", path: "src/components/ui/", description: "Toggle button (Radix)", type: "ui" },
+    { name: "tooltip.tsx", path: "src/components/ui/", description: "Hover tooltip (Radix)", type: "ui" },
+    { name: "use-toast.ts", path: "src/components/ui/", description: "Toast hook for programmatic toasts", type: "ui" },
+  ];
+
   const edgeFunctions: FileEntry[] = [
-    { name: "analyze-media", path: "supabase/functions/", description: "Image/video deepfake analysis using Gemini 2.5 Flash AI", type: "edge-function" },
-    { name: "analyze-audio", path: "supabase/functions/", description: "Audio voice cloning and manipulation detection", type: "edge-function" },
-    { name: "analyze-url", path: "supabase/functions/", description: "URL content verification via Firecrawl metadata", type: "edge-function" },
-    { name: "reverse-image-search", path: "supabase/functions/", description: "Reverse image lookup for source tracking", type: "edge-function" },
-    { name: "create-checkout", path: "supabase/functions/", description: "Stripe checkout session creation for subscriptions", type: "edge-function" },
-    { name: "check-subscription", path: "supabase/functions/", description: "User subscription status verification", type: "edge-function" },
-    { name: "send-contact-email", path: "supabase/functions/", description: "Contact form email delivery via Resend", type: "edge-function" },
-    { name: "send-analysis-report", path: "supabase/functions/", description: "Analysis report email sharing", type: "edge-function" },
-    { name: "get-shared-analysis", path: "supabase/functions/", description: "Retrieve shared analysis by token", type: "edge-function" },
+    { name: "analyze-media/index.ts", path: "supabase/functions/", description: "Image/video deepfake analysis using Gemini 2.5 Flash AI", type: "edge-function" },
+    { name: "analyze-audio/index.ts", path: "supabase/functions/", description: "Audio voice cloning and manipulation detection", type: "edge-function" },
+    { name: "analyze-url/index.ts", path: "supabase/functions/", description: "URL content verification via Firecrawl metadata", type: "edge-function" },
+    { name: "reverse-image-search/index.ts", path: "supabase/functions/", description: "Reverse image lookup for source tracking", type: "edge-function" },
+    { name: "create-checkout/index.ts", path: "supabase/functions/", description: "Stripe checkout session creation for subscriptions", type: "edge-function" },
+    { name: "check-subscription/index.ts", path: "supabase/functions/", description: "User subscription status verification", type: "edge-function" },
+    { name: "send-contact-email/index.ts", path: "supabase/functions/", description: "Contact form email delivery via Resend", type: "edge-function" },
+    { name: "send-analysis-report/index.ts", path: "supabase/functions/", description: "Analysis report email sharing", type: "edge-function" },
+    { name: "get-shared-analysis/index.ts", path: "supabase/functions/", description: "Retrieve shared analysis by token", type: "edge-function" },
   ];
 
   const contexts: FileEntry[] = [
     { name: "AuthContext.tsx", path: "src/contexts/", description: "Authentication state management with Supabase Auth", type: "context" },
   ];
 
-  const allFiles = [...components, ...pages, ...hooks, ...edgeFunctions, ...contexts];
+  const integrations: FileEntry[] = [
+    { name: "client.ts", path: "src/integrations/supabase/", description: "Supabase client initialization (auto-generated)", type: "integration" },
+    { name: "types.ts", path: "src/integrations/supabase/", description: "Database TypeScript types (auto-generated)", type: "integration" },
+    { name: "index.ts", path: "src/integrations/lovable/", description: "Lovable platform integration exports", type: "integration" },
+  ];
+
+  const configFiles: FileEntry[] = [
+    { name: "App.tsx", path: "src/", description: "Root app component with router and providers", type: "config" },
+    { name: "App.css", path: "src/", description: "Global app styles and animations", type: "config" },
+    { name: "main.tsx", path: "src/", description: "React app entry point with providers", type: "config" },
+    { name: "index.css", path: "src/", description: "Tailwind imports and CSS custom properties", type: "config" },
+    { name: "vite-env.d.ts", path: "src/", description: "Vite environment type declarations", type: "config" },
+    { name: "tailwind.config.ts", path: "", description: "Tailwind CSS configuration with custom theme", type: "config" },
+    { name: "vite.config.ts", path: "", description: "Vite build configuration", type: "config" },
+    { name: "tsconfig.json", path: "", description: "TypeScript compiler configuration", type: "config" },
+    { name: "tsconfig.app.json", path: "", description: "TypeScript app-specific config", type: "config" },
+    { name: "tsconfig.node.json", path: "", description: "TypeScript Node.js config", type: "config" },
+    { name: "components.json", path: "", description: "shadcn/ui component configuration", type: "config" },
+    { name: "eslint.config.js", path: "", description: "ESLint linting configuration", type: "config" },
+    { name: "postcss.config.js", path: "", description: "PostCSS configuration for Tailwind", type: "config" },
+    { name: "index.html", path: "", description: "HTML entry point with meta tags", type: "config" },
+    { name: ".env", path: "", description: "Environment variables (Supabase keys)", type: "config" },
+    { name: "config.toml", path: "supabase/", description: "Supabase project configuration", type: "config" },
+  ];
+
+  const allFiles = [
+    ...components, 
+    ...adminComponents, 
+    ...pages, 
+    ...hooks, 
+    ...utils, 
+    ...uiComponents, 
+    ...edgeFunctions, 
+    ...contexts, 
+    ...integrations, 
+    ...configFiles
+  ];
 
   const filteredFiles = allFiles.filter(
     (file) =>
@@ -115,8 +215,12 @@ const FileRegistry = () => {
       case "component": return <Component className="w-4 h-4 text-blue-500" />;
       case "page": return <FileText className="w-4 h-4 text-green-500" />;
       case "hook": return <Zap className="w-4 h-4 text-yellow-500" />;
+      case "util": return <Wrench className="w-4 h-4 text-cyan-500" />;
       case "edge-function": return <Settings className="w-4 h-4 text-purple-500" />;
       case "context": return <FolderOpen className="w-4 h-4 text-orange-500" />;
+      case "ui": return <Palette className="w-4 h-4 text-pink-500" />;
+      case "integration": return <Database className="w-4 h-4 text-indigo-500" />;
+      case "config": return <FileCode className="w-4 h-4 text-slate-500" />;
       default: return <FileCode className="w-4 h-4" />;
     }
   };
@@ -126,8 +230,12 @@ const FileRegistry = () => {
       component: "bg-blue-500/20 text-blue-400",
       page: "bg-green-500/20 text-green-400",
       hook: "bg-yellow-500/20 text-yellow-400",
+      util: "bg-cyan-500/20 text-cyan-400",
       "edge-function": "bg-purple-500/20 text-purple-400",
       context: "bg-orange-500/20 text-orange-400",
+      ui: "bg-pink-500/20 text-pink-400",
+      integration: "bg-indigo-500/20 text-indigo-400",
+      config: "bg-slate-500/20 text-slate-400",
     };
     return colors[type] || "bg-muted";
   };
@@ -151,7 +259,7 @@ const FileRegistry = () => {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-1">{file.description}</p>
-              <p className="text-xs text-muted-foreground/60 font-mono mt-0.5">{file.path}</p>
+              <p className="text-xs text-muted-foreground/60 font-mono mt-0.5">{file.path}{file.name}</p>
             </div>
           </div>
         </motion.div>
@@ -159,15 +267,18 @@ const FileRegistry = () => {
     </div>
   );
 
+  const totalFiles = allFiles.length;
+
   return (
     <Card className="glass border-border/50">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileCode className="w-5 h-5 text-primary" />
           File Registry
+          <Badge variant="outline" className="ml-2">{totalFiles} files</Badge>
         </CardTitle>
         <CardDescription>
-          Complete inventory of all project files with descriptions
+          Complete inventory of all project files (.tsx, .ts, .css, .json, .html, .toml)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -192,14 +303,18 @@ const FileRegistry = () => {
           </ScrollArea>
         ) : (
           <Tabs defaultValue="components" className="space-y-4">
-            <TabsList className="grid grid-cols-5 w-full">
+            <TabsList className="flex flex-wrap gap-1 h-auto">
               <TabsTrigger value="components" className="gap-1 text-xs">
                 <Component className="w-3 h-3" />
-                Components ({components.length})
+                Components ({components.length + adminComponents.length})
               </TabsTrigger>
               <TabsTrigger value="pages" className="gap-1 text-xs">
                 <FileText className="w-3 h-3" />
                 Pages ({pages.length})
+              </TabsTrigger>
+              <TabsTrigger value="ui" className="gap-1 text-xs">
+                <Palette className="w-3 h-3" />
+                UI ({uiComponents.length})
               </TabsTrigger>
               <TabsTrigger value="hooks" className="gap-1 text-xs">
                 <Zap className="w-3 h-3" />
@@ -207,29 +322,46 @@ const FileRegistry = () => {
               </TabsTrigger>
               <TabsTrigger value="functions" className="gap-1 text-xs">
                 <Settings className="w-3 h-3" />
-                Edge Fn ({edgeFunctions.length})
+                Edge ({edgeFunctions.length})
               </TabsTrigger>
-              <TabsTrigger value="contexts" className="gap-1 text-xs">
-                <FolderOpen className="w-3 h-3" />
-                Contexts
+              <TabsTrigger value="utils" className="gap-1 text-xs">
+                <Wrench className="w-3 h-3" />
+                Utils ({utils.length})
+              </TabsTrigger>
+              <TabsTrigger value="config" className="gap-1 text-xs">
+                <FileCode className="w-3 h-3" />
+                Config ({configFiles.length})
               </TabsTrigger>
             </TabsList>
 
             <ScrollArea className="h-[450px]">
-              <TabsContent value="components">
+              <TabsContent value="components" className="mt-0">
+                <p className="text-xs text-muted-foreground mb-3">Feature Components</p>
                 <FileList files={components} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Admin Components</p>
+                <FileList files={adminComponents} />
               </TabsContent>
-              <TabsContent value="pages">
+              <TabsContent value="pages" className="mt-0">
                 <FileList files={pages} />
               </TabsContent>
-              <TabsContent value="hooks">
+              <TabsContent value="ui" className="mt-0">
+                <FileList files={uiComponents} />
+              </TabsContent>
+              <TabsContent value="hooks" className="mt-0">
                 <FileList files={hooks} />
               </TabsContent>
-              <TabsContent value="functions">
+              <TabsContent value="functions" className="mt-0">
                 <FileList files={edgeFunctions} />
               </TabsContent>
-              <TabsContent value="contexts">
+              <TabsContent value="utils" className="mt-0">
+                <FileList files={utils} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Contexts</p>
                 <FileList files={contexts} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Integrations</p>
+                <FileList files={integrations} />
+              </TabsContent>
+              <TabsContent value="config" className="mt-0">
+                <FileList files={configFiles} />
               </TabsContent>
             </ScrollArea>
           </Tabs>
