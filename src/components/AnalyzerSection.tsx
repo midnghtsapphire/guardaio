@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check, Scale, Keyboard } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check, Scale, Keyboard, Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
@@ -24,6 +24,7 @@ import DemoSamples from "@/components/DemoSamples";
 import AnalyzerSkeleton from "@/components/AnalyzerSkeleton";
 import ProgressRing from "@/components/ProgressRing";
 import SocialShareButtons from "@/components/SocialShareButtons";
+import ForensicAnalysisPanel from "@/components/ForensicAnalysisPanel";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -112,6 +113,11 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   // Batch analysis state
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
+  
+  // Forensic analysis state
+  const [showForensicPanel, setShowForensicPanel] = useState(false);
+  const [imageElement, setImageElement] = useState<HTMLImageElement | null>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   // Handle export for keyboard shortcut
   const handleKeyboardExport = useCallback(() => {
@@ -438,12 +444,18 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setLastAnalysisId(null);
     setLinkCopied(false);
 
-    // Create preview URL for images
+    // Create preview URL and image element for images
     if (selectedFile.type.startsWith("image/")) {
       const url = URL.createObjectURL(selectedFile);
       setFilePreviewUrl(url);
+      
+      // Create image element for forensic analysis
+      const img = new Image();
+      img.onload = () => setImageElement(img);
+      img.src = url;
     } else {
       setFilePreviewUrl(null);
+      setImageElement(null);
     }
 
     try {
@@ -1485,6 +1497,44 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                             confidence={result.confidence}
                           />
                         </motion.div>
+
+                        {/* Forensic Analysis Button */}
+                        {file?.type.startsWith("image/") && imageElement && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.55 }}
+                          >
+                            <Button
+                              variant={showForensicPanel ? "default" : "outline"}
+                              onClick={() => setShowForensicPanel(!showForensicPanel)}
+                              className="w-full gap-2"
+                            >
+                              <Fingerprint className="w-4 h-4" />
+                              {showForensicPanel ? "Hide Forensic Analysis" : "Run Client-Side Forensic Analysis"}
+                            </Button>
+                            <p className="text-xs text-muted-foreground mt-2 text-center">
+                              Uses face-api.js, TensorFlow.js, and ELA for local analysis
+                            </p>
+                          </motion.div>
+                        )}
+
+                        {/* Forensic Analysis Panel */}
+                        <AnimatePresence>
+                          {showForensicPanel && file?.type.startsWith("image/") && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                            >
+                              <ForensicAnalysisPanel
+                                imageElement={imageElement}
+                                file={file}
+                                isAnalyzing={showForensicPanel}
+                              />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
                         <motion.div
                           initial={{ opacity: 0 }}

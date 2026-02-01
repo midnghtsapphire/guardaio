@@ -19,7 +19,7 @@ const FileRegistry = () => {
 
   const components: FileEntry[] = [
     { name: "AffiliateSystem.tsx", path: "src/components/", description: "Affiliate dashboard with link generation, referral tracking, and payout tiers ($100-$1000)", type: "component" },
-    { name: "AnalyzerSection.tsx", path: "src/components/", description: "Main media upload and analysis interface with drag-drop, camera capture, and demo samples", type: "component" },
+    { name: "AnalyzerSection.tsx", path: "src/components/", description: "Main media upload and analysis interface with drag-drop, camera capture, demo samples, and forensic analysis integration", type: "component" },
     { name: "AnalyzerSkeleton.tsx", path: "src/components/", description: "Loading skeleton placeholder for analyzer results", type: "component" },
     { name: "AudioAnalyzer.tsx", path: "src/components/", description: "Audio file analysis with waveform visualization and spectral analysis", type: "component" },
     { name: "BatchAnalyzer.tsx", path: "src/components/", description: "Multi-file batch processing with progress tracking and sequential analysis", type: "component" },
@@ -29,10 +29,12 @@ const FileRegistry = () => {
     { name: "EmailShareDialog.tsx", path: "src/components/", description: "Email sharing modal for analysis reports with recipient input", type: "component" },
     { name: "FeaturesSection.tsx", path: "src/components/", description: "Landing page features grid with icons and descriptions", type: "component" },
     { name: "Footer.tsx", path: "src/components/", description: "Site footer with navigation links, social icons, and tour restart", type: "component" },
+    { name: "ForensicAnalysisPanel.tsx", path: "src/components/", description: "Client-side forensic analysis using face-api.js, TensorFlow.js, ELA, noise analysis, histogram, frequency, and metadata extraction", type: "component" },
     { name: "HeatmapOverlay.tsx", path: "src/components/", description: "Visual overlay showing manipulation detection zones on images", type: "component" },
     { name: "HeroSection.tsx", path: "src/components/", description: "Landing page hero with animated gradient, CTA buttons, and stats", type: "component" },
     { name: "HistoryStats.tsx", path: "src/components/", description: "Statistics cards for analysis history (total, authentic, suspicious)", type: "component" },
     { name: "KeyboardShortcutsHelp.tsx", path: "src/components/", description: "Modal displaying all keyboard shortcuts (1-6 modes, H, S, Ctrl+E)", type: "component" },
+    { name: "MobileInstallPrompt.tsx", path: "src/components/", description: "PWA install prompt for mobile devices with iOS/Android detection", type: "component" },
     { name: "NavLink.tsx", path: "src/components/", description: "Reusable navigation link component with active state styling", type: "component" },
     { name: "Navbar.tsx", path: "src/components/", description: "Main navigation bar with responsive mobile menu and auth state", type: "component" },
     { name: "OnboardingTour.tsx", path: "src/components/", description: "Interactive product tour with step-by-step highlights", type: "component" },
@@ -118,6 +120,8 @@ const FileRegistry = () => {
     { name: "utils.ts", path: "src/lib/", description: "Utility functions including cn() for class merging", type: "util" },
     { name: "pdf-export.ts", path: "src/lib/", description: "Single analysis PDF report generation with jsPDF", type: "util" },
     { name: "batch-pdf-export.ts", path: "src/lib/", description: "Batch analysis PDF export with multiple results", type: "util" },
+    { name: "forensic-analysis.ts", path: "src/lib/", description: "Client-side forensic analysis: ELA, noise analysis, histogram, frequency analysis, metadata extraction", type: "util" },
+    { name: "face-detection.ts", path: "src/lib/", description: "Face detection and analysis using @vladmandic/face-api: landmarks, symmetry, expressions, blur detection", type: "util" },
   ];
 
   const uiComponents: FileEntry[] = [
