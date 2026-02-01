@@ -2,8 +2,10 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, 
-  XCircle, Loader2, Scale, Sparkles, ArrowLeftRight, RefreshCw
+  XCircle, Loader2, Scale, Sparkles, ArrowLeftRight, RefreshCw, Eye, EyeOff
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
@@ -47,6 +49,7 @@ const ComparisonView = ({ sensitivity = 50 }: ComparisonViewProps) => {
   const [rightSide, setRightSide] = useState<ComparisonSide>(initialSide);
   const [isDraggingLeft, setIsDraggingLeft] = useState(false);
   const [isDraggingRight, setIsDraggingRight] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -355,11 +358,19 @@ const ComparisonView = ({ sensitivity = 50 }: ComparisonViewProps) => {
               {/* Preview */}
               {sideState.previewUrl && (
                 <div className="relative rounded-lg overflow-hidden mb-3 bg-muted/30 flex-shrink-0">
-                  <img
-                    src={sideState.previewUrl}
-                    alt="Preview"
-                    className="w-full h-32 object-contain"
-                  />
+                  {showHeatmap && sideState.result?.heatmapRegions && sideState.result.heatmapRegions.length > 0 ? (
+                    <HeatmapOverlay
+                      imageUrl={sideState.previewUrl}
+                      regions={sideState.result.heatmapRegions}
+                      className="w-full"
+                    />
+                  ) : (
+                    <img
+                      src={sideState.previewUrl}
+                      alt="Preview"
+                      className="w-full h-32 object-contain"
+                    />
+                  )}
                 </div>
               )}
 
@@ -561,34 +572,58 @@ const ComparisonView = ({ sensitivity = 50 }: ComparisonViewProps) => {
   return (
     <div className="space-y-4">
       {/* Header with actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <Scale className="w-5 h-5 text-primary" />
           <h3 className="font-display font-semibold">Side-by-Side Comparison</h3>
         </div>
-        {hasAnyFile && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={swapSides}
-              disabled={anyAnalyzing}
-            >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-              Swap
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearBoth}
-              disabled={anyAnalyzing}
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <X className="w-3.5 h-3.5 mr-1.5" />
-              Clear All
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-4">
+          {/* Heatmap toggle */}
+          {(leftSide.result?.heatmapRegions?.length || rightSide.result?.heatmapRegions?.length) && (
+            <div className="flex items-center gap-2">
+              <Switch
+                id="heatmap-toggle"
+                checked={showHeatmap}
+                onCheckedChange={setShowHeatmap}
+              />
+              <Label 
+                htmlFor="heatmap-toggle" 
+                className="flex items-center gap-1.5 text-sm cursor-pointer"
+              >
+                {showHeatmap ? (
+                  <Eye className="w-4 h-4 text-primary" />
+                ) : (
+                  <EyeOff className="w-4 h-4 text-muted-foreground" />
+                )}
+                Heatmap
+              </Label>
+            </div>
+          )}
+          
+          {hasAnyFile && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={swapSides}
+                disabled={anyAnalyzing}
+              >
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                Swap
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearBoth}
+                disabled={anyAnalyzing}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <X className="w-3.5 h-3.5 mr-1.5" />
+                Clear All
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Comparison grid */}
