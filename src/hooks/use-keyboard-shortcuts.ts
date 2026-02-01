@@ -78,6 +78,7 @@ export const useKeyboardShortcuts = ({
 };
 
 export const keyboardShortcutsList = [
+  { key: "?", description: "Toggle shortcuts help" },
   { key: "1", description: "Single File mode" },
   { key: "2", description: "Batch Analysis mode" },
   { key: "3", description: "URL Analysis mode" },
