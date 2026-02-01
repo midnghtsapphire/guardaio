@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Mic, MicOff, Upload, Loader2, CheckCircle, AlertTriangle, Volume2, Waveform } from "lucide-react";
+import { Mic, MicOff, Upload, Loader2, CheckCircle, AlertTriangle, Volume2, AudioWaveform } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -213,7 +213,7 @@ const VoiceDetector = () => {
                 {isAnalyzing ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Waveform className="w-4 h-4" />
+                  <AudioWaveform className="w-4 h-4" />
                 )}
                 {isAnalyzing ? "Analyzing..." : "Analyze Voice"}
               </Button>

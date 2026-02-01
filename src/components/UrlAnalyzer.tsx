@@ -40,12 +40,11 @@ const platformIcons: Record<string, typeof Youtube> = {
   twitter: Link,
 };
 
-interface UrlAnalyzerProps {
-  user: { id: string } | null;
-  toast: (options: { title: string; description?: string; variant?: "destructive" }) => void;
-}
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
-const UrlAnalyzer = ({ user, toast }: UrlAnalyzerProps) => {
+const UrlAnalyzer = () => {
+  const { user } = useAuth();
   const [urlInput, setUrlInput] = useState("");
   const [urlAnalysisType, setUrlAnalysisType] = useState<"quick" | "deep">("quick");
   const [urlResult, setUrlResult] = useState<UrlAnalysisResult | null>(null);
@@ -82,11 +81,7 @@ const UrlAnalyzer = ({ user, toast }: UrlAnalyzerProps) => {
 
   const analyzeUrl = async () => {
     if (!urlInput.trim()) {
-      toast({
-        title: "Enter a URL",
-        description: "Please paste a link from YouTube, Facebook, TikTok, or other platforms",
-        variant: "destructive",
-      });
+      toast.error("Please paste a URL from YouTube, Facebook, TikTok, or other platforms");
       return;
     }
 
@@ -146,19 +141,12 @@ const UrlAnalyzer = ({ user, toast }: UrlAnalyzerProps) => {
         }
       }
 
-      toast({
-        title: "Analysis complete",
-        description: user ? "Result saved to your history" : undefined,
-      });
+      toast.success(user ? "Analysis complete - saved to history" : "Analysis complete");
     } catch (error) {
       clearInterval(progressInterval);
       clearInterval(stageInterval);
       console.error("URL analysis error:", error);
-      toast({
-        title: "Analysis failed",
-        description: error instanceof Error ? error.message : "Failed to analyze URL",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to analyze URL");
     } finally {
       setAnalyzing(false);
     }
