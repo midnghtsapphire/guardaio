@@ -880,7 +880,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
             />
           ) : analysisMode === "url" ? (
             // URL analysis mode
-            <UrlAnalyzer user={user} toast={toast} />
+            <UrlAnalyzer />
           ) : analysisMode === "batch" ? (
             // Batch mode UI
             <div className="space-y-4">

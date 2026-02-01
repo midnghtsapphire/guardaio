@@ -1,6 +1,17 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Loader2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+
+// Stripe price IDs
+const STRIPE_PRICES = {
+  pro: "price_1Sw3c3PQSlgZ7ZKjvE0B53fR", // $29/month Pro plan
+};
 
 const plans = [
   {
@@ -16,10 +27,11 @@ const plans = [
     ],
     cta: "Get Started",
     popular: false,
+    priceId: null,
   },
   {
     name: "Pro",
-    price: "$9.99",
+    price: "$29",
     period: "per month",
     description: "For professionals and journalists",
     features: [
@@ -29,9 +41,12 @@ const plans = [
       "Priority support",
       "Detailed reports",
       "API access (100 calls/day)",
+      "Batch analysis",
+      "Voice clone detection",
     ],
-    cta: "Start Free Trial",
+    cta: "Subscribe Now",
     popular: true,
+    priceId: STRIPE_PRICES.pro,
   },
   {
     name: "Enterprise",
@@ -45,13 +60,58 @@ const plans = [
       "Dedicated account manager",
       "SLA guarantee",
       "On-premise deployment option",
+      "White-label options",
     ],
     cta: "Contact Sales",
     popular: false,
+    priceId: null,
   },
 ];
 
 const PricingSection = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = async (plan: typeof plans[0]) => {
+    if (!plan.priceId) {
+      if (plan.name === "Free") {
+        navigate("/auth");
+      } else {
+        navigate("/contact");
+      }
+      return;
+    }
+
+    if (!user) {
+      toast.info("Please sign in to subscribe");
+      navigate("/auth");
+      return;
+    }
+
+    setLoadingPlan(plan.name);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: {
+          priceId: plan.priceId,
+          tier: plan.name.toLowerCase(),
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast.error("Failed to start checkout. Please try again.");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
   return (
     <section id="pricing" className="py-24 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] gradient-glow" />
@@ -63,6 +123,10 @@ const PricingSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
+          <Badge variant="outline" className="mb-4 gap-2">
+            <CreditCard className="w-4 h-4" />
+            Powered by Stripe
+          </Badge>
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">
             Simple, Transparent <span className="text-gradient">Pricing</span>
           </h2>
@@ -118,8 +182,17 @@ const PricingSection = () => {
                 variant={plan.popular ? "hero" : "glass"}
                 className="w-full"
                 size="lg"
+                onClick={() => handleSubscribe(plan)}
+                disabled={loadingPlan === plan.name}
               >
-                {plan.cta}
+                {loadingPlan === plan.name ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Loading...
+                  </>
+                ) : (
+                  plan.cta
+                )}
               </Button>
             </motion.div>
           ))}
