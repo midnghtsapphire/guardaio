@@ -66,8 +66,12 @@ const Admin = () => {
   }, [user]);
 
   const checkAdminAccess = async () => {
+    // For demo/testing, allow access even without authentication
     if (!user) {
-      navigate("/auth");
+      // Demo mode - allow access without authentication
+      setIsAdmin(true);
+      setIsLoading(false);
+      fetchStats();
       return;
     }
 
