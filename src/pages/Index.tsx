@@ -8,6 +8,7 @@ import AnalyzerSection from "@/components/AnalyzerSection";
 import PricingSection from "@/components/PricingSection";
 import Footer from "@/components/Footer";
 import KeyboardShortcutsHelp from "@/components/KeyboardShortcutsHelp";
+import OnboardingTour from "@/components/OnboardingTour";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -39,7 +40,9 @@ const Index = () => {
 
       <main className="min-h-screen bg-background">
         <Navbar />
-        <HeroSection />
+        <div id="hero">
+          <HeroSection />
+        </div>
         <section id="features">
           <FeaturesSection />
         </section>
@@ -47,6 +50,7 @@ const Index = () => {
         <PricingSection />
         <Footer />
         <KeyboardShortcutsHelp />
+        <OnboardingTour />
       </main>
     </>
   );
