@@ -100,6 +100,7 @@ const FileRegistry = () => {
     { name: "CookiePolicy.tsx", path: "src/pages/", description: "Cookie usage and consent policy", type: "page" },
     { name: "GDPR.tsx", path: "src/pages/", description: "GDPR compliance and data rights information", type: "page" },
     { name: "Bookmarklet.tsx", path: "src/pages/", description: "Browser bookmarklet, extension preview, PWA mobile app section", type: "page" },
+    { name: "Sustainability.tsx", path: "src/pages/", description: "GreenWeb digital carbon footprint platform with SWD/SCI methodology auditor, learning hub, badges", type: "page" },
     { name: "DesktopApp.tsx", path: "src/pages/", description: "Desktop application waitlist and features", type: "page" },
     { name: "PressKit.tsx", path: "src/pages/", description: "Press resources, logos, and media kit", type: "page" },
     { name: "SharedAnalysis.tsx", path: "src/pages/", description: "Shared analysis results view via token", type: "page" },

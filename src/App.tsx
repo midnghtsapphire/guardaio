@@ -35,6 +35,7 @@ import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import DeepfakeQuiz from "./pages/DeepfakeQuiz";
+import Sustainability from "./pages/Sustainability";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/quiz" element={<DeepfakeQuiz />} />
+                  <Route path="/sustainability" element={<Sustainability />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
