@@ -73,7 +73,13 @@ const DocumentationCenter = () => {
 - id, user_id, name, total_files, completed_files, status, results, completed_at
 
 \`compliance_tests\` - Security test results
-- id, test_name, category, status, passed, details, run_by, run_at`
+- id, test_name, category, status, passed, details, run_by, run_at
+
+\`metadata_anomalies\` - Rare pattern tracking
+- id, pattern_signature, anomaly_type, occurrence_count, rarity_score, is_suspicious
+
+\`known_software_signatures\` - AI tool fingerprints
+- id, software_name, signature_pattern, category, risk_level, is_verified`
     },
     {
       title: "Security Architecture",
@@ -101,6 +107,32 @@ const DocumentationCenter = () => {
 - GDPR data subject rights
 - SOC 2 Type II controls
 - ISO 27001 framework alignment`
+    },
+    {
+      title: "Hardware Security Module",
+      content: `**COVERT Microarchitectural Testing:**
+- 5 tests targeting rare pipeline hazards, cache evictions, branch mispredictions
+- Activates dormant hardware Trojans in COTS processors
+- Based on DARPA research for supply chain integrity
+
+**Side-Channel Analysis:**
+- Real-time power, thermal, and timing monitoring
+- Environmental Rate Manipulation (ERM) detection via dV/dt analysis
+- Flags anomalies when rate of change > 5°C/s threshold
+
+**Root of Trust (RoT):**
+- TPM 2.0 simulation with PCR measurement logging
+- Secure boot chain verification
+- Dynamic Root of Trust for Measurement (DRTM)
+
+**Supply Chain Traceability:**
+- SHA-3 cryptographic hash chains
+- Traceability records: Make, Ship, Receive, Assemble
+- Product pedigree verification back to origin
+
+**Edge Functions:**
+- hardware-integrity-report: External API for integrity data
+- hardware-threat-alert: Email notifications via Resend`
     },
     {
       title: "Government Research Integration",
@@ -132,6 +164,38 @@ const DocumentationCenter = () => {
 - FakeFinder models: Plug-and-play integration
 - NIST scoring: Benchmark validation
 - See Admin → Gov Tools for full details`
+    },
+    {
+      title: "Edge Functions API Reference",
+      content: `**analyze-media** (POST)
+- Image/video deepfake analysis using Gemini 2.5 Flash
+- Params: media (base64), mediaType, fileName
+- Returns: confidence, findings[], status
+
+**analyze-audio** (POST)
+- Audio voice cloning detection with spectral analysis
+- Params: audio (base64), fileName
+- Returns: confidence, findings[], spectralData
+
+**analyze-url** (POST)
+- URL content verification via Firecrawl
+- Params: url
+- Returns: metadata, trustScore, findings[]
+
+**reverse-image-search** (POST)
+- Source tracking with AI-generated search terms
+- Params: imageBase64, imageUrl, searchQuery
+- Returns: matches[], manualSearchLinks[], imageAnalysis
+
+**hardware-integrity-report** (POST)
+- External system integration for hardware integrity
+- Params: report (COVERT, sideChannel, RoT), notifyEmail
+- Returns: success, reportId
+
+**hardware-threat-alert** (POST)
+- Email notifications for critical threats
+- Params: email, report, deviceId
+- Returns: success, messageId`
     },
   ];
 

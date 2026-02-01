@@ -22,7 +22,7 @@ interface ChangelogEntry {
 }
 
 const ChangelogTracker = () => {
-  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(["2.0.0", "1.9.0"]));
+  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set(["2.2.0", "2.1.0", "2.0.0"]));
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
   const toggleVersion = (version: string) => {
@@ -37,6 +37,32 @@ const ChangelogTracker = () => {
 
   const changelog: ChangelogEntry[] = [
     {
+      version: "2.2.0",
+      date: "February 1, 2026",
+      type: "minor",
+      changes: [
+        { category: "feature", description: "Digital Wellness Hub with 20-20-20 eye strain timer and break reminders" },
+        { category: "feature", description: "Blue light filtering FAQ: f.lux, CareUEyes, PangoBright integration guides" },
+        { category: "feature", description: "Melatonin and sleep cycle education content for healthy screen habits" },
+        { category: "docs", description: "Enhanced SEO with long-tail keywords for digital wellness and sustainability" },
+        { category: "docs", description: "Comprehensive documentation update across all files, APIs, and changelog" },
+      ],
+    },
+    {
+      version: "2.1.0",
+      date: "February 1, 2026",
+      type: "minor",
+      changes: [
+        { category: "feature", description: "Hardware Security Panel: COVERT microarchitectural Trojan detection" },
+        { category: "feature", description: "Side-channel analysis: power, thermal, timing monitoring with ERM detection" },
+        { category: "feature", description: "SHA-3 cryptographic supply chain traceability with TPM 2.0 attestation" },
+        { category: "feature", description: "hardware-integrity-report edge function for external system integration" },
+        { category: "feature", description: "hardware-threat-alert edge function with Resend email notifications" },
+        { category: "security", description: "Environmental Rate Manipulation (ERM) dV/dt analysis for advanced threats" },
+        { category: "docs", description: "Root of Trust documentation with PCR measurement logging" },
+      ],
+    },
+    {
       version: "2.0.0",
       date: "February 1, 2026",
       type: "major",
@@ -47,7 +73,7 @@ const ChangelogTracker = () => {
         { category: "feature", description: "Export functionality for documentation (PDF/JSON)" },
         { category: "feature", description: "Global admin search across all sections" },
         { category: "feature", description: "Changelog tracker with version history" },
-        { category: "docs", description: "Complete file registry with 100+ files documented" },
+        { category: "docs", description: "Complete file registry with 150+ files documented" },
         { category: "docs", description: "Tech, developer, and user documentation" },
       ],
     },
@@ -178,7 +204,7 @@ const ChangelogTracker = () => {
         <CardTitle className="flex items-center gap-2">
           <GitCommit className="w-5 h-5 text-primary" />
           Changelog Tracker
-          <Badge variant="outline" className="ml-2">v2.0.0</Badge>
+          <Badge variant="outline" className="ml-2">v2.2.0</Badge>
         </CardTitle>
         <CardDescription>
           Version history and release notes
