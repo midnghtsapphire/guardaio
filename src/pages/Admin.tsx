@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,7 @@ import SecurityModule from "@/components/SecurityModule";
 import FileRegistry from "@/components/admin/FileRegistry";
 import DocumentationCenter from "@/components/admin/DocumentationCenter";
 import ProjectPlanning from "@/components/admin/ProjectPlanning";
+import ProjectHistory from "@/components/admin/ProjectHistory";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -321,6 +322,10 @@ const Admin = () => {
                   <Map className="w-4 h-4" />
                   Planning
                 </TabsTrigger>
+                <TabsTrigger value="history" className="gap-2">
+                  <History className="w-4 h-4" />
+                  History
+                </TabsTrigger>
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="w-4 h-4" />
                   Users
@@ -445,6 +450,11 @@ const Admin = () => {
               {/* Planning Tab */}
               <TabsContent value="planning">
                 <ProjectPlanning />
+              </TabsContent>
+
+              {/* History Tab */}
+              <TabsContent value="history">
+                <ProjectHistory />
               </TabsContent>
 
               {/* Users Tab */}
