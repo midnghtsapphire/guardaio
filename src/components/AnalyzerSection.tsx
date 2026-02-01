@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSoundEffects } from "@/hooks/use-sound-effects";
 import { useKeyboardShortcuts, keyboardShortcutsList } from "@/hooks/use-keyboard-shortcuts";
+import { fireCelebration } from "@/hooks/use-confetti";
 import UrlAnalyzer from "@/components/UrlAnalyzer";
 import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
@@ -453,6 +454,11 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
         playAnalysisComplete(analysisResult.status);
       }
 
+      // Fire confetti celebration for authentic files
+      if (analysisResult.status === "safe") {
+        fireCelebration();
+      }
+
       // Send browser notification if enabled
       if (notificationsEnabled) {
         notifyAnalysisComplete(analysisResult.status, selectedFile.name);
@@ -538,6 +544,11 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     // Play sound effect for batch completion
     if (soundEnabled) {
       playAnalysisComplete(overallStatus);
+    }
+
+    // Fire confetti if overall status is safe
+    if (overallStatus === "safe") {
+      fireCelebration();
     }
 
     // Send browser notification for batch completion
