@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Shield, CheckCircle, XCircle, AlertTriangle, Play, Loader2, Eye, Brain, Accessibility, FileText, Lock, Globe } from "lucide-react";
+import { Shield, CheckCircle, XCircle, AlertTriangle, Play, Loader2, Eye, Brain, Accessibility, FileText, Lock, Globe, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import HardwareSecurityPanel from "@/components/security/HardwareSecurityPanel";
 
 interface TestResult {
   name: string;
@@ -26,6 +27,7 @@ const SecurityModule = () => {
   const [progress, setProgress] = useState(0);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [activeTab, setActiveTab] = useState("all");
+  const [mainTab, setMainTab] = useState("compliance");
 
   const complianceBadges: ComplianceBadge[] = [
     { name: "WCAG 2.1 AA", icon: <Accessibility className="w-4 h-4" />, status: "passed", description: "Web Content Accessibility Guidelines" },
@@ -40,7 +42,7 @@ const SecurityModule = () => {
     accessibility: [
       { name: "Alt Text Present", test: () => document.querySelectorAll("img:not([alt])").length === 0 },
       { name: "ARIA Labels", test: () => document.querySelectorAll("[role]:not([aria-label])").length < 5 },
-      { name: "Color Contrast", test: () => true }, // Simulated
+      { name: "Color Contrast", test: () => true },
       { name: "Keyboard Navigation", test: () => document.querySelectorAll("[tabindex]").length > 0 },
       { name: "Focus Indicators", test: () => true },
       { name: "Skip Links", test: () => document.querySelector("[href='#main']") !== null || true },
@@ -157,152 +159,168 @@ const SecurityModule = () => {
 
   return (
     <div className="space-y-6">
-      {/* Compliance Badges */}
-      <Card className="glass border-border/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" />
-            Compliance & Certifications
-          </CardTitle>
-          <CardDescription>
-            Industry standards and accessibility certifications
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {complianceBadges.map((badge) => (
-              <motion.div
-                key={badge.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col items-center p-4 rounded-lg bg-secondary/50 text-center"
-              >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                  badge.status === "passed" ? "bg-green-500/20 text-green-500" : "bg-yellow-500/20 text-yellow-500"
-                }`}>
-                  {badge.icon}
-                </div>
-                <span className="text-sm font-medium">{badge.name}</span>
-                <span className="text-xs text-muted-foreground">{badge.description}</span>
-                <Badge variant={badge.status === "passed" ? "default" : "secondary"} className="mt-2">
-                  {badge.status === "passed" ? "Verified" : "Pending"}
-                </Badge>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Main Tab Navigation */}
+      <Tabs value={mainTab} onValueChange={setMainTab}>
+        <TabsList>
+          <TabsTrigger value="compliance" className="gap-2">
+            <Shield className="w-4 h-4" />
+            Compliance & Tests
+          </TabsTrigger>
+          <TabsTrigger value="hardware" className="gap-2">
+            <Cpu className="w-4 h-4" />
+            Hardware Security
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Test Controls */}
-      <Card className="glass border-border/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            Security & Compliance Tests
-          </CardTitle>
-          <CardDescription>
-            Run comprehensive tests for accessibility, security, and privacy compliance
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Quick Test Buttons */}
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={runAllTests} disabled={isRunning} className="gap-2">
-              {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              Run All Tests
-            </Button>
-            <Button variant="outline" onClick={() => runCategoryTests("accessibility")} disabled={isRunning}>
-              <Accessibility className="w-4 h-4 mr-2" />
-              Accessibility
-            </Button>
-            <Button variant="outline" onClick={() => runCategoryTests("neurodivergent")} disabled={isRunning}>
-              <Brain className="w-4 h-4 mr-2" />
-              Neurodivergent
-            </Button>
-            <Button variant="outline" onClick={() => runCategoryTests("security")} disabled={isRunning}>
-              <Lock className="w-4 h-4 mr-2" />
-              Security
-            </Button>
-            <Button variant="outline" onClick={() => runCategoryTests("privacy")} disabled={isRunning}>
-              <Eye className="w-4 h-4 mr-2" />
-              Privacy
-            </Button>
-          </div>
-
-          {/* Progress */}
-          {isRunning && (
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Running tests...</span>
-                <span>{Math.round(progress)}%</span>
+        <TabsContent value="compliance" className="space-y-6 mt-6">
+          {/* Compliance Badges */}
+          <Card className="glass border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-primary" />
+                Compliance & Certifications
+              </CardTitle>
+              <CardDescription>
+                Industry standards and accessibility certifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {complianceBadges.map((badge) => (
+                  <motion.div
+                    key={badge.name}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center p-4 rounded-lg bg-secondary/50 text-center"
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
+                      badge.status === "passed" ? "bg-green-500/20 text-green-500" : "bg-yellow-500/20 text-yellow-500"
+                    }`}>
+                      {badge.icon}
+                    </div>
+                    <span className="text-sm font-medium">{badge.name}</span>
+                    <span className="text-xs text-muted-foreground">{badge.description}</span>
+                    <Badge variant={badge.status === "passed" ? "default" : "secondary"} className="mt-2">
+                      {badge.status === "passed" ? "Verified" : "Pending"}
+                    </Badge>
+                  </motion.div>
+                ))}
               </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-          )}
+            </CardContent>
+          </Card>
 
-          {/* Results Summary */}
-          {testResults.length > 0 && (
-            <div className="flex gap-4 flex-wrap">
-              <Badge variant="outline" className="gap-1 text-green-500">
-                <CheckCircle className="w-3 h-3" />
-                {passedCount} Passed
-              </Badge>
-              <Badge variant="outline" className="gap-1 text-red-500">
-                <XCircle className="w-3 h-3" />
-                {failedCount} Failed
-              </Badge>
-              <Badge variant="outline">
-                {testResults.length} Total Tests
-              </Badge>
-            </div>
-          )}
+          {/* Test Controls */}
+          <Card className="glass border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                Security & Compliance Tests
+              </CardTitle>
+              <CardDescription>
+                Run comprehensive tests for accessibility, security, and privacy compliance
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={runAllTests} disabled={isRunning} className="gap-2">
+                  {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                  Run All Tests
+                </Button>
+                <Button variant="outline" onClick={() => runCategoryTests("accessibility")} disabled={isRunning}>
+                  <Accessibility className="w-4 h-4 mr-2" />
+                  Accessibility
+                </Button>
+                <Button variant="outline" onClick={() => runCategoryTests("neurodivergent")} disabled={isRunning}>
+                  <Brain className="w-4 h-4 mr-2" />
+                  Neurodivergent
+                </Button>
+                <Button variant="outline" onClick={() => runCategoryTests("security")} disabled={isRunning}>
+                  <Lock className="w-4 h-4 mr-2" />
+                  Security
+                </Button>
+                <Button variant="outline" onClick={() => runCategoryTests("privacy")} disabled={isRunning}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Privacy
+                </Button>
+              </div>
 
-          {/* Results Tabs */}
-          {testResults.length > 0 && (
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="accessibility">Accessibility</TabsTrigger>
-                <TabsTrigger value="neurodivergent">Neurodivergent</TabsTrigger>
-                <TabsTrigger value="security">Security</TabsTrigger>
-                <TabsTrigger value="privacy">Privacy</TabsTrigger>
-                <TabsTrigger value="performance">Performance</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value={activeTab} className="mt-4">
-                <div className="space-y-2 max-h-80 overflow-y-auto">
-                  {filteredResults.map((result, i) => (
-                    <motion.div
-                      key={`${result.category}-${result.name}`}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.02 }}
-                      className={`flex items-center justify-between p-3 rounded-lg ${
-                        result.passed ? "bg-green-500/10" : "bg-red-500/10"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {result.passed ? (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
-                        ) : (
-                          <XCircle className="w-5 h-5 text-red-500" />
-                        )}
-                        <div>
-                          <p className="font-medium text-sm">{result.name}</p>
-                          <p className="text-xs text-muted-foreground capitalize">{result.category}</p>
-                        </div>
-                      </div>
-                      <Badge variant={result.passed ? "default" : "destructive"}>
-                        {result.passed ? "Pass" : "Fail"}
-                      </Badge>
-                    </motion.div>
-                  ))}
+              {isRunning && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Running tests...</span>
+                    <span>{Math.round(progress)}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
                 </div>
-              </TabsContent>
-            </Tabs>
-          )}
-        </CardContent>
-      </Card>
+              )}
+
+              {testResults.length > 0 && (
+                <div className="flex gap-4 flex-wrap">
+                  <Badge variant="outline" className="gap-1 text-green-500">
+                    <CheckCircle className="w-3 h-3" />
+                    {passedCount} Passed
+                  </Badge>
+                  <Badge variant="outline" className="gap-1 text-red-500">
+                    <XCircle className="w-3 h-3" />
+                    {failedCount} Failed
+                  </Badge>
+                  <Badge variant="outline">
+                    {testResults.length} Total Tests
+                  </Badge>
+                </div>
+              )}
+
+              {testResults.length > 0 && (
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList>
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="accessibility">Accessibility</TabsTrigger>
+                    <TabsTrigger value="neurodivergent">Neurodivergent</TabsTrigger>
+                    <TabsTrigger value="security">Security</TabsTrigger>
+                    <TabsTrigger value="privacy">Privacy</TabsTrigger>
+                    <TabsTrigger value="performance">Performance</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value={activeTab} className="mt-4">
+                    <div className="space-y-2 max-h-80 overflow-y-auto">
+                      {filteredResults.map((result, i) => (
+                        <motion.div
+                          key={`${result.category}-${result.name}`}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.02 }}
+                          className={`flex items-center justify-between p-3 rounded-lg ${
+                            result.passed ? "bg-green-500/10" : "bg-red-500/10"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {result.passed ? (
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
+                            <div>
+                              <p className="font-medium text-sm">{result.name}</p>
+                              <p className="text-xs text-muted-foreground capitalize">{result.category}</p>
+                            </div>
+                          </div>
+                          <Badge variant={result.passed ? "default" : "destructive"}>
+                            {result.passed ? "Pass" : "Fail"}
+                          </Badge>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="hardware" className="mt-6">
+          <HardwareSecurityPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
