@@ -14,6 +14,7 @@ import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
 import HeatmapOverlay, { HeatmapRegion } from "@/components/HeatmapOverlay";
 import { exportAnalysisToPDF } from "@/lib/pdf-export";
+import { exportBatchAnalysisToPDF } from "@/lib/batch-pdf-export";
 import EmailShareDialog from "@/components/EmailShareDialog";
 import ComparisonView from "@/components/ComparisonView";
 
@@ -967,10 +968,33 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                       </div>
                     )}
                     {batchComplete && (
-                      <Button variant="outline" onClick={clearBatchFiles} className="flex-1">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Analyze More Files
-                      </Button>
+                      <>
+                        <Button variant="outline" onClick={clearBatchFiles} className="flex-1">
+                          <Upload className="w-4 h-4 mr-2" />
+                          Analyze More Files
+                        </Button>
+                        <Button 
+                          variant="default" 
+                          onClick={() => {
+                            const exportData = batchFiles.map(bf => ({
+                              fileName: bf.file.name,
+                              fileType: bf.file.type,
+                              fileSize: bf.file.size,
+                              result: bf.result,
+                              error: bf.error,
+                            }));
+                            exportBatchAnalysisToPDF(exportData, sensitivity);
+                            toast({
+                              title: "Report exported",
+                              description: "Batch analysis report has been downloaded as PDF",
+                            });
+                          }}
+                          className="flex-1"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Export PDF Report
+                        </Button>
+                      </>
                     )}
                   </div>
                 </motion.div>
