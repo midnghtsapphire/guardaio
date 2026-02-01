@@ -22,6 +22,8 @@ import EmailShareDialog from "@/components/EmailShareDialog";
 import ComparisonView from "@/components/ComparisonView";
 import DemoSamples from "@/components/DemoSamples";
 import AnalyzerSkeleton from "@/components/AnalyzerSkeleton";
+import ProgressRing from "@/components/ProgressRing";
+import SocialShareButtons from "@/components/SocialShareButtons";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -1191,19 +1193,30 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                   >
-                    {/* File info header */}
+                    {/* File info header with progress ring */}
                     <div className="flex items-center gap-4 mb-6">
-                      <motion.div 
-                        className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", delay: 0.1 }}
-                      >
-                        {(() => {
-                          const FileIcon = getFileIcon(file.type);
-                          return <FileIcon className="w-7 h-7 text-primary" />;
-                        })()}
-                      </motion.div>
+                      {analyzing ? (
+                        <ProgressRing progress={progress} size={64} strokeWidth={4}>
+                          <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
+                            {(() => {
+                              const FileIcon = getFileIcon(file.type);
+                              return <FileIcon className="w-6 h-6 text-primary" />;
+                            })()}
+                          </div>
+                        </ProgressRing>
+                      ) : (
+                        <motion.div 
+                          className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", delay: 0.1 }}
+                        >
+                          {(() => {
+                            const FileIcon = getFileIcon(file.type);
+                            return <FileIcon className="w-7 h-7 text-primary" />;
+                          })()}
+                        </motion.div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold truncate text-lg">{file.name}</p>
                         <p className="text-sm text-muted-foreground">
@@ -1455,6 +1468,22 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                               </motion.li>
                             ))}
                           </ul>
+                        </motion.div>
+
+                        {/* Social Share Buttons */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.5 }}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="text-sm text-muted-foreground">Share result:</span>
+                          <SocialShareButtons
+                            title={result.status === "safe" ? "Authentic Content Verified" : result.status === "warning" ? "Suspicious Content Detected" : "Manipulated Content Detected"}
+                            text={`Analysis of ${file.name}`}
+                            status={result.status}
+                            confidence={result.confidence}
+                          />
                         </motion.div>
 
                         <motion.div

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Shield, LogOut, User, History, Settings } from "lucide-react";
+import { Menu, X, Shield, LogOut, User, History, Settings, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -115,6 +115,10 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate("/profile")}>
                     <Settings className="w-4 h-4 mr-2" />
                     Account Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Analytics Dashboard
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/history")}>
                     <History className="w-4 h-4 mr-2" />
