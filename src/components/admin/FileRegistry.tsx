@@ -71,7 +71,7 @@ const FileRegistry = () => {
     { name: "Dashboard.tsx", path: "src/pages/", description: "User dashboard with usage stats and detection rate charts", type: "page" },
     { name: "History.tsx", path: "src/pages/", description: "Analysis history with filtering, search, and bulk actions", type: "page" },
     { name: "Profile.tsx", path: "src/pages/", description: "User profile management with display name and preferences", type: "page" },
-    { name: "About.tsx", path: "src/pages/", description: "Company about page with team, mission, and values", type: "page" },
+    { name: "About.tsx", path: "src/pages/", description: "SEO-rich about page with 50+ backlinks, real deepfake cases, FBI warnings, scam types, and detection tips", type: "page" },
     { name: "Blog.tsx", path: "src/pages/", description: "Blog listing page with article cards and categories", type: "page" },
     { name: "Careers.tsx", path: "src/pages/", description: "Job listings and company culture information", type: "page" },
     { name: "Contact.tsx", path: "src/pages/", description: "Contact form with Resend email integration", type: "page" },
