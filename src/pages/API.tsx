@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Code, Key, Zap, Shield, Clock, BarChart3, Copy, CheckCircle } from "lucide-react";
+import { Code, Key, Zap, Shield, Clock, BarChart3, Copy, CheckCircle, Activity, Waves, Brain, Search, FileImage, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useState } from "react";
@@ -90,12 +91,28 @@ console.log(\`Status: \${result.status}\`);`,
 }`;
 
   const endpoints = [
-    { method: "POST", path: "/v1/analyze", description: "Analyze an image or video for deepfake indicators" },
-    { method: "POST", path: "/v1/analyze/url", description: "Analyze media from a URL" },
-    { method: "POST", path: "/v1/analyze/batch", description: "Analyze multiple files in one request" },
-    { method: "GET", path: "/v1/analysis/{id}", description: "Retrieve analysis results by ID" },
-    { method: "GET", path: "/v1/history", description: "List analysis history" },
-    { method: "DELETE", path: "/v1/analysis/{id}", description: "Delete analysis record" },
+    { method: "POST", path: "/v1/analyze", description: "Analyze an image or video for deepfake indicators", category: "core" },
+    { method: "POST", path: "/v1/analyze/url", description: "Analyze media from a URL", category: "core" },
+    { method: "POST", path: "/v1/analyze/batch", description: "Analyze multiple files in one request", category: "core" },
+    { method: "POST", path: "/v1/analyze/audio", description: "Detect AI-generated voice and voice cloning", category: "audio" },
+    { method: "POST", path: "/v1/forensics/ela", description: "Error Level Analysis for image manipulation", category: "forensics" },
+    { method: "POST", path: "/v1/forensics/noise", description: "Noise pattern analysis for editing detection", category: "forensics" },
+    { method: "POST", path: "/v1/forensics/metadata", description: "EXIF and metadata forensic extraction", category: "forensics" },
+    { method: "POST", path: "/v1/forensics/frequency", description: "DCT frequency domain analysis", category: "forensics" },
+    { method: "POST", path: "/v1/forensics/face", description: "Facial landmark and symmetry analysis", category: "forensics" },
+    { method: "POST", path: "/v1/reverse-search", description: "Reverse image search across the web", category: "search" },
+    { method: "GET", path: "/v1/analysis/{id}", description: "Retrieve analysis results by ID", category: "core" },
+    { method: "GET", path: "/v1/history", description: "List analysis history", category: "core" },
+    { method: "DELETE", path: "/v1/analysis/{id}", description: "Delete analysis record", category: "core" },
+  ];
+
+  const forensicCapabilities = [
+    { icon: FileImage, name: "Error Level Analysis", desc: "Reveals hidden edits via recompression comparison" },
+    { icon: Activity, name: "Noise Analysis", desc: "Detects inconsistent noise patterns from editing" },
+    { icon: Waves, name: "Frequency Analysis", desc: "DCT-based JPEG artifact and manipulation detection" },
+    { icon: Brain, name: "AI Detection", desc: "Neural network-based deepfake classification" },
+    { icon: Volume2, name: "Voice Analysis", desc: "Voice cloning and AI speech detection" },
+    { icon: Search, name: "Reverse Search", desc: "Find image origins across the web" },
   ];
 
   const handleCopy = (code: string) => {
@@ -160,6 +177,31 @@ console.log(\`Status: \${result.status}\`);`,
               ))}
             </motion.div>
 
+            {/* Forensic Capabilities */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="mb-16"
+            >
+              <h2 className="font-display text-3xl font-bold text-center mb-8">Forensic Analysis Suite</h2>
+              <div className="grid md:grid-cols-3 gap-4">
+                {forensicCapabilities.map((cap) => (
+                  <Card key={cap.name} className="glass border-border/50">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <cap.icon className="w-6 h-6 text-primary shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-sm">{cap.name}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">{cap.desc}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </motion.div>
+
             {/* Endpoints */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -168,23 +210,37 @@ console.log(\`Status: \${result.status}\`);`,
               className="mb-16"
             >
               <h2 className="font-display text-3xl font-bold text-center mb-8">API Endpoints</h2>
-              <div className="glass rounded-2xl overflow-hidden">
-                <div className="divide-y divide-border">
-                  {endpoints.map((endpoint) => (
-                    <div key={endpoint.path} className="p-4 flex items-center gap-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
-                        endpoint.method === "POST" ? "bg-primary/20 text-primary" :
-                        endpoint.method === "GET" ? "bg-emerald-500/20 text-emerald-400" :
-                        "bg-destructive/20 text-destructive"
-                      }`}>
-                        {endpoint.method}
-                      </span>
-                      <code className="font-mono text-sm">{endpoint.path}</code>
-                      <span className="text-muted-foreground text-sm ml-auto hidden md:block">{endpoint.description}</span>
+              
+              <Tabs defaultValue="core" className="max-w-4xl mx-auto">
+                <TabsList className="grid w-full grid-cols-4 mb-4">
+                  <TabsTrigger value="core">Core</TabsTrigger>
+                  <TabsTrigger value="forensics">Forensics</TabsTrigger>
+                  <TabsTrigger value="audio">Audio</TabsTrigger>
+                  <TabsTrigger value="search">Search</TabsTrigger>
+                </TabsList>
+                
+                {["core", "forensics", "audio", "search"].map((category) => (
+                  <TabsContent key={category} value={category}>
+                    <div className="glass rounded-2xl overflow-hidden">
+                      <div className="divide-y divide-border">
+                        {endpoints.filter(e => e.category === category).map((endpoint) => (
+                          <div key={endpoint.path} className="p-4 flex items-center gap-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
+                              endpoint.method === "POST" ? "bg-primary/20 text-primary" :
+                              endpoint.method === "GET" ? "bg-emerald-500/20 text-emerald-400" :
+                              "bg-destructive/20 text-destructive"
+                            }`}>
+                              {endpoint.method}
+                            </span>
+                            <code className="font-mono text-sm">{endpoint.path}</code>
+                            <span className="text-muted-foreground text-sm ml-auto hidden md:block">{endpoint.description}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
             </motion.div>
 
             {/* Code Examples */}

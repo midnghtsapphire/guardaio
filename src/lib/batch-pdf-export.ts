@@ -326,3 +326,22 @@ export const exportBatchAnalysisToPDF = async (
   // Save the PDF
   pdf.save(`batch_analysis_report_${Date.now()}.pdf`);
 };
+
+// Simple batch PDF report generator
+export const generateBatchPdfReport = (results: any[]) => {
+  const formattedFiles: BatchFileResult[] = results.map(r => ({
+    fileName: r.fileName,
+    fileType: r.fileType,
+    fileSize: r.fileSize,
+    result: {
+      status: r.status as "safe" | "warning" | "danger",
+      confidence: r.confidence,
+      findings: [
+        ...(r.findings || []),
+        ...(r.forensicFindings || []),
+      ],
+    },
+  }));
+  
+  exportBatchAnalysisToPDF(formattedFiles);
+};

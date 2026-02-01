@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { Bookmark, GripVertical, MousePointer, Image, CheckCircle, Copy, ExternalLink } from "lucide-react";
+import { Bookmark, GripVertical, MousePointer, Image, CheckCircle, Copy, ExternalLink, Chrome, Download, Smartphone, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -51,6 +53,13 @@ const Bookmarklet = () => {
     });
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const extensionFeatures = [
+    { name: "One-click analysis", desc: "Right-click any image to analyze" },
+    { name: "Batch scanning", desc: "Analyze all images on a page" },
+    { name: "Forensic tools", desc: "ELA, noise, and metadata analysis" },
+    { name: "Real-time alerts", desc: "Auto-detect suspicious media" },
+  ];
 
   const steps = [
     {
@@ -182,12 +191,83 @@ const Bookmarklet = () => {
             </div>
           </motion.div>
 
-          {/* Browser Compatibility */}
+          {/* Browser Extension Coming Soon */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="max-w-4xl mx-auto mt-16"
+          >
+            <Card className="p-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shrink-0">
+                  <Chrome className="w-8 h-8 text-primary-foreground" />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                    <h3 className="font-display text-xl font-bold">Browser Extension</h3>
+                    <Badge variant="secondary">Coming Soon</Badge>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    Full-featured browser extension with advanced forensic analysis tools.
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {extensionFeatures.map((feature) => (
+                      <div key={feature.name} className="flex items-start gap-2 text-sm">
+                        <Activity className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-xs">{feature.name}</p>
+                          <p className="text-xs text-muted-foreground">{feature.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button disabled className="gap-2">
+                    <Download className="w-4 h-4" />
+                    Chrome Extension
+                  </Button>
+                  <Button variant="outline" disabled className="gap-2">
+                    <Download className="w-4 h-4" />
+                    Firefox Add-on
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Mobile App */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="max-w-2xl mx-auto mt-16"
+            className="max-w-2xl mx-auto mt-8"
+          >
+            <Card className="p-6 bg-card/50 backdrop-blur border-border/50">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shrink-0">
+                  <Smartphone className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold">Mobile App Available</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Install our PWA on your phone for quick image analysis on the go.
+                  </p>
+                </div>
+                <Button variant="outline" size="sm">
+                  Learn More
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Browser Compatibility */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="max-w-2xl mx-auto mt-8"
           >
             <Card className="p-6 bg-card/50 backdrop-blur border-border/50">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
