@@ -54,6 +54,7 @@ const FileRegistry = () => {
   const adminComponents: FileEntry[] = [
     { name: "FileRegistry.tsx", path: "src/components/admin/", description: "Complete project file inventory with search and categorization", type: "component" },
     { name: "DocumentationCenter.tsx", path: "src/components/admin/", description: "Tech, developer, and user documentation hub with gov research docs", type: "component" },
+    { name: "DocumentationExport.tsx", path: "src/components/admin/", description: "Export documentation as JSON or Markdown with full file registry", type: "component" },
     { name: "GovernmentToolsReference.tsx", path: "src/components/admin/", description: "DARPA MediFor, NIST MediScore, SemaFor, IQT FakeFinder - government deepfake detection tools", type: "component" },
     { name: "MarketingChannels.tsx", path: "src/components/admin/", description: "YouTube strategy, social media playbook, content calendar, templates, growth metrics", type: "component" },
     { name: "MetadataAnomalyDashboard.tsx", path: "src/components/admin/", description: "Tracks rare/novel EXIF patterns, AI tool signatures, deepfake markers for ML improvement", type: "component" },
@@ -61,11 +62,29 @@ const FileRegistry = () => {
     { name: "DevOpsTools.tsx", path: "src/components/admin/", description: "Government-grade open source DevOps tools: SonarQube, Semgrep, Robot Framework, ArgoCD, OpenSCAP, InSpec", type: "component" },
     { name: "ProjectPlanning.tsx", path: "src/components/admin/", description: "Roadmap, architecture, wireframes, and BOM", type: "component" },
     { name: "ProjectHistory.tsx", path: "src/components/admin/", description: "Chronological changelog of all project development", type: "component" },
-    { name: "ChangelogTracker.tsx", path: "src/components/admin/", description: "Version history with features, fixes, and security updates", type: "component" },
+    { name: "ChangelogTracker.tsx", path: "src/components/admin/", description: "Version history v2.2.0 with features, fixes, and security updates", type: "component" },
     { name: "AdminSearch.tsx", path: "src/components/admin/", description: "Global search across admin panel components", type: "component" },
     { name: "DependencyMap.tsx", path: "src/components/admin/", description: "Visual component dependency graph with zoom/pan", type: "component" },
-    { name: "DocumentationExport.tsx", path: "src/components/admin/", description: "Export documentation as JSON or Markdown", type: "component" },
     { name: "SampleData.tsx", path: "src/components/admin/", description: "Test data repository for FAQs, reviews, and testimonials", type: "component" },
+  ];
+
+  const sustainabilityComponents: FileEntry[] = [
+    { name: "CarbonAuditor.tsx", path: "src/components/sustainability/", description: "SWD/SCI methodology carbon footprint auditor with real-time grid intensity data", type: "component" },
+    { name: "CarbonBadgeGenerator.tsx", path: "src/components/sustainability/", description: "Dynamic carbon badge generator for external embedding and certification", type: "component" },
+    { name: "DigitalWellnessHub.tsx", path: "src/components/sustainability/", description: "20-20-20 eye strain timer, f.lux/CareUEyes/PangoBright guides, melatonin education", type: "component" },
+    { name: "SustainabilityAPIReference.tsx", path: "src/components/sustainability/", description: "Interactive API reference for carbon metrics and green software endpoints", type: "component" },
+    { name: "SustainabilityLearningHub.tsx", path: "src/components/sustainability/", description: "LMS with developer green coding tracks and attorney CSRD/legal compliance courses", type: "component" },
+  ];
+
+  const teamComponents: FileEntry[] = [
+    { name: "KanbanBoard.tsx", path: "src/components/team/", description: "Drag-and-drop Kanban board for task management with columns and cards", type: "component" },
+    { name: "SprintPlanning.tsx", path: "src/components/team/", description: "Sprint planning interface with velocity tracking and story points", type: "component" },
+    { name: "TeamAnalytics.tsx", path: "src/components/team/", description: "Team performance analytics with charts and productivity metrics", type: "component" },
+    { name: "TeamChat.tsx", path: "src/components/team/", description: "Real-time team chat interface with message threading", type: "component" },
+  ];
+
+  const securityComponents: FileEntry[] = [
+    { name: "HardwareSecurityPanel.tsx", path: "src/components/security/", description: "COVERT Trojan detection, side-channel analysis (power/thermal/timing), TPM 2.0 attestation, supply chain traceability", type: "component" },
   ];
 
   const helpComponents: FileEntry[] = [
@@ -139,6 +158,8 @@ const FileRegistry = () => {
     { name: "audio-forensics.ts", path: "src/lib/", description: "Audio forensic analysis: spectral FFT, temporal patterns, voice analysis, noise profiling", type: "util" },
     { name: "metadata-anomaly-tracker.ts", path: "src/lib/", description: "EXIF/metadata anomaly tracking: catalogs rare patterns, AI tool signatures, deepfake markers for ML improvement", type: "util" },
     { name: "criminal-signature-tracker.ts", path: "src/lib/", description: "Criminal/hacker digital signature detection: sextortion, fraud, disinformation patterns with reporting agencies", type: "util" },
+    { name: "hardware-security.ts", path: "src/lib/", description: "COVERT microarchitectural Trojan detection, side-channel analysis (power/thermal/timing), ERM dV/dt detection, TPM 2.0 simulation, SHA-3 supply chain traceability", type: "util" },
+    { name: "mobile-deploy.ts", path: "src/lib/", description: "Mobile deployment utilities, app store metadata, build commands, and CLI reference", type: "util" },
   ];
 
   const uiComponents: FileEntry[] = [
@@ -194,16 +215,18 @@ const FileRegistry = () => {
   ];
 
   const edgeFunctions: FileEntry[] = [
-    { name: "analyze-media/index.ts", path: "supabase/functions/", description: "Image/video deepfake analysis using Gemini 2.5 Flash AI", type: "edge-function" },
-    { name: "analyze-audio/index.ts", path: "supabase/functions/", description: "Audio voice cloning and manipulation detection", type: "edge-function" },
-    { name: "analyze-url/index.ts", path: "supabase/functions/", description: "URL content verification via Firecrawl metadata", type: "edge-function" },
-    { name: "reverse-image-search/index.ts", path: "supabase/functions/", description: "Reverse image lookup for source tracking", type: "edge-function" },
-    { name: "create-checkout/index.ts", path: "supabase/functions/", description: "Stripe checkout session creation for subscriptions", type: "edge-function" },
-    { name: "check-subscription/index.ts", path: "supabase/functions/", description: "User subscription status verification", type: "edge-function" },
-    { name: "send-contact-email/index.ts", path: "supabase/functions/", description: "Contact form email delivery via Resend", type: "edge-function" },
-    { name: "send-analysis-report/index.ts", path: "supabase/functions/", description: "Analysis report email sharing", type: "edge-function" },
-    { name: "get-shared-analysis/index.ts", path: "supabase/functions/", description: "Retrieve shared analysis by token", type: "edge-function" },
+    { name: "analyze-media/index.ts", path: "supabase/functions/", description: "Image/video deepfake analysis using Gemini 2.5 Flash AI with forensic markers", type: "edge-function" },
+    { name: "analyze-audio/index.ts", path: "supabase/functions/", description: "Audio voice cloning and manipulation detection with spectral analysis", type: "edge-function" },
+    { name: "analyze-url/index.ts", path: "supabase/functions/", description: "URL content verification via Firecrawl metadata extraction", type: "edge-function" },
+    { name: "reverse-image-search/index.ts", path: "supabase/functions/", description: "Reverse image lookup for source tracking with AI-generated search terms", type: "edge-function" },
+    { name: "create-checkout/index.ts", path: "supabase/functions/", description: "Stripe checkout session creation for Pro/Enterprise subscriptions", type: "edge-function" },
+    { name: "check-subscription/index.ts", path: "supabase/functions/", description: "User subscription status verification with product tier detection", type: "edge-function" },
+    { name: "send-contact-email/index.ts", path: "supabase/functions/", description: "Contact form email delivery via Resend with HTML templates", type: "edge-function" },
+    { name: "send-analysis-report/index.ts", path: "supabase/functions/", description: "Analysis report email sharing with formatted results", type: "edge-function" },
+    { name: "get-shared-analysis/index.ts", path: "supabase/functions/", description: "Retrieve shared analysis by token for public viewing", type: "edge-function" },
     { name: "rare-pattern-alert/index.ts", path: "supabase/functions/", description: "Rare pattern alerts with auto-email notifications for never-seen-before metadata signatures", type: "edge-function" },
+    { name: "hardware-integrity-report/index.ts", path: "supabase/functions/", description: "Hardware integrity API endpoint for external system integration: COVERT results, side-channel profiles, RoT status", type: "edge-function" },
+    { name: "hardware-threat-alert/index.ts", path: "supabase/functions/", description: "Hardware threat notification service with HTML email alerts via Resend for critical Trojan/tampering detection", type: "edge-function" },
   ];
 
   const integrations: FileEntry[] = [
@@ -234,7 +257,11 @@ const FileRegistry = () => {
   const allFiles = [
     ...components, 
     ...adminComponents, 
+    ...sustainabilityComponents,
+    ...teamComponents,
+    ...securityComponents,
     ...helpComponents,
+    ...aboutComponents,
     ...pages, 
     ...hooks, 
     ...utils, 
@@ -377,10 +404,20 @@ const FileRegistry = () => {
 
             <ScrollArea className="h-[450px]">
               <TabsContent value="components" className="mt-0">
-                <p className="text-xs text-muted-foreground mb-3">Feature Components</p>
+                <p className="text-xs text-muted-foreground mb-3">Feature Components ({components.length})</p>
                 <FileList files={components} />
-                <p className="text-xs text-muted-foreground mb-3 mt-4">Admin Components</p>
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Admin Components ({adminComponents.length})</p>
                 <FileList files={adminComponents} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Sustainability Components ({sustainabilityComponents.length})</p>
+                <FileList files={sustainabilityComponents} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Team Components ({teamComponents.length})</p>
+                <FileList files={teamComponents} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Security Components ({securityComponents.length})</p>
+                <FileList files={securityComponents} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Help Components ({helpComponents.length})</p>
+                <FileList files={helpComponents} />
+                <p className="text-xs text-muted-foreground mb-3 mt-4">About Components ({aboutComponents.length})</p>
+                <FileList files={aboutComponents} />
               </TabsContent>
               <TabsContent value="pages" className="mt-0">
                 <FileList files={pages} />
@@ -396,9 +433,9 @@ const FileRegistry = () => {
               </TabsContent>
               <TabsContent value="utils" className="mt-0">
                 <FileList files={utils} />
-                <p className="text-xs text-muted-foreground mb-3 mt-4">Contexts</p>
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Contexts ({contexts.length})</p>
                 <FileList files={contexts} />
-                <p className="text-xs text-muted-foreground mb-3 mt-4">Integrations</p>
+                <p className="text-xs text-muted-foreground mb-3 mt-4">Integrations ({integrations.length})</p>
                 <FileList files={integrations} />
               </TabsContent>
               <TabsContent value="config" className="mt-0">
