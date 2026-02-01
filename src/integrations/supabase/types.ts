@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_referrals: {
+        Row: {
+          affiliate_id: string
+          commission_amount: number
+          created_at: string
+          id: string
+          payment_id: string | null
+          referred_user_id: string | null
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          payment_id?: string | null
+          referred_user_id?: string | null
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          payment_id?: string | null
+          referred_user_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          affiliate_code: string
+          commission_rate: number
+          created_at: string
+          email: string
+          id: string
+          name: string
+          pending_payout: number
+          status: string
+          total_earnings: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affiliate_code: string
+          commission_rate?: number
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          pending_payout?: number
+          status?: string
+          total_earnings?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affiliate_code?: string
+          commission_rate?: number
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          pending_payout?: number
+          status?: string
+          total_earnings?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analysis_history: {
         Row: {
           confidence: number
@@ -53,6 +133,114 @@ export type Database = {
         }
         Relationships: []
       }
+      batch_analyses: {
+        Row: {
+          completed_at: string | null
+          completed_files: number
+          created_at: string
+          id: string
+          name: string
+          results: Json | null
+          status: string
+          total_files: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_files?: number
+          created_at?: string
+          id?: string
+          name: string
+          results?: Json | null
+          status?: string
+          total_files?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_files?: number
+          created_at?: string
+          id?: string
+          name?: string
+          results?: Json | null
+          status?: string
+          total_files?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      compliance_tests: {
+        Row: {
+          category: string
+          details: Json | null
+          id: string
+          passed: boolean | null
+          run_at: string
+          run_by: string | null
+          status: string
+          test_name: string
+        }
+        Insert: {
+          category: string
+          details?: Json | null
+          id?: string
+          passed?: boolean | null
+          run_at?: string
+          run_by?: string | null
+          status?: string
+          test_name: string
+        }
+        Update: {
+          category?: string
+          details?: Json | null
+          id?: string
+          passed?: boolean | null
+          run_at?: string
+          run_by?: string | null
+          status?: string
+          test_name?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          affiliate_code: string | null
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_payment_id: string | null
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          affiliate_code?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_id?: string | null
+          tier: string
+          user_id: string
+        }
+        Update: {
+          affiliate_code?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_id?: string | null
+          tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -80,15 +268,43 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_affiliate_code: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -215,6 +431,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
