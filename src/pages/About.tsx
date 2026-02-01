@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import VictimStoriesSection from "@/components/about/VictimStoriesSection";
 import { useState } from "react";
 
 const About = () => {
@@ -517,6 +518,9 @@ const About = () => {
                 </div>
               ))}
             </motion.div>
+
+            {/* Victim Stories, USA Stats, Videos, Documentaries */}
+            <VictimStoriesSection />
 
             {/* Real Cases Section */}
             <motion.section

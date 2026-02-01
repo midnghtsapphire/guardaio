@@ -63,6 +63,10 @@ const FileRegistry = () => {
     { name: "HelpPublications.tsx", path: "src/components/help/", description: "Whitepapers, research papers, case studies, and guides (14 publications)", type: "component" },
   ];
 
+  const aboutComponents: FileEntry[] = [
+    { name: "VictimStoriesSection.tsx", path: "src/components/about/", description: "Family tragedies, teen sextortion deaths, marketplace violence, USA stats, video testimonies, documentaries with 30+ backlinks", type: "component" },
+  ];
+
   const pages: FileEntry[] = [
     { name: "Index.tsx", path: "src/pages/", description: "Landing page with hero, features, pricing, and tabbed analyzer interface", type: "page" },
     { name: "Auth.tsx", path: "src/pages/", description: "Authentication page with login/signup forms and OAuth providers", type: "page" },
