@@ -51,6 +51,16 @@ const FileRegistry = () => {
     { name: "DocumentationCenter.tsx", path: "src/components/admin/", description: "Tech, developer, and user documentation hub", type: "component" },
     { name: "ProjectPlanning.tsx", path: "src/components/admin/", description: "Roadmap, architecture, wireframes, and BOM", type: "component" },
     { name: "ProjectHistory.tsx", path: "src/components/admin/", description: "Chronological changelog of all project development", type: "component" },
+    { name: "ChangelogTracker.tsx", path: "src/components/admin/", description: "Version history with features, fixes, and security updates", type: "component" },
+    { name: "AdminSearch.tsx", path: "src/components/admin/", description: "Global search across admin panel components", type: "component" },
+    { name: "DependencyMap.tsx", path: "src/components/admin/", description: "Visual component dependency graph with zoom/pan", type: "component" },
+    { name: "DocumentationExport.tsx", path: "src/components/admin/", description: "Export documentation as JSON or Markdown", type: "component" },
+    { name: "SampleData.tsx", path: "src/components/admin/", description: "Test data repository for FAQs, reviews, and testimonials", type: "component" },
+  ];
+
+  const helpComponents: FileEntry[] = [
+    { name: "HelpArticles.tsx", path: "src/components/help/", description: "Searchable knowledge base with 15+ articles across 6 categories", type: "component" },
+    { name: "HelpPublications.tsx", path: "src/components/help/", description: "Whitepapers, research papers, case studies, and guides (14 publications)", type: "component" },
   ];
 
   const pages: FileEntry[] = [
@@ -67,7 +77,7 @@ const FileRegistry = () => {
     { name: "Contact.tsx", path: "src/pages/", description: "Contact form with Resend email integration", type: "page" },
     { name: "API.tsx", path: "src/pages/", description: "API documentation with code snippets and endpoints", type: "page" },
     { name: "Documentation.tsx", path: "src/pages/", description: "Product documentation and integration guides", type: "page" },
-    { name: "HelpCenter.tsx", path: "src/pages/", description: "FAQ and support resources with search", type: "page" },
+    { name: "HelpCenter.tsx", path: "src/pages/", description: "FAQ, articles, and publications with tabbed navigation", type: "page" },
     { name: "Community.tsx", path: "src/pages/", description: "Community forums and discussion links", type: "page" },
     { name: "Status.tsx", path: "src/pages/", description: "System status page with uptime monitoring", type: "page" },
     { name: "Security.tsx", path: "src/pages/", description: "Security practices and vulnerability reporting", type: "page" },
@@ -194,6 +204,7 @@ const FileRegistry = () => {
   const allFiles = [
     ...components, 
     ...adminComponents, 
+    ...helpComponents,
     ...pages, 
     ...hooks, 
     ...utils, 
