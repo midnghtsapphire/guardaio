@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,6 +26,8 @@ import SampleData from "@/components/admin/SampleData";
 import GovernmentToolsReference from "@/components/admin/GovernmentToolsReference";
 import MarketingChannels from "@/components/admin/MarketingChannels";
 import MetadataAnomalyDashboard from "@/components/admin/MetadataAnomalyDashboard";
+import QAAgent from "@/components/admin/QAAgent";
+import DevOpsTools from "@/components/admin/DevOpsTools";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -310,9 +312,17 @@ const Admin = () => {
             {/* Main Tabs */}
             <Tabs defaultValue="tests" className="space-y-6">
               <TabsList className="flex flex-wrap gap-1">
+                <TabsTrigger value="qa-agent" className="gap-2">
+                  <Bot className="w-4 h-4" />
+                  QA Agent
+                </TabsTrigger>
                 <TabsTrigger value="tests" className="gap-2">
                   <TestTube className="w-4 h-4" />
                   Test Suite
+                </TabsTrigger>
+                <TabsTrigger value="devops" className="gap-2">
+                  <Workflow className="w-4 h-4" />
+                  DevOps
                 </TabsTrigger>
                 <TabsTrigger value="security" className="gap-2">
                   <Shield className="w-4 h-4" />
@@ -363,6 +373,16 @@ const Admin = () => {
                   Settings
                 </TabsTrigger>
               </TabsList>
+
+              {/* QA Agent Tab */}
+              <TabsContent value="qa-agent">
+                <QAAgent />
+              </TabsContent>
+
+              {/* DevOps Tools Tab */}
+              <TabsContent value="devops">
+                <DevOpsTools />
+              </TabsContent>
 
               {/* Test Suite Tab */}
               <TabsContent value="tests" className="space-y-6">
