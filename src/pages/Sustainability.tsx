@@ -11,7 +11,9 @@ import {
   BookOpen,
   Code,
   Scale,
-  TrendingDown
+  TrendingDown,
+  Eye,
+  Heart
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
@@ -20,13 +22,15 @@ import CarbonAuditor from "@/components/sustainability/CarbonAuditor";
 import SustainabilityLearningHub from "@/components/sustainability/SustainabilityLearningHub";
 import CarbonBadgeGenerator from "@/components/sustainability/CarbonBadgeGenerator";
 import SustainabilityAPIReference from "@/components/sustainability/SustainabilityAPIReference";
+import DigitalWellnessHub from "@/components/sustainability/DigitalWellnessHub";
 
 const Sustainability = () => {
   return (
     <>
       <Helmet>
-        <title>GreenWeb Sustainability Platform | DeepGuard</title>
-        <meta name="description" content="Open source digital carbon footprint calculator. Measure, reduce, and report your website's environmental impact with SWD and SCI methodologies." />
+        <title>GreenWeb Sustainability & Digital Wellness Platform | DeepGuard</title>
+        <meta name="description" content="DeepGuard's open source digital carbon footprint calculator and digital wellness hub. Measure website environmental impact with SWD/SCI methodologies. Includes 20-20-20 eye break reminders, blue light filtering recommendations for f.lux, CareUEyes, and PangoBright. Protect your health while protecting truth online." />
+        <meta name="keywords" content="DeepGuard, digital wellness, 20-20-20 rule, f.lux, CareUEyes, PangoBright, blue light filter, melatonin, eye strain, carbon footprint, green software, sustainability, SWD, SCI" />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -77,8 +81,12 @@ const Sustainability = () => {
             </motion.div>
 
             {/* Main Tabs */}
-            <Tabs defaultValue="auditor" className="space-y-8">
+            <Tabs defaultValue="wellness" className="space-y-8">
               <TabsList className="flex flex-wrap justify-center gap-1">
+                <TabsTrigger value="wellness" className="gap-2">
+                  <Heart className="w-4 h-4" />
+                  Digital Wellness
+                </TabsTrigger>
                 <TabsTrigger value="auditor" className="gap-2">
                   <Zap className="w-4 h-4" />
                   Carbon Auditor
@@ -96,6 +104,10 @@ const Sustainability = () => {
                   API Docs
                 </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="wellness">
+                <DigitalWellnessHub />
+              </TabsContent>
 
               <TabsContent value="auditor">
                 <CarbonAuditor />
