@@ -20,6 +20,7 @@ import { exportAnalysisToPDF } from "@/lib/pdf-export";
 import { exportBatchAnalysisToPDF } from "@/lib/batch-pdf-export";
 import EmailShareDialog from "@/components/EmailShareDialog";
 import ComparisonView from "@/components/ComparisonView";
+import DemoSamples from "@/components/DemoSamples";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -1175,6 +1176,12 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                         </span>
                       </Button>
                     </label>
+
+                    {/* Demo samples */}
+                    <DemoSamples
+                      onSelectSample={processFile}
+                      disabled={analyzing}
+                    />
                   </motion.div>
                 ) : (
                   <motion.div
