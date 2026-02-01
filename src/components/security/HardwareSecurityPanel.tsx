@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { 
   Cpu, Shield, AlertTriangle, CheckCircle, XCircle, Play, Loader2, 
   Activity, Thermometer, Zap, Clock, Link2, Hash, Eye, RefreshCw,
-  Lock, Server, ChevronDown, ChevronUp
+  Lock, Server, ChevronDown, ChevronUp, Mail, Upload, Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
 import { 
   MICROARCH_EVENT_TESTS, 
   runCOVERTTest, 
@@ -21,6 +22,7 @@ import {
   type COVERTResult,
   type HardwareIntegrityReport
 } from "@/lib/hardware-security";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const HardwareSecurityPanel = () => {
@@ -31,6 +33,9 @@ const HardwareSecurityPanel = () => {
   const [sideChannelReadings, setSideChannelReadings] = useState<SideChannelReading[]>([]);
   const [liveMonitoring, setLiveMonitoring] = useState(false);
   const [expandedTests, setExpandedTests] = useState<Set<string>>(new Set());
+  const [alertEmail, setAlertEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingAlert, setIsSendingAlert] = useState(false);
 
   // Live side-channel monitoring
   useEffect(() => {
@@ -79,6 +84,88 @@ const HardwareSecurityPanel = () => {
       toast.error("Critical Security Issues", {
         description: `Score: ${newReport.overallScore}/100 - Immediate action required`
       });
+    }
+  };
+
+  // Submit report to API
+  const submitReportToAPI = async () => {
+    if (!report) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await supabase.functions.invoke("hardware-integrity-report", {
+        body: {
+          report: {
+            ...report,
+            timestamp: report.timestamp.toISOString(),
+          },
+          notifyEmail: alertEmail || undefined,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      const data = response.data;
+      toast.success("Report Submitted", {
+        description: `Report ID: ${data.reportId} • Threat: ${data.threatLevel.toUpperCase()}`,
+      });
+
+      if (data.emailAlertSent) {
+        toast.info("Email Alert Sent", {
+          description: `Security alert sent to ${alertEmail}`,
+        });
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      toast.error("Submission Failed", {
+        description: error instanceof Error ? error.message : "Could not submit report",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Send email alert
+  const sendEmailAlert = async () => {
+    if (!report || !alertEmail) {
+      toast.error("Missing Information", {
+        description: "Please run an analysis and enter an email address",
+      });
+      return;
+    }
+
+    setIsSendingAlert(true);
+    try {
+      const covertFailures = report.covertTestResults.filter(r => r.status === "failed").length;
+      
+      const response = await supabase.functions.invoke("hardware-threat-alert", {
+        body: {
+          email: alertEmail,
+          deviceId: report.deviceId,
+          threatLevel: report.sideChannelAnalysis.overallRisk,
+          score: report.overallScore,
+          findings: {
+            covertFailures,
+            sideChannelRisk: report.sideChannelAnalysis.overallRisk,
+            tpmValid: report.rootOfTrustStatus.attestationValid,
+            ermDetected: report.sideChannelAnalysis.thermalProfile.isAnomalous,
+          },
+          recommendations: report.recommendations,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast.success("Alert Sent", {
+        description: `Security alert emailed to ${alertEmail}`,
+      });
+    } catch (error) {
+      console.error("Alert error:", error);
+      toast.error("Alert Failed", {
+        description: error instanceof Error ? error.message : "Could not send alert",
+      });
+    } finally {
+      setIsSendingAlert(false);
     }
   };
 
@@ -145,9 +232,50 @@ const HardwareSecurityPanel = () => {
             </div>
           </div>
         </CardHeader>
+
+        {/* Email & API Controls */}
+        <CardContent className="border-t border-border/50">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex-1 min-w-[200px]">
+              <Input
+                type="email"
+                placeholder="Alert email address..."
+                value={alertEmail}
+                onChange={(e) => setAlertEmail(e.target.value)}
+                className="bg-secondary/50"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={sendEmailAlert}
+              disabled={!report || !alertEmail || isSendingAlert}
+            >
+              {isSendingAlert ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Mail className="w-4 h-4 mr-2" />
+              )}
+              Send Alert
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={submitReportToAPI}
+              disabled={!report || isSubmitting}
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4 mr-2" />
+              )}
+              Submit to API
+            </Button>
+          </div>
+        </CardContent>
         
         {isRunning && (
-          <CardContent>
+          <CardContent className="border-t border-border/50">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Analyzing hardware integrity...</span>
