@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { fireConfetti } from "@/hooks/use-confetti";
 import HeatmapOverlay, { HeatmapRegion } from "@/components/HeatmapOverlay";
 import { cn } from "@/lib/utils";
 
@@ -178,6 +179,11 @@ const ComparisonView = ({ sensitivity = 50 }: ComparisonViewProps) => {
         progress: 100,
         error: null,
       });
+
+      // Fire confetti for safe results
+      if (result.status === "safe") {
+        fireConfetti();
+      }
 
       await saveToHistory(file, result);
     } catch (error) {
