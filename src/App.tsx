@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useThemeTransition } from "@/hooks/use-theme-transition";
+import { ThemeTransitionProvider } from "@/hooks/use-theme-transition";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import History from "./pages/History";
@@ -16,12 +16,6 @@ import Bookmarklet from "./pages/Bookmarklet";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-
-// Component to enable smooth theme transitions
-function ThemeTransitionProvider({ children }: { children: React.ReactNode }) {
-  useThemeTransition();
-  return <>{children}</>;
-}
 
 const App = () => (
   <HelmetProvider>
