@@ -57,6 +57,8 @@ const FileRegistry = () => {
     { name: "GovernmentToolsReference.tsx", path: "src/components/admin/", description: "DARPA MediFor, NIST MediScore, SemaFor, IQT FakeFinder - government deepfake detection tools", type: "component" },
     { name: "MarketingChannels.tsx", path: "src/components/admin/", description: "YouTube strategy, social media playbook, content calendar, templates, growth metrics", type: "component" },
     { name: "MetadataAnomalyDashboard.tsx", path: "src/components/admin/", description: "Tracks rare/novel EXIF patterns, AI tool signatures, deepfake markers for ML improvement", type: "component" },
+    { name: "QAAgent.tsx", path: "src/components/admin/", description: "LLM-powered automated QA agent with 25+ test scenarios across Core, Metadata, Auth, Accessibility, Security, Performance, E2E", type: "component" },
+    { name: "DevOpsTools.tsx", path: "src/components/admin/", description: "Government-grade open source DevOps tools: SonarQube, Semgrep, Robot Framework, ArgoCD, OpenSCAP, InSpec", type: "component" },
     { name: "ProjectPlanning.tsx", path: "src/components/admin/", description: "Roadmap, architecture, wireframes, and BOM", type: "component" },
     { name: "ProjectHistory.tsx", path: "src/components/admin/", description: "Chronological changelog of all project development", type: "component" },
     { name: "ChangelogTracker.tsx", path: "src/components/admin/", description: "Version history with features, fixes, and security updates", type: "component" },
