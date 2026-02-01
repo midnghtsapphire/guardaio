@@ -119,8 +119,8 @@ Continued use after changes constitutes acceptance of the modified terms.`
       title: "12. Contact Information",
       content: `For questions about these Terms, contact us at:
 
-**Email:** legal@deepguard.ai
-**Address:** DeepGuard Inc., 123 AI Security Lane, San Francisco, CA 94102`
+**Email:** support
+**Address:** PO Box 1433, Wellington Colorado 80549`
     }
   ];
 
