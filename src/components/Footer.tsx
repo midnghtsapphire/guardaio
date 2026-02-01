@@ -26,8 +26,8 @@ const Footer = () => {
       { label: "Documentation", href: "/docs" },
       { label: "Help Center", href: "/help" },
       { label: "Community", href: "/community" },
-      { label: "Status", href: "/status" },
-      { label: "Security", href: "/security" },
+      { label: "Sustainability", href: "/sustainability" },
+      { label: "Team Hub", href: "/team" },
     ],
     legal: [
       { label: "Privacy Policy", href: "/privacy" },
