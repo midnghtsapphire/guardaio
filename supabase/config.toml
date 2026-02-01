@@ -1,7 +1,7 @@
 project_id = "lgnqarwehcunsmnbufbv"
 
 [functions.analyze-media]
-verify_jwt = true
+verify_jwt = false
 
 [functions.get-shared-analysis]
 verify_jwt = false
