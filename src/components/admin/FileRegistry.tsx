@@ -51,7 +51,9 @@ const FileRegistry = () => {
 
   const adminComponents: FileEntry[] = [
     { name: "FileRegistry.tsx", path: "src/components/admin/", description: "Complete project file inventory with search and categorization", type: "component" },
-    { name: "DocumentationCenter.tsx", path: "src/components/admin/", description: "Tech, developer, and user documentation hub", type: "component" },
+    { name: "DocumentationCenter.tsx", path: "src/components/admin/", description: "Tech, developer, and user documentation hub with gov research docs", type: "component" },
+    { name: "GovernmentToolsReference.tsx", path: "src/components/admin/", description: "DARPA MediFor, NIST MediScore, SemaFor, IQT FakeFinder - government deepfake detection tools", type: "component" },
+    { name: "MarketingChannels.tsx", path: "src/components/admin/", description: "YouTube strategy, social media playbook, content calendar, templates, growth metrics", type: "component" },
     { name: "ProjectPlanning.tsx", path: "src/components/admin/", description: "Roadmap, architecture, wireframes, and BOM", type: "component" },
     { name: "ProjectHistory.tsx", path: "src/components/admin/", description: "Chronological changelog of all project development", type: "component" },
     { name: "ChangelogTracker.tsx", path: "src/components/admin/", description: "Version history with features, fixes, and security updates", type: "component" },

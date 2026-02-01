@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,8 @@ import AdminSearch from "@/components/admin/AdminSearch";
 import DependencyMap from "@/components/admin/DependencyMap";
 import DocumentationExport from "@/components/admin/DocumentationExport";
 import SampleData from "@/components/admin/SampleData";
+import GovernmentToolsReference from "@/components/admin/GovernmentToolsReference";
+import MarketingChannels from "@/components/admin/MarketingChannels";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -323,6 +325,14 @@ const Admin = () => {
                   <Book className="w-4 h-4" />
                   Docs
                 </TabsTrigger>
+                <TabsTrigger value="govtools" className="gap-2">
+                  <Building2 className="w-4 h-4" />
+                  Gov Tools
+                </TabsTrigger>
+                <TabsTrigger value="marketing" className="gap-2">
+                  <Megaphone className="w-4 h-4" />
+                  Marketing
+                </TabsTrigger>
                 <TabsTrigger value="planning" className="gap-2">
                   <Map className="w-4 h-4" />
                   Planning
@@ -458,6 +468,16 @@ const Admin = () => {
               {/* Docs Tab */}
               <TabsContent value="docs">
                 <DocumentationCenter />
+              </TabsContent>
+
+              {/* Government Tools Tab */}
+              <TabsContent value="govtools">
+                <GovernmentToolsReference />
+              </TabsContent>
+
+              {/* Marketing Tab */}
+              <TabsContent value="marketing">
+                <MarketingChannels />
               </TabsContent>
 
               {/* Planning Tab */}
