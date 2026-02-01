@@ -47,6 +47,8 @@ const FileRegistry = () => {
     { name: "ThemeToggle.tsx", path: "src/components/", description: "Light/dark mode toggle with system preference detection", type: "component" },
     { name: "UrlAnalyzer.tsx", path: "src/components/", description: "URL/website content verification and metadata extraction", type: "component" },
     { name: "VoiceDetector.tsx", path: "src/components/", description: "Audio voice cloning detection with live microphone recording", type: "component" },
+    { name: "MetadataAnomalyPanel.tsx", path: "src/components/", description: "Real-time metadata pattern display during analysis showing rare/suspicious markers", type: "component" },
+    { name: "AccessibilityMenu.tsx", path: "src/components/", description: "Neuroinclusive accessibility controls: high contrast, dyslexia font, reduce motion, focus mode, large text", type: "component" },
   ];
 
   const adminComponents: FileEntry[] = [
@@ -120,6 +122,11 @@ const FileRegistry = () => {
     { name: "use-toast.ts", path: "src/hooks/", description: "Toast notification system wrapper", type: "hook" },
   ];
 
+  const contexts: FileEntry[] = [
+    { name: "AuthContext.tsx", path: "src/contexts/", description: "Authentication context with Supabase user session management", type: "context" },
+    { name: "AccessibilityContext.tsx", path: "src/contexts/", description: "Neuroinclusive accessibility preferences: high contrast, reduce motion, dyslexia font, focus mode, WCAG 2.2 AA", type: "context" },
+  ];
+
   const utils: FileEntry[] = [
     { name: "utils.ts", path: "src/lib/", description: "Utility functions including cn() for class merging", type: "util" },
     { name: "pdf-export.ts", path: "src/lib/", description: "Single analysis PDF report generation with jsPDF", type: "util" },
@@ -128,6 +135,7 @@ const FileRegistry = () => {
     { name: "face-detection.ts", path: "src/lib/", description: "Face detection using @vladmandic/face-api: 68-point landmarks, symmetry, expressions, blur", type: "util" },
     { name: "audio-forensics.ts", path: "src/lib/", description: "Audio forensic analysis: spectral FFT, temporal patterns, voice analysis, noise profiling", type: "util" },
     { name: "metadata-anomaly-tracker.ts", path: "src/lib/", description: "EXIF/metadata anomaly tracking: catalogs rare patterns, AI tool signatures, deepfake markers for ML improvement", type: "util" },
+    { name: "criminal-signature-tracker.ts", path: "src/lib/", description: "Criminal/hacker digital signature detection: sextortion, fraud, disinformation patterns with reporting agencies", type: "util" },
   ];
 
   const uiComponents: FileEntry[] = [
@@ -192,10 +200,7 @@ const FileRegistry = () => {
     { name: "send-contact-email/index.ts", path: "supabase/functions/", description: "Contact form email delivery via Resend", type: "edge-function" },
     { name: "send-analysis-report/index.ts", path: "supabase/functions/", description: "Analysis report email sharing", type: "edge-function" },
     { name: "get-shared-analysis/index.ts", path: "supabase/functions/", description: "Retrieve shared analysis by token", type: "edge-function" },
-  ];
-
-  const contexts: FileEntry[] = [
-    { name: "AuthContext.tsx", path: "src/contexts/", description: "Authentication state management with Supabase Auth", type: "context" },
+    { name: "rare-pattern-alert/index.ts", path: "supabase/functions/", description: "Rare pattern alerts with auto-email notifications for never-seen-before metadata signatures", type: "edge-function" },
   ];
 
   const integrations: FileEntry[] = [

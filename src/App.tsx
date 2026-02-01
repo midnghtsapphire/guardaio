@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import { ThemeTransitionProvider } from "@/hooks/use-theme-transition";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -44,9 +45,10 @@ const App = () => (
         <TooltipProvider>
           <BrowserRouter>
             <AuthProvider>
-              <ThemeTransitionProvider>
-                <Toaster />
-                <Sonner />
+              <AccessibilityProvider>
+                <ThemeTransitionProvider>
+                  <Toaster />
+                  <Sonner />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
@@ -77,7 +79,8 @@ const App = () => (
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </ThemeTransitionProvider>
+                </ThemeTransitionProvider>
+              </AccessibilityProvider>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>

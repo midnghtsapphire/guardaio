@@ -1,12 +1,17 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { HeatmapRegion } from "@/components/HeatmapOverlay";
+import { MetadataPattern, ExtendedMetadata } from "./metadata-anomaly-tracker";
+import { ThreatReport } from "./criminal-signature-tracker";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
   confidence: number;
   findings: string[];
   heatmapRegions?: HeatmapRegion[];
+  metadataPatterns?: MetadataPattern[];
+  metadata?: ExtendedMetadata;
+  threatReport?: ThreatReport;
 };
 
 const getStatusText = (status: string) => {
@@ -231,11 +236,187 @@ export const exportAnalysisToPDF = async (
 
   yPos = (pdf as any).lastAutoTable.finalY + 20;
 
+  // Metadata Anomalies Section
+  if (result.metadataPatterns && result.metadataPatterns.length > 0) {
+    if (yPos > 200) {
+      pdf.addPage();
+      yPos = 20;
+    }
+
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(15, 23, 42);
+    pdf.text("Metadata Anomaly Analysis", 14, yPos);
+    yPos += 5;
+
+    autoTable(pdf, {
+      startY: yPos,
+      head: [["Type", "Rarity", "Suspicious", "Details"]],
+      body: result.metadataPatterns.map((pattern) => [
+        pattern.type.replace(/_/g, ' ').toUpperCase(),
+        `${pattern.rarity}%`,
+        pattern.isSuspicious ? "⚠️ Yes" : "No",
+        typeof pattern.data === 'object' ? JSON.stringify(pattern.data).substring(0, 50) : String(pattern.data),
+      ]),
+      theme: "striped",
+      headStyles: { fillColor: [234, 179, 8] }, // yellow for metadata
+      styles: { fontSize: 8 },
+      columnStyles: {
+        0: { cellWidth: 35 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: "auto" },
+      },
+    });
+
+    yPos = (pdf as any).lastAutoTable.finalY + 15;
+  }
+
+  // Extended Metadata Section
+  if (result.metadata) {
+    if (yPos > 200) {
+      pdf.addPage();
+      yPos = 20;
+    }
+
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(15, 23, 42);
+    pdf.text("EXIF/Metadata Details", 14, yPos);
+    yPos += 5;
+
+    const metadataRows: [string, string][] = [];
+    if (result.metadata.make) metadataRows.push(["Camera Make", result.metadata.make]);
+    if (result.metadata.model) metadataRows.push(["Camera Model", result.metadata.model]);
+    if (result.metadata.software) metadataRows.push(["Software", result.metadata.software]);
+    if (result.metadata.dateTime) metadataRows.push(["Date/Time", result.metadata.dateTime]);
+    if (result.metadata.width && result.metadata.height) {
+      metadataRows.push(["Dimensions", `${result.metadata.width} x ${result.metadata.height}`]);
+    }
+    if (result.metadata.aiGenerationPrompt) {
+      metadataRows.push(["AI Generation Detected", "⚠️ YES"]);
+      metadataRows.push(["Prompt Preview", result.metadata.aiGenerationPrompt.substring(0, 100) + "..."]);
+    }
+    if (result.metadata.aiGenerationSeed) {
+      metadataRows.push(["AI Seed", result.metadata.aiGenerationSeed]);
+    }
+
+    if (metadataRows.length > 0) {
+      autoTable(pdf, {
+        startY: yPos,
+        head: [],
+        body: metadataRows,
+        theme: "striped",
+        headStyles: { fillColor: [15, 23, 42] },
+        styles: { fontSize: 9 },
+        columnStyles: {
+          0: { fontStyle: "bold", cellWidth: 45 },
+          1: { cellWidth: "auto" },
+        },
+      });
+
+      yPos = (pdf as any).lastAutoTable.finalY + 15;
+    }
+  }
+
+  // Threat Report Section
+  if (result.threatReport && result.threatReport.signatures.length > 0) {
+    if (yPos > 180) {
+      pdf.addPage();
+      yPos = 20;
+    }
+
+    // Threat level banner
+    const threatColors: Record<string, [number, number, number]> = {
+      none: [34, 197, 94],
+      low: [234, 179, 8],
+      medium: [249, 115, 22],
+      high: [239, 68, 68],
+      critical: [127, 29, 29],
+    };
+    
+    const threatColor = threatColors[result.threatReport.overallThreatLevel] || [156, 163, 175];
+    
+    pdf.setFillColor(threatColor[0], threatColor[1], threatColor[2]);
+    pdf.rect(14, yPos, pageWidth - 28, 20, "F");
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`⚠️ THREAT LEVEL: ${result.threatReport.overallThreatLevel.toUpperCase()}`, pageWidth / 2, yPos + 12, { align: "center" });
+    
+    yPos += 30;
+
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(15, 23, 42);
+    pdf.text("Criminal Signature Detection", 14, yPos);
+    yPos += 5;
+
+    autoTable(pdf, {
+      startY: yPos,
+      head: [["Signature", "Type", "Threat Level", "Confidence"]],
+      body: result.threatReport.signatures.map((ds) => [
+        ds.signature.name,
+        ds.signature.type.replace(/_/g, ' '),
+        ds.signature.threatLevel.toUpperCase(),
+        `${Math.round(ds.confidence * 100)}%`,
+      ]),
+      theme: "striped",
+      headStyles: { fillColor: [127, 29, 29] }, // dark red for threats
+      styles: { fontSize: 9 },
+    });
+
+    yPos = (pdf as any).lastAutoTable.finalY + 10;
+
+    // Recommendations
+    if (result.threatReport.recommendations.length > 0) {
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Recommendations:", 14, yPos);
+      yPos += 6;
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      result.threatReport.recommendations.forEach((rec) => {
+        const lines = pdf.splitTextToSize(rec, pageWidth - 28);
+        lines.forEach((line: string) => {
+          if (yPos > 270) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          pdf.text(`• ${line}`, 16, yPos);
+          yPos += 5;
+        });
+      });
+    }
+
+    // Reporting Agencies
+    if (result.threatReport.reportingAgencies.length > 0) {
+      yPos += 5;
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Report To:", 14, yPos);
+      yPos += 6;
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      result.threatReport.reportingAgencies.forEach((agency) => {
+        if (yPos > 270) {
+          pdf.addPage();
+          yPos = 20;
+        }
+        pdf.text(`• ${agency}`, 16, yPos);
+        yPos += 5;
+      });
+    }
+  }
+
   // Footer
   pdf.setFontSize(8);
   pdf.setTextColor(100, 116, 139);
   pdf.text(
-    "This report was generated by AI Detection Analyzer. Results are for informational purposes only.",
+    "This report was generated by DeepGuard AI Detection Analyzer. Results are for informational purposes only.",
     pageWidth / 2,
     pdf.internal.pageSize.getHeight() - 10,
     { align: "center" }

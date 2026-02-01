@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
 const GovernmentToolsReference = () => {
@@ -169,6 +170,70 @@ const GovernmentToolsReference = () => {
     recommendation: "Start with FakeFinder models (easiest integration), then add MediFor algorithms for ensemble detection. Use MediScore for accuracy validation."
   };
 
+  const integrationRoadmap = [
+    {
+      phase: "Phase 1: Foundation",
+      timeline: "Weeks 1-4",
+      status: "completed",
+      progress: 100,
+      tasks: [
+        { task: "Implement ELA (Error Level Analysis)", done: true },
+        { task: "Add DCT artifact detection", done: true },
+        { task: "Face detection with landmark analysis", done: true },
+        { task: "Client-side metadata extraction", done: true },
+      ]
+    },
+    {
+      phase: "Phase 2: FakeFinder Integration",
+      timeline: "Weeks 5-8",
+      status: "in_progress",
+      progress: 40,
+      tasks: [
+        { task: "Deploy FakeFinder Docker container", done: true },
+        { task: "Integrate XceptionNet model", done: true },
+        { task: "Add EfficientNet-B4 for face detection", done: false },
+        { task: "Implement model ensemble voting", done: false },
+      ]
+    },
+    {
+      phase: "Phase 3: MediFor Protocol",
+      timeline: "Weeks 9-14",
+      status: "planned",
+      progress: 0,
+      tasks: [
+        { task: "Set up gRPC infrastructure", done: false },
+        { task: "Implement MediFor-v2 API compatibility", done: false },
+        { task: "Add copy-move forgery detection", done: false },
+        { task: "Integrate splicing detection", done: false },
+        { task: "Add provenance tracking", done: false },
+      ]
+    },
+    {
+      phase: "Phase 4: SemaFor Semantic Analysis",
+      timeline: "Weeks 15-20",
+      status: "planned",
+      progress: 0,
+      tasks: [
+        { task: "Multi-modal analysis pipeline", done: false },
+        { task: "Text-image consistency checking", done: false },
+        { task: "Cross-media attribution", done: false },
+        { task: "Semantic manipulation detection", done: false },
+      ]
+    },
+    {
+      phase: "Phase 5: NIST Validation",
+      timeline: "Weeks 21-24",
+      status: "planned",
+      progress: 0,
+      tasks: [
+        { task: "Implement MediScore evaluation suite", done: false },
+        { task: "Generate benchmark reports", done: false },
+        { task: "Achieve NIST certification readiness", done: false },
+        { task: "Publish accuracy metrics", done: false },
+      ]
+    },
+  ];
+
   const integrationCode = `// Example: Integrating with MediFor-style API
 // Based on github.com/mediaforensics/medifor
 
@@ -244,18 +309,22 @@ export const ensembleDetection = async (
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="tools" className="space-y-4">
-          <TabsList className="grid grid-cols-3 w-full">
-            <TabsTrigger value="tools" className="gap-2">
-              <Shield className="w-4 h-4" />
-              Gov Tools
+          <TabsList className="grid grid-cols-4 w-full">
+            <TabsTrigger value="tools" className="gap-1 text-xs">
+              <Shield className="w-3 h-3" />
+              Tools
             </TabsTrigger>
-            <TabsTrigger value="accuracy" className="gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Accuracy Impact
+            <TabsTrigger value="roadmap" className="gap-1 text-xs">
+              <Zap className="w-3 h-3" />
+              Roadmap
             </TabsTrigger>
-            <TabsTrigger value="integration" className="gap-2">
-              <Zap className="w-4 h-4" />
-              Integration
+            <TabsTrigger value="accuracy" className="gap-1 text-xs">
+              <TrendingUp className="w-3 h-3" />
+              Accuracy
+            </TabsTrigger>
+            <TabsTrigger value="integration" className="gap-1 text-xs">
+              <BookOpen className="w-3 h-3" />
+              Code
             </TabsTrigger>
           </TabsList>
 
@@ -357,6 +426,78 @@ export const ensembleDetection = async (
                   )}
                 </motion.div>
               ))}
+            </TabsContent>
+
+            {/* Integration Roadmap Tab */}
+            <TabsContent value="roadmap" className="space-y-4 mt-0">
+              <div className="p-4 rounded-lg bg-primary/10 border border-primary/30 mb-4">
+                <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-primary" />
+                  Government Algorithm Integration Roadmap
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Phased implementation plan for integrating DARPA, NIST, and IQT detection algorithms.
+                </p>
+              </div>
+
+              {integrationRoadmap.map((phase, i) => (
+                <motion.div
+                  key={phase.phase}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-4 rounded-lg bg-muted/30 border border-border/50"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="font-semibold">{phase.phase}</h4>
+                      <p className="text-xs text-muted-foreground">{phase.timeline}</p>
+                    </div>
+                    <Badge 
+                      variant="outline"
+                      className={
+                        phase.status === "completed" ? "bg-green-500/20 text-green-400" :
+                        phase.status === "in_progress" ? "bg-yellow-500/20 text-yellow-400" :
+                        "bg-muted text-muted-foreground"
+                      }
+                    >
+                      {phase.status.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                  </div>
+                  
+                  <Progress value={phase.progress} className="h-2 mb-3" />
+                  
+                  <div className="space-y-2">
+                    {phase.tasks.map((task) => (
+                      <div key={task.task} className="flex items-center gap-2 text-sm">
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                          task.done ? 'bg-green-500' : 'bg-muted border border-border'
+                        }`}>
+                          {task.done && <Check className="w-3 h-3 text-green-950" />}
+                        </div>
+                        <span className={task.done ? 'text-muted-foreground line-through' : ''}>
+                          {task.task}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+
+              <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 mt-4">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium text-yellow-500">Implementation Notes</p>
+                    <ul className="text-muted-foreground text-xs mt-2 space-y-1">
+                      <li>• Phase 2 requires GPU infrastructure for model inference</li>
+                      <li>• Phase 3 MediFor integration needs government data agreements</li>
+                      <li>• Phase 4 SemaFor is partially classified - public components only</li>
+                      <li>• Phase 5 certification requires formal NIST evaluation submission</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </TabsContent>
 
             {/* Accuracy Impact Tab */}
