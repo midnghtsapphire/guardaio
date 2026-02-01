@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,6 +25,7 @@ import DocumentationExport from "@/components/admin/DocumentationExport";
 import SampleData from "@/components/admin/SampleData";
 import GovernmentToolsReference from "@/components/admin/GovernmentToolsReference";
 import MarketingChannels from "@/components/admin/MarketingChannels";
+import MetadataAnomalyDashboard from "@/components/admin/MetadataAnomalyDashboard";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -353,6 +354,10 @@ const Admin = () => {
                   <Database className="w-4 h-4" />
                   Data
                 </TabsTrigger>
+                <TabsTrigger value="metadata" className="gap-2">
+                  <Fingerprint className="w-4 h-4" />
+                  Metadata
+                </TabsTrigger>
                 <TabsTrigger value="settings" className="gap-2">
                   <Settings className="w-4 h-4" />
                   Settings
@@ -503,6 +508,11 @@ const Admin = () => {
               {/* Sample Data Tab */}
               <TabsContent value="data">
                 <SampleData />
+              </TabsContent>
+
+              {/* Metadata Anomaly Tab */}
+              <TabsContent value="metadata">
+                <MetadataAnomalyDashboard />
               </TabsContent>
 
               {/* Settings Tab */}

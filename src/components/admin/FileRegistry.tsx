@@ -54,6 +54,7 @@ const FileRegistry = () => {
     { name: "DocumentationCenter.tsx", path: "src/components/admin/", description: "Tech, developer, and user documentation hub with gov research docs", type: "component" },
     { name: "GovernmentToolsReference.tsx", path: "src/components/admin/", description: "DARPA MediFor, NIST MediScore, SemaFor, IQT FakeFinder - government deepfake detection tools", type: "component" },
     { name: "MarketingChannels.tsx", path: "src/components/admin/", description: "YouTube strategy, social media playbook, content calendar, templates, growth metrics", type: "component" },
+    { name: "MetadataAnomalyDashboard.tsx", path: "src/components/admin/", description: "Tracks rare/novel EXIF patterns, AI tool signatures, deepfake markers for ML improvement", type: "component" },
     { name: "ProjectPlanning.tsx", path: "src/components/admin/", description: "Roadmap, architecture, wireframes, and BOM", type: "component" },
     { name: "ProjectHistory.tsx", path: "src/components/admin/", description: "Chronological changelog of all project development", type: "component" },
     { name: "ChangelogTracker.tsx", path: "src/components/admin/", description: "Version history with features, fixes, and security updates", type: "component" },
@@ -126,6 +127,7 @@ const FileRegistry = () => {
     { name: "forensic-analysis.ts", path: "src/lib/", description: "Client-side image forensics: ELA, noise, histogram, frequency, metadata extraction", type: "util" },
     { name: "face-detection.ts", path: "src/lib/", description: "Face detection using @vladmandic/face-api: 68-point landmarks, symmetry, expressions, blur", type: "util" },
     { name: "audio-forensics.ts", path: "src/lib/", description: "Audio forensic analysis: spectral FFT, temporal patterns, voice analysis, noise profiling", type: "util" },
+    { name: "metadata-anomaly-tracker.ts", path: "src/lib/", description: "EXIF/metadata anomaly tracking: catalogs rare patterns, AI tool signatures, deepfake markers for ML improvement", type: "util" },
   ];
 
   const uiComponents: FileEntry[] = [

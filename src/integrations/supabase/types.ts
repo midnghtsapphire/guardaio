@@ -202,6 +202,87 @@ export type Database = {
         }
         Relationships: []
       }
+      known_software_signatures: {
+        Row: {
+          category: string
+          description: string | null
+          first_seen: string
+          id: string
+          is_verified: boolean | null
+          occurrence_count: number
+          risk_level: string | null
+          signature_pattern: string
+          software_name: string
+        }
+        Insert: {
+          category: string
+          description?: string | null
+          first_seen?: string
+          id?: string
+          is_verified?: boolean | null
+          occurrence_count?: number
+          risk_level?: string | null
+          signature_pattern: string
+          software_name: string
+        }
+        Update: {
+          category?: string
+          description?: string | null
+          first_seen?: string
+          id?: string
+          is_verified?: boolean | null
+          occurrence_count?: number
+          risk_level?: string | null
+          signature_pattern?: string
+          software_name?: string
+        }
+        Relationships: []
+      }
+      metadata_anomalies: {
+        Row: {
+          anomaly_type: string
+          detection_context: string | null
+          example_file_names: string[] | null
+          first_seen: string
+          id: string
+          is_suspicious: boolean | null
+          last_seen: string
+          notes: string | null
+          occurrence_count: number
+          pattern_data: Json
+          pattern_signature: string
+          rarity_score: number | null
+        }
+        Insert: {
+          anomaly_type: string
+          detection_context?: string | null
+          example_file_names?: string[] | null
+          first_seen?: string
+          id?: string
+          is_suspicious?: boolean | null
+          last_seen?: string
+          notes?: string | null
+          occurrence_count?: number
+          pattern_data?: Json
+          pattern_signature: string
+          rarity_score?: number | null
+        }
+        Update: {
+          anomaly_type?: string
+          detection_context?: string | null
+          example_file_names?: string[] | null
+          first_seen?: string
+          id?: string
+          is_suspicious?: boolean | null
+          last_seen?: string
+          notes?: string | null
+          occurrence_count?: number
+          pattern_data?: Json
+          pattern_signature?: string
+          rarity_score?: number | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           affiliate_code: string | null
@@ -294,6 +375,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_rarity_score: {
+        Args: { occurrence: number; total_count: number }
+        Returns: number
+      }
       generate_affiliate_code: { Args: never; Returns: string }
       has_role: {
         Args: {
