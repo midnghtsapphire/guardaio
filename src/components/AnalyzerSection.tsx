@@ -21,6 +21,7 @@ import { exportBatchAnalysisToPDF } from "@/lib/batch-pdf-export";
 import EmailShareDialog from "@/components/EmailShareDialog";
 import ComparisonView from "@/components/ComparisonView";
 import DemoSamples from "@/components/DemoSamples";
+import AnalyzerSkeleton from "@/components/AnalyzerSkeleton";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -1313,6 +1314,9 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                             {analysisStages[currentStage]?.description || "Processing..."}
                           </span>
                         </div>
+
+                        {/* Results skeleton preview */}
+                        <AnalyzerSkeleton />
                       </motion.div>
                     ) : result ? (
                       <motion.div
