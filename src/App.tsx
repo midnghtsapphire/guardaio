@@ -27,10 +27,10 @@ const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <ThemeTransitionProvider>
-          <TooltipProvider>
-            <BrowserRouter>
-              <AuthProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <ThemeTransitionProvider>
                 <Toaster />
                 <Sonner />
                 <Routes>
@@ -43,10 +43,10 @@ const App = () => (
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </AuthProvider>
-            </BrowserRouter>
-          </TooltipProvider>
-        </ThemeTransitionProvider>
+              </ThemeTransitionProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </HelmetProvider>
