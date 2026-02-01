@@ -1,14 +1,16 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check, Scale } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check, Scale, Keyboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useSoundEffects } from "@/hooks/use-sound-effects";
+import { useKeyboardShortcuts, keyboardShortcutsList } from "@/hooks/use-keyboard-shortcuts";
 import UrlAnalyzer from "@/components/UrlAnalyzer";
 import ReverseImageSearch from "@/components/ReverseImageSearch";
 import AudioAnalyzer from "@/components/AudioAnalyzer";
@@ -105,6 +107,57 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   // Batch analysis state
   const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
+
+  // Handle export for keyboard shortcut
+  const handleKeyboardExport = useCallback(() => {
+    if (analysisMode === "batch" && batchFiles.length > 0 && batchFiles.every(f => f.status === "complete" || f.status === "error")) {
+      const exportData = batchFiles.map(bf => ({
+        fileName: bf.file.name,
+        fileType: bf.file.type,
+        fileSize: bf.file.size,
+        result: bf.result,
+        error: bf.error,
+      }));
+      exportBatchAnalysisToPDF(exportData, sensitivity);
+      toast({ title: "Report exported", description: "Batch analysis PDF downloaded" });
+    } else if (analysisMode === "file" && result && file) {
+      exportAnalysisToPDF(result, file.name, file.type, file.size, filePreviewUrl, sensitivity);
+      toast({ title: "Report exported", description: "Analysis PDF downloaded" });
+    } else {
+      toast({ title: "Nothing to export", description: "Complete an analysis first", variant: "destructive" });
+    }
+  }, [analysisMode, batchFiles, result, file, filePreviewUrl, sensitivity, toast]);
+
+  // Handle mode change for keyboard shortcut
+  const handleKeyboardModeChange = useCallback((mode: AnalysisMode) => {
+    if (analyzing || batchAnalyzing) return;
+    setAnalysisMode(mode);
+    // Clear file state inline to avoid circular dependency
+    if (mode !== "file") {
+      if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+      setFile(null);
+      setFilePreviewUrl(null);
+      setResult(null);
+      setProgress(0);
+      setCurrentStage(0);
+      setShowHeatmap(true);
+      setLastAnalysisId(null);
+      setLinkCopied(false);
+    }
+    // Clear batch files inline
+    if (mode !== "batch") {
+      setBatchFiles([]);
+    }
+  }, [analyzing, batchAnalyzing, filePreviewUrl]);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onModeChange: handleKeyboardModeChange,
+    onToggleHeatmap: () => setShowHeatmap(prev => !prev),
+    onExport: handleKeyboardExport,
+    onToggleSensitivity: () => setShowSensitivityPanel(prev => !prev),
+    disabled: analyzing || batchAnalyzing,
+  });
 
   // Sync notifications state with permission
   useEffect(() => {
@@ -710,10 +763,38 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
               variant={showSensitivityPanel ? "default" : "outline"}
               size="sm"
               onClick={() => setShowSensitivityPanel(!showSensitivityPanel)}
-              title="Adjust detection sensitivity"
+              title="Adjust detection sensitivity (S)"
             >
               <SlidersHorizontal className="w-4 h-4" />
             </Button>
+            {/* Keyboard shortcuts tooltip */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hidden md:flex"
+                    title="Keyboard shortcuts"
+                  >
+                    <Keyboard className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <div className="space-y-1.5 text-xs">
+                    <p className="font-semibold text-sm mb-2">Keyboard Shortcuts</p>
+                    {keyboardShortcutsList.map((shortcut) => (
+                      <div key={shortcut.key} className="flex items-center justify-between gap-4">
+                        <span className="text-muted-foreground">{shortcut.description}</span>
+                        <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">
+                          {shortcut.key}
+                        </kbd>
+                      </div>
+                    ))}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Sensitivity Panel */}
