@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
@@ -15,6 +15,7 @@ import AudioAnalyzer from "@/components/AudioAnalyzer";
 import HeatmapOverlay, { HeatmapRegion } from "@/components/HeatmapOverlay";
 import { exportAnalysisToPDF } from "@/lib/pdf-export";
 import EmailShareDialog from "@/components/EmailShareDialog";
+import ComparisonView from "@/components/ComparisonView";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -48,7 +49,7 @@ type BatchFile = {
   progress: number;
 };
 
-type AnalysisMode = "file" | "batch" | "url" | "reverse" | "audio";
+type AnalysisMode = "file" | "batch" | "url" | "reverse" | "audio" | "compare";
 
 const analysisStages: AnalysisStage[] = [
   { name: "Uploading", icon: Upload, description: "Preparing file for analysis" },
@@ -662,6 +663,19 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
               <Volume2 className="w-4 h-4 mr-2" />
               Voice Detection
             </Button>
+            <Button
+              variant={analysisMode === "compare" ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setAnalysisMode("compare");
+                clearFile();
+                clearBatchFiles();
+              }}
+              disabled={analyzing || batchAnalyzing}
+            >
+              <Scale className="w-4 h-4 mr-2" />
+              Compare
+            </Button>
             {/* Notification toggle */}
             {notificationsSupported && (
               <Button
@@ -753,7 +767,10 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
           viewport={{ once: true }}
           className="max-w-3xl mx-auto"
         >
-          {analysisMode === "audio" ? (
+          {analysisMode === "compare" ? (
+            // Comparison mode
+            <ComparisonView sensitivity={sensitivity} />
+          ) : analysisMode === "audio" ? (
             // Audio deepfake detection mode
             <AudioAnalyzer user={user} toast={toast} />
           ) : analysisMode === "reverse" ? (
