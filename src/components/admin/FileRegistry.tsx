@@ -75,7 +75,7 @@ const FileRegistry = () => {
     { name: "Dashboard.tsx", path: "src/pages/", description: "User dashboard with usage stats and detection rate charts", type: "page" },
     { name: "History.tsx", path: "src/pages/", description: "Analysis history with filtering, search, and bulk actions", type: "page" },
     { name: "Profile.tsx", path: "src/pages/", description: "User profile management with display name and preferences", type: "page" },
-    { name: "About.tsx", path: "src/pages/", description: "SEO-rich about page with 50+ backlinks, real deepfake cases, FBI warnings, scam types, and detection tips", type: "page" },
+    { name: "About.tsx", path: "src/pages/", description: "SEO-rich about page with 80+ backlinks, real deepfake cases, FBI warnings, scam types, detection tips, victim stories", type: "page" },
     { name: "Blog.tsx", path: "src/pages/", description: "Blog listing page with article cards and categories", type: "page" },
     { name: "Careers.tsx", path: "src/pages/", description: "Job listings and company culture information", type: "page" },
     { name: "Contact.tsx", path: "src/pages/", description: "Contact form with Resend email integration", type: "page" },
@@ -93,7 +93,15 @@ const FileRegistry = () => {
     { name: "DesktopApp.tsx", path: "src/pages/", description: "Desktop application waitlist and features", type: "page" },
     { name: "PressKit.tsx", path: "src/pages/", description: "Press resources, logos, and media kit", type: "page" },
     { name: "SharedAnalysis.tsx", path: "src/pages/", description: "Shared analysis results view via token", type: "page" },
+    { name: "DeepfakeQuiz.tsx", path: "src/pages/", description: "Interactive 20-question deepfake detection quiz with 5 categories, expert explanations, and scoring", type: "page" },
     { name: "NotFound.tsx", path: "src/pages/", description: "404 error page with navigation", type: "page" },
+  ];
+
+  const mobileConfig: FileEntry[] = [
+    { name: "capacitor.config.ts", path: "./", description: "Capacitor configuration for iOS/Android native app deployment", type: "config" },
+    { name: "mobile-deploy.ts", path: "src/lib/", description: "Mobile deployment utilities, app store metadata, build commands, and CLI reference", type: "util" },
+    { name: "MobileInstallPrompt.tsx", path: "src/components/", description: "PWA install prompt component for mobile browsers", type: "component" },
+    { name: "manifest.json", path: "public/", description: "PWA manifest with icons, shortcuts, and app metadata", type: "config" },
   ];
 
   const hooks: FileEntry[] = [
