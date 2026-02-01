@@ -18,6 +18,18 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import GDPR from "./pages/GDPR";
+import DesktopApp from "./pages/DesktopApp";
+import API from "./pages/API";
+import About from "./pages/About";
+import Blog from "./pages/Blog";
+import Careers from "./pages/Careers";
+import PressKit from "./pages/PressKit";
+import Contact from "./pages/Contact";
+import Documentation from "./pages/Documentation";
+import HelpCenter from "./pages/HelpCenter";
+import Community from "./pages/Community";
+import Status from "./pages/Status";
+import Security from "./pages/Security";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +56,18 @@ const App = () => (
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/cookies" element={<CookiePolicy />} />
                   <Route path="/gdpr" element={<GDPR />} />
+                  <Route path="/desktop" element={<DesktopApp />} />
+                  <Route path="/api" element={<API />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/careers" element={<Careers />} />
+                  <Route path="/press" element={<PressKit />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/docs" element={<Documentation />} />
+                  <Route path="/help" element={<HelpCenter />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/status" element={<Status />} />
+                  <Route path="/security" element={<Security />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
