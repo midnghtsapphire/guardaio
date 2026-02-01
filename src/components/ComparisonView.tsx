@@ -479,59 +479,158 @@ const ComparisonView = ({ sensitivity = 50 }: ComparisonViewProps) => {
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-6 glass rounded-xl p-6"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          duration: 0.5, 
+          ease: [0.22, 1, 0.36, 1],
+          delay: 0.2
+        }}
+        className="mt-6 glass rounded-xl p-6 relative overflow-hidden"
       >
-        <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
-          <Scale className="w-5 h-5 text-primary" />
+        {/* Animated glow background */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0"
+          animate={{ 
+            opacity: [0, 0.5, 0],
+            x: ["-100%", "100%"]
+          }}
+          transition={{ 
+            duration: 2, 
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        />
+        
+        <motion.h4 
+          className="font-display font-semibold mb-4 flex items-center gap-2 relative z-10"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+        >
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <Scale className="w-5 h-5 text-primary" />
+          </motion.div>
           Comparison Summary
-        </h4>
+        </motion.h4>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 relative z-10">
           {/* Left result */}
-          <div className={cn("rounded-lg p-4 text-center border", leftConfig.bg, leftConfig.border)}>
-            <LeftIcon className={cn("w-8 h-8 mx-auto mb-2", leftConfig.color)} />
+          <motion.div 
+            className={cn("rounded-lg p-4 text-center border", leftConfig.bg, leftConfig.border)}
+            initial={{ opacity: 0, x: -30, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.6, type: "spring", stiffness: 200, damping: 15 }}
+            >
+              <LeftIcon className={cn("w-8 h-8 mx-auto mb-2", leftConfig.color)} />
+            </motion.div>
             <p className={cn("font-semibold", leftConfig.color)}>{leftConfig.label}</p>
-            <p className="text-2xl font-display font-bold mt-1">{leftSide.result.confidence}%</p>
+            <motion.p 
+              className="text-2xl font-display font-bold mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.3 }}
+            >
+              {leftSide.result.confidence}%
+            </motion.p>
             <p className="text-xs text-muted-foreground">File A</p>
-          </div>
+          </motion.div>
 
-          {/* Comparison */}
-          <div className="flex flex-col items-center justify-center">
-            <ArrowLeftRight className="w-6 h-6 text-muted-foreground mb-2" />
+          {/* Comparison center */}
+          <motion.div 
+            className="flex flex-col items-center justify-center"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, duration: 0.4, type: "spring" }}
+          >
+            <motion.div
+              animate={{ 
+                x: [0, -5, 5, -5, 5, 0],
+              }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+            >
+              <ArrowLeftRight className="w-6 h-6 text-muted-foreground mb-2" />
+            </motion.div>
             <div className="text-center">
               {statusComparison === "same" ? (
-                <p className="text-sm font-medium text-muted-foreground">Same verdict</p>
+                <motion.p 
+                  className="text-sm font-medium text-muted-foreground"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                >
+                  Same verdict
+                </motion.p>
               ) : (
-                <p className="text-sm font-medium">
+                <motion.p 
+                  className="text-sm font-medium"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                >
                   {statusComparison === "left-safer" ? "File A is safer" : 
                    statusComparison === "right-safer" ? "File B is safer" : 
                    "Different verdicts"}
-                </p>
+                </motion.p>
               )}
               {confidenceDiff !== 0 && (
-                <p className={cn(
-                  "text-xs mt-1",
-                  confidenceDiff > 0 ? "text-success" : "text-destructive"
-                )}>
+                <motion.p 
+                  className={cn(
+                    "text-xs mt-1",
+                    confidenceDiff > 0 ? "text-success" : "text-destructive"
+                  )}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1, duration: 0.3 }}
+                >
                   {confidenceDiff > 0 ? "+" : ""}{confidenceDiff}% difference
-                </p>
+                </motion.p>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Right result */}
-          <div className={cn("rounded-lg p-4 text-center border", rightConfig.bg, rightConfig.border)}>
-            <RightIcon className={cn("w-8 h-8 mx-auto mb-2", rightConfig.color)} />
+          <motion.div 
+            className={cn("rounded-lg p-4 text-center border", rightConfig.bg, rightConfig.border)}
+            initial={{ opacity: 0, x: 30, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.6, type: "spring", stiffness: 200, damping: 15 }}
+            >
+              <RightIcon className={cn("w-8 h-8 mx-auto mb-2", rightConfig.color)} />
+            </motion.div>
             <p className={cn("font-semibold", rightConfig.color)}>{rightConfig.label}</p>
-            <p className="text-2xl font-display font-bold mt-1">{rightSide.result.confidence}%</p>
+            <motion.p 
+              className="text-2xl font-display font-bold mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.3 }}
+            >
+              {rightSide.result.confidence}%
+            </motion.p>
             <p className="text-xs text-muted-foreground">File B</p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Unique findings */}
-        <div className="mt-4 grid md:grid-cols-2 gap-4">
+        <motion.div 
+          className="mt-4 grid md:grid-cols-2 gap-4 relative z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.4 }}
+        >
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground">File A unique findings:</p>
             <ul className="space-y-1 text-xs">
@@ -539,10 +638,16 @@ const ComparisonView = ({ sensitivity = 50 }: ComparisonViewProps) => {
                 .filter(f => !rightSide.result?.findings.includes(f))
                 .slice(0, 2)
                 .map((finding, i) => (
-                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                  <motion.li 
+                    key={i} 
+                    className="flex items-start gap-2 text-muted-foreground"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.9 + i * 0.1 }}
+                  >
                     <span className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0", leftConfig.color.replace("text-", "bg-"))} />
                     {finding}
-                  </li>
+                  </motion.li>
                 ))}
             </ul>
           </div>
@@ -553,14 +658,20 @@ const ComparisonView = ({ sensitivity = 50 }: ComparisonViewProps) => {
                 .filter(f => !leftSide.result?.findings.includes(f))
                 .slice(0, 2)
                 .map((finding, i) => (
-                  <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                  <motion.li 
+                    key={i} 
+                    className="flex items-start gap-2 text-muted-foreground"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.9 + i * 0.1 }}
+                  >
                     <span className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0", rightConfig.color.replace("text-", "bg-"))} />
                     {finding}
-                  </li>
+                  </motion.li>
                 ))}
             </ul>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
     );
   };
