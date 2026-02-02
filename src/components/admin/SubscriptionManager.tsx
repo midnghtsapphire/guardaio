@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Users, DollarSign, TrendingUp, Search, RefreshCw, ExternalLink, Eye, Ban, CheckCircle, XCircle, Clock, AlertTriangle, Loader2, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -36,93 +36,62 @@ interface SubscriptionStats {
   canceledThisMonth: number;
 }
 
-// Mock data for demo
-const mockSubscriptions: Subscription[] = [
-  {
-    id: "sub_1234567890",
-    customerId: "cus_abc123",
-    customerEmail: "john@example.com",
-    customerName: "John Doe",
-    status: "active",
-    plan: "Guardaio Pro",
-    amount: 2900,
-    currency: "usd",
-    currentPeriodEnd: "2024-02-15T00:00:00Z",
-    cancelAtPeriodEnd: false,
-    createdAt: "2024-01-15T00:00:00Z",
-  },
-  {
-    id: "sub_0987654321",
-    customerId: "cus_def456",
-    customerEmail: "jane@company.com",
-    customerName: "Jane Smith",
-    status: "active",
-    plan: "Guardaio Pro",
-    amount: 2900,
-    currency: "usd",
-    currentPeriodEnd: "2024-02-20T00:00:00Z",
-    cancelAtPeriodEnd: false,
-    createdAt: "2024-01-20T00:00:00Z",
-  },
-  {
-    id: "sub_5555555555",
-    customerId: "cus_ghi789",
-    customerEmail: "mike@startup.io",
-    customerName: "Mike Johnson",
-    status: "past_due",
-    plan: "Guardaio Pro",
-    amount: 2900,
-    currency: "usd",
-    currentPeriodEnd: "2024-01-25T00:00:00Z",
-    cancelAtPeriodEnd: false,
-    createdAt: "2023-12-25T00:00:00Z",
-  },
-  {
-    id: "sub_6666666666",
-    customerId: "cus_jkl012",
-    customerEmail: "sarah@media.net",
-    customerName: "Sarah Williams",
-    status: "canceled",
-    plan: "Guardaio Pro",
-    amount: 2900,
-    currency: "usd",
-    currentPeriodEnd: "2024-01-10T00:00:00Z",
-    cancelAtPeriodEnd: true,
-    createdAt: "2023-11-10T00:00:00Z",
-  },
-  {
-    id: "sub_7777777777",
-    customerId: "cus_mno345",
-    customerEmail: "alex@tech.co",
-    customerName: "Alex Brown",
-    status: "trialing",
-    plan: "Guardaio Pro",
-    amount: 2900,
-    currency: "usd",
-    currentPeriodEnd: "2024-02-01T00:00:00Z",
-    cancelAtPeriodEnd: false,
-    createdAt: "2024-01-25T00:00:00Z",
-  },
-];
-
-const mockStats: SubscriptionStats = {
-  totalActive: 247,
-  totalRevenue: 28750,
-  mrr: 7163,
-  churnRate: 2.4,
-  newThisMonth: 34,
-  canceledThisMonth: 6,
+const defaultStats: SubscriptionStats = {
+  totalActive: 0,
+  totalRevenue: 0,
+  mrr: 0,
+  churnRate: 0,
+  newThisMonth: 0,
+  canceledThisMonth: 0,
 };
 
 const SubscriptionManager = () => {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>(mockSubscriptions);
-  const [stats, setStats] = useState<SubscriptionStats>(mockStats);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [stats, setStats] = useState<SubscriptionStats>(defaultStats);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  const fetchSubscriptions = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("Not authenticated");
+        setIsLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("admin-subscriptions", {
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setSubscriptions(data.subscriptions || []);
+      setStats(data.stats || defaultStats);
+    } catch (err) {
+      console.error("Error fetching subscriptions:", err);
+      toast.error("Failed to load subscription data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
 
   const filteredSubscriptions = subscriptions.filter((sub) => {
     const matchesSearch = 
@@ -166,11 +135,8 @@ const SubscriptionManager = () => {
   };
 
   const handleRefresh = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await fetchSubscriptions();
     toast.success("Subscription data refreshed");
-    setIsLoading(false);
   };
 
   const handleViewDetails = (sub: Subscription) => {
@@ -247,7 +213,11 @@ const SubscriptionManager = () => {
               <Users className="w-5 h-5" />
               Active Subscribers
             </div>
-            <p className="text-4xl font-bold">{stats.totalActive}</p>
+            {isLoading && subscriptions.length === 0 ? (
+              <Skeleton className="h-10 w-16" />
+            ) : (
+              <p className="text-4xl font-bold">{stats.totalActive}</p>
+            )}
             <p className="text-xs text-muted-foreground mt-1">Total active</p>
           </CardContent>
         </Card>
@@ -257,7 +227,11 @@ const SubscriptionManager = () => {
               <DollarSign className="w-5 h-5" />
               Total Revenue
             </div>
-            <p className="text-4xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+            {isLoading && subscriptions.length === 0 ? (
+              <Skeleton className="h-10 w-24" />
+            ) : (
+              <p className="text-4xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+            )}
             <p className="text-xs text-muted-foreground mt-1">All time</p>
           </CardContent>
         </Card>
@@ -267,7 +241,11 @@ const SubscriptionManager = () => {
               <TrendingUp className="w-5 h-5" />
               Monthly Recurring
             </div>
-            <p className="text-4xl font-bold">${stats.mrr.toLocaleString()}</p>
+            {isLoading && subscriptions.length === 0 ? (
+              <Skeleton className="h-10 w-20" />
+            ) : (
+              <p className="text-4xl font-bold">${stats.mrr.toLocaleString()}</p>
+            )}
             <p className="text-xs text-muted-foreground mt-1">MRR</p>
           </CardContent>
         </Card>
@@ -277,27 +255,39 @@ const SubscriptionManager = () => {
               <AlertTriangle className="w-5 h-5" />
               Churn Rate
             </div>
-            <p className="text-4xl font-bold">{stats.churnRate}%</p>
+            {isLoading && subscriptions.length === 0 ? (
+              <Skeleton className="h-10 w-16" />
+            ) : (
+              <p className="text-4xl font-bold">{stats.churnRate}%</p>
+            )}
             <p className="text-xs text-muted-foreground mt-1">Monthly</p>
           </CardContent>
         </Card>
         <Card className="glass border-border/50">
           <CardContent className="py-6">
             <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-              <CheckCircle className="w-5 h-5 text-green-500" />
+              <CheckCircle className="w-5 h-5 text-primary" />
               New This Month
             </div>
-            <p className="text-4xl font-bold text-green-500">+{stats.newThisMonth}</p>
+            {isLoading && subscriptions.length === 0 ? (
+              <Skeleton className="h-10 w-14" />
+            ) : (
+              <p className="text-4xl font-bold text-primary">+{stats.newThisMonth}</p>
+            )}
             <p className="text-xs text-muted-foreground mt-1">Subscribers</p>
           </CardContent>
         </Card>
         <Card className="glass border-border/50">
           <CardContent className="py-6">
             <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-              <XCircle className="w-5 h-5 text-red-500" />
+              <XCircle className="w-5 h-5 text-destructive" />
               Canceled
             </div>
-            <p className="text-4xl font-bold text-red-500">-{stats.canceledThisMonth}</p>
+            {isLoading && subscriptions.length === 0 ? (
+              <Skeleton className="h-10 w-12" />
+            ) : (
+              <p className="text-4xl font-bold text-destructive">-{stats.canceledThisMonth}</p>
+            )}
             <p className="text-xs text-muted-foreground mt-1">This month</p>
           </CardContent>
         </Card>
@@ -395,7 +385,7 @@ const SubscriptionManager = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-green-500 hover:text-green-500"
+                          className="text-primary hover:text-primary"
                           onClick={() => handleReactivateSubscription(sub)}
                         >
                           <CheckCircle className="w-4 h-4" />
