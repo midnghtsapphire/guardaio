@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import guardaioHeroLogo from "@/assets/guardaio-hero-logo.jpg";
 
 interface ChecklistItem {
   id: string;
@@ -275,12 +276,47 @@ const Bookmarklet = () => {
 
       <Navbar />
 
-      <main className="min-h-screen pt-32 pb-20">
-        <div className="container mx-auto px-6">
+      <main className="min-h-screen pt-24 pb-20 relative overflow-hidden">
+        {/* Security Bars Background Effect */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Vertical bars - prison/security vibe */}
+          <div className="absolute inset-0 opacity-[0.03]">
+            {[...Array(20)].map((_, i) => (
+              <div 
+                key={i}
+                className="absolute top-0 bottom-0 w-1 bg-foreground"
+                style={{ left: `${(i + 1) * 5}%` }}
+              />
+            ))}
+          </div>
+          {/* Gradient overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10">
+          {/* Hero Logo Section */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="flex justify-center mb-8"
+          >
+            <div className="relative">
+              {/* Glow effect behind logo */}
+              <div className="absolute inset-0 blur-3xl opacity-30 bg-primary rounded-full scale-75" />
+              <img 
+                src={guardaioHeroLogo} 
+                alt="Guardaio - Deepfake Analyzer" 
+                className="relative w-80 md:w-[500px] lg:w-[600px] h-auto rounded-2xl shadow-2xl border border-border/20"
+              />
+            </div>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="text-center max-w-3xl mx-auto mb-12"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
