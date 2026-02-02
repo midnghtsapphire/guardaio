@@ -149,7 +149,7 @@ const ContentManager = () => {
       </div>
 
       <Tabs defaultValue="about" className="space-y-6">
-        <TabsList className="flex flex-wrap gap-1">
+        <TabsList className="flex flex-wrap gap-1 relative z-50 bg-muted">
           <TabsTrigger value="about" className="gap-2">
             <Building2 className="w-4 h-4" />
             About
