@@ -70,7 +70,7 @@ const Footer = () => {
               <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-display text-xl font-bold">DeepGuard</span>
+              <span className="font-display text-xl font-bold">Guardaio</span>
             </div>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs">
               Protecting truth in the age of AI. Advanced deepfake detection for everyone.
@@ -117,7 +117,7 @@ const Footer = () => {
         {/* Bottom */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} DeepGuard. All rights reserved.
+            © {currentYear} Guardaio. All rights reserved.
           </p>
           <button
             onClick={restartOnboardingTour}

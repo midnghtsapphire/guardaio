@@ -21,7 +21,7 @@ const DocumentationCenter = () => {
   const techDocs = [
     {
       title: "Architecture Overview",
-      content: `DeepGuard is built on a modern JAMstack architecture:
+      content: `Guardaio is built on a modern JAMstack architecture:
 
 **Frontend Stack:**
 - React 18 with TypeScript for type-safe UI development
@@ -203,8 +203,8 @@ const DocumentationCenter = () => {
     {
       title: "Getting Started",
       code: `# Clone and install
-git clone https://github.com/your-repo/deepguard.git
-cd deepguard
+git clone https://github.com/your-repo/guardaio.git
+cd guardaio
 npm install
 
 # Environment setup

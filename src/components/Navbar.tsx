@@ -77,7 +77,7 @@ const Navbar = () => {
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
               <Shield className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-bold">DeepGuard</span>
+            <span className="font-display text-xl font-bold">Guardaio</span>
           </button>
 
           {/* Desktop Nav */}

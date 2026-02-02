@@ -32,7 +32,7 @@ interface ExportData {
 const DocumentationExport = () => {
   const exportData: ExportData = {
     projectInfo: {
-      name: "DeepGuard",
+      name: "Guardaio",
       version: "2.2.0",
       lastUpdated: new Date().toISOString(),
     },
@@ -148,14 +148,14 @@ const DocumentationExport = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `deepguard-docs-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `guardaio-docs-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Documentation exported as JSON");
   };
 
   const exportAsMarkdown = () => {
-    const md = `# DeepGuard Documentation
+    const md = `# Guardaio Documentation
 
 ## Project Information
 - **Name:** ${exportData.projectInfo.name}
@@ -196,7 +196,7 @@ ${exportData.changelog.map(c => `| ${c.version} | ${c.date} | ${c.changes} |`).j
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `deepguard-docs-${new Date().toISOString().split("T")[0]}.md`;
+    a.download = `guardaio-docs-${new Date().toISOString().split("T")[0]}.md`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Documentation exported as Markdown");

@@ -32,7 +32,7 @@ const SocialShareButtons = ({
     }
   };
 
-  const shareText = `${getStatusEmoji()} ${title} - ${text} (${confidence}% confidence)\n\nAnalyzed with DeepGuard AI`;
+  const shareText = `${getStatusEmoji()} ${title} - ${text} (${confidence}% confidence)\n\nAnalyzed with Guardaio AI`;
 
   const handleTwitterShare = () => {
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
@@ -48,7 +48,7 @@ const SocialShareButtons = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "DeepGuard Analysis Result",
+          title: "Guardaio Analysis Result",
           text: shareText,
           url: shareUrl,
         });

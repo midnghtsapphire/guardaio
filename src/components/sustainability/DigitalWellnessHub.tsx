@@ -49,7 +49,7 @@ const DigitalWellnessHub = () => {
             "👀 Time for an eye break! Look at something 20 feet away for 20 seconds.",
             {
               duration: 20000,
-              description: "DeepGuard cares about your digital wellness.",
+              description: "Guardaio cares about your digital wellness.",
               action: {
                 label: "I did it!",
                 onClick: () => {
@@ -79,21 +79,21 @@ const DigitalWellnessHub = () => {
     {
       name: "f.lux",
       url: "https://justgetflux.com",
-      description: "The pioneer that started it all. f.lux automatically adjusts your screen color based on your location and time of day. DeepGuard recommends f.lux for its 'Darkroom Mode' which inverts colors and applies a red filter—ideal for preserving night vision during late coding sessions.",
+      description: "The pioneer that started it all. f.lux automatically adjusts your screen color based on your location and time of day. Guardaio recommends f.lux for its 'Darkroom Mode' which inverts colors and applies a red filter—ideal for preserving night vision during late coding sessions.",
       features: ["Location-based adjustment", "Darkroom Mode", "Movie Mode", "Custom schedules"],
       badge: "Pioneer"
     },
     {
       name: "CareUEyes",
       url: "https://care-eyes.com",
-      description: "CareUEyes promotes the 20-20-20 rule that DeepGuard integrates: Every 20 minutes, look at something 20 feet away for 20 seconds. A unique feature is its ability to dim specific apps rather than the entire screen.",
+      description: "CareUEyes promotes the 20-20-20 rule that Guardaio integrates: Every 20 minutes, look at something 20 feet away for 20 seconds. A unique feature is its ability to dim specific apps rather than the entire screen.",
       features: ["20-20-20 reminders", "Per-app dimming", "Blue light filter", "Break timer"],
       badge: "Best Reminders"
     },
     {
       name: "PangoBright",
       url: "https://www.pangobright.com",
-      description: "PangoBright addresses a key challenge for developers using multiple monitors: consistent brightness control across all displays. DeepGuard users with multi-monitor setups will appreciate this solution.",
+      description: "PangoBright addresses a key challenge for developers using multiple monitors: consistent brightness control across all displays. Guardaio users with multi-monitor setups will appreciate this solution.",
       features: ["Multi-monitor support", "Per-display control", "Hotkey shortcuts", "Minimal footprint"],
       badge: "Multi-Monitor"
     }

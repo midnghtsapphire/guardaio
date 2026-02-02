@@ -1,6 +1,6 @@
 {
-  "name": "DeepGuard",
-  "short_name": "DeepGuard",
+  "name": "Guardaio",
+  "short_name": "Guardaio",
   "description": "AI-powered deepfake detection. Protect from synthetic media, scams & fraud.",
   "start_url": "/",
   "display": "standalone",
@@ -30,7 +30,7 @@
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "DeepGuard Home Screen"
+      "label": "Guardaio Home Screen"
     },
     {
       "src": "/screenshots/analyzer.png",
@@ -59,8 +59,8 @@
   "related_applications": [
     {
       "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=app.lovable.deepguard",
-      "id": "app.lovable.deepguard"
+      "url": "https://play.google.com/store/apps/details?id=com.guardaio.app",
+      "id": "com.guardaio.app"
     }
   ],
   "prefer_related_applications": false
