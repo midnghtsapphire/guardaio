@@ -25,6 +25,7 @@ import AnalyzerSkeleton from "@/components/AnalyzerSkeleton";
 import ProgressRing from "@/components/ProgressRing";
 import SocialShareButtons from "@/components/SocialShareButtons";
 import ForensicAnalysisPanel from "@/components/ForensicAnalysisPanel";
+import { extractVideoFrames, ExtractedFrame } from "@/lib/video-frame-extractor";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -65,6 +66,13 @@ const analysisStages: AnalysisStage[] = [
   { name: "Scanning", icon: Shield, description: "Running security scan" },
   { name: "AI Analysis", icon: Sparkles, description: "Deep learning detection" },
   { name: "Finalizing", icon: Zap, description: "Generating report" },
+];
+
+const videoAnalysisStages: AnalysisStage[] = [
+  { name: "Extracting", icon: FileVideo, description: "Extracting key frames" },
+  { name: "Scanning", icon: Shield, description: "Analyzing frames" },
+  { name: "AI Analysis", icon: Sparkles, description: "Deep learning detection" },
+  { name: "Finalizing", icon: Zap, description: "Aggregating results" },
 ];
 
 const urlAnalysisStages: AnalysisStage[] = [
@@ -447,6 +455,59 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
       };
     };
 
+    // For videos, extract frames and analyze them
+    if (selectedFile.type.startsWith("video/")) {
+      console.log("Extracting frames from video for analysis...");
+      
+      try {
+        const frames = await extractVideoFrames(selectedFile, 5);
+        console.log(`Extracted ${frames.length} frames from video`);
+        
+        // Analyze each frame and aggregate results
+        const frameResults: AnalysisResult[] = [];
+        
+        for (let i = 0; i < frames.length; i++) {
+          const frame = frames[i];
+          console.log(`Analyzing frame ${i + 1}/${frames.length} at ${frame.timestamp.toFixed(1)}s`);
+          
+          const { data, error } = await supabase.functions.invoke("analyze-media", {
+            body: {
+              fileName: `${selectedFile.name} (frame at ${frame.timestamp.toFixed(1)}s)`,
+              fileType: "image/jpeg",
+              fileBase64: frame.base64,
+              sensitivity: sensitivity,
+            },
+          });
+          
+          if (error) {
+            console.warn(`Frame ${i + 1} analysis failed:`, error);
+            continue;
+          }
+          if (data.error) {
+            console.warn(`Frame ${i + 1} analysis error:`, data.error);
+            continue;
+          }
+          
+          frameResults.push(normalizeAnalysisResult(data));
+        }
+        
+        if (frameResults.length === 0) {
+          throw new Error("Could not analyze any frames from the video");
+        }
+        
+        // Aggregate results from all frames
+        return aggregateVideoFrameResults(frameResults, frames.length);
+      } catch (frameError) {
+        console.error("Frame extraction failed:", frameError);
+        throw new Error(
+          frameError instanceof Error 
+            ? `Video analysis failed: ${frameError.message}` 
+            : "Could not extract frames from video for analysis"
+        );
+      }
+    }
+
+    // For images, send directly
     let fileBase64 = "";
     if (selectedFile.type.startsWith("image/")) {
       fileBase64 = await fileToBase64(selectedFile);
@@ -465,6 +526,57 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     if (data.error) throw new Error(data.error);
 
     return normalizeAnalysisResult(data);
+  };
+
+  // Aggregate results from multiple video frames into a single result
+  const aggregateVideoFrameResults = (results: AnalysisResult[], totalFrames: number): AnalysisResult => {
+    // Count status occurrences
+    const statusCounts = { safe: 0, warning: 0, danger: 0 };
+    let totalConfidence = 0;
+    const allFindings: string[] = [];
+    const allHeatmapRegions: HeatmapRegion[] = [];
+
+    for (const result of results) {
+      statusCounts[result.status]++;
+      totalConfidence += result.confidence;
+      
+      // Collect unique findings
+      for (const finding of result.findings) {
+        if (!allFindings.some(f => f.toLowerCase() === finding.toLowerCase())) {
+          allFindings.push(finding);
+        }
+      }
+      
+      // Collect heatmap regions
+      if (result.heatmapRegions) {
+        allHeatmapRegions.push(...result.heatmapRegions);
+      }
+    }
+
+    // Determine overall status (any danger = danger, otherwise most common)
+    let overallStatus: "safe" | "warning" | "danger";
+    if (statusCounts.danger > 0) {
+      overallStatus = "danger";
+    } else if (statusCounts.warning > results.length / 2) {
+      overallStatus = "warning";
+    } else if (statusCounts.safe > results.length / 2) {
+      overallStatus = "safe";
+    } else {
+      overallStatus = "warning";
+    }
+
+    // Average confidence
+    const avgConfidence = Math.round(totalConfidence / results.length);
+
+    // Add summary finding
+    const summaryFinding = `Analyzed ${results.length} frames from video: ${statusCounts.safe} safe, ${statusCounts.warning} suspicious, ${statusCounts.danger} likely fake.`;
+    
+    return {
+      status: overallStatus,
+      confidence: avgConfidence,
+      findings: [summaryFinding, ...allFindings.slice(0, 5)], // Limit findings
+      heatmapRegions: allHeatmapRegions.length > 0 ? allHeatmapRegions.slice(0, 6) : undefined,
+    };
   };
 
   const getSensitivityLabel = (value: number) => {
