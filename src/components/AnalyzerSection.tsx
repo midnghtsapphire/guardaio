@@ -510,20 +510,34 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     // For images, send directly
     let fileBase64 = "";
     if (selectedFile.type.startsWith("image/")) {
-      fileBase64 = await fileToBase64(selectedFile);
+      try {
+        fileBase64 = await fileToBase64(selectedFile);
+      } catch (base64Error) {
+        console.error("Failed to convert file to base64:", base64Error);
+        throw new Error("Could not read the image file. Please try again with a different image.");
+      }
     }
 
-    const { data, error } = await supabase.functions.invoke("analyze-media", {
-      body: {
-        fileName: selectedFile.name,
-        fileType: selectedFile.type,
-        fileBase64: fileBase64,
-        sensitivity: sensitivity,
-      },
-    });
+    let data: any;
+    let error: any;
+    try {
+      const result = await supabase.functions.invoke("analyze-media", {
+        body: {
+          fileName: selectedFile.name,
+          fileType: selectedFile.type,
+          fileBase64: fileBase64,
+          sensitivity: sensitivity,
+        },
+      });
+      data = result.data;
+      error = result.error;
+    } catch (invokeError) {
+      console.error("Supabase function invoke failed:", invokeError);
+      throw new Error("Analysis service unavailable. Please try again later.");
+    }
 
     if (error) throw error;
-    if (data.error) throw new Error(data.error);
+    if (data?.error) throw new Error(data.error);
 
     return normalizeAnalysisResult(data);
   };
