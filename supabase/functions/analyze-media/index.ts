@@ -93,15 +93,30 @@ For audio: Look for voice cloning signatures, unnatural pauses, spectral anomali
         type: "text",
         text: `Analyze this image file "${fileName}" for signs of AI manipulation, deepfakes, or synthetic generation. Provide your analysis as JSON.`
       });
-    } else if (fileType.startsWith("video/") || fileType.startsWith("audio/")) {
-      // For video/audio, we can't send the full file but we can analyze metadata and provide guidance
+    } else if (fileType.startsWith("video/")) {
+      // For video files, we cannot analyze the actual content - be honest about this
+      // Return a "cannot verify" response instead of simulating findings
+      console.log("Video file detected - cannot analyze video content directly");
+      
+      return new Response(JSON.stringify({
+        status: "warning",
+        confidence: 0,
+        findings: [
+          "Video content analysis requires frame-by-frame inspection which is not yet supported.",
+          "For accurate video deepfake detection, consider using specialized tools like Microsoft Video Authenticator or Intel FakeCatcher.",
+          "You can extract key frames from the video and analyze them individually as images.",
+          "Audio track can be analyzed separately using the Voice Detection feature."
+        ],
+        heatmapRegions: [],
+        note: "Video analysis limitations: The AI cannot directly inspect video streams. This result indicates we could not verify the video, not that it is suspicious."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    } else if (fileType.startsWith("audio/")) {
+      // Audio files should use the dedicated audio analyzer
       userContent.push({
         type: "text",
-        text: `A user has uploaded a ${fileType.startsWith("video/") ? "video" : "audio"} file named "${fileName}". 
-        
-Since I cannot directly analyze video/audio streams, provide a realistic simulation of what a deepfake detection analysis might find. Generate plausible findings based on common deepfake detection techniques for ${fileType.startsWith("video/") ? "video (face swap detection, temporal consistency, lip sync analysis)" : "audio (voice cloning detection, spectral analysis, prosody analysis)"}.
-
-Respond with realistic JSON analysis results that demonstrate what the detection system would look for.`
+        text: `A user has uploaded an audio file named "${fileName}". Since detailed audio analysis requires the dedicated audio endpoint, provide general guidance. Respond with JSON.`
       });
     } else {
       userContent.push({
