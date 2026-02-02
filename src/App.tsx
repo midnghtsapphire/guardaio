@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import { ThemeTransitionProvider } from "@/hooks/use-theme-transition";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import History from "./pages/History";
@@ -51,39 +52,41 @@ const App = () => (
                 <ThemeTransitionProvider>
                   <Toaster />
                   <Sonner />
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/history" element={<History />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/shared" element={<SharedAnalysis />} />
-                  <Route path="/bookmarklet" element={<Bookmarklet />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/cookies" element={<CookiePolicy />} />
-                  <Route path="/gdpr" element={<GDPR />} />
-                  <Route path="/desktop" element={<DesktopApp />} />
-                  <Route path="/api" element={<API />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/careers" element={<Careers />} />
-                  <Route path="/press" element={<PressKit />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/docs" element={<Documentation />} />
-                  <Route path="/help" element={<HelpCenter />} />
-                  <Route path="/community" element={<Community />} />
-                  <Route path="/status" element={<Status />} />
-                  <Route path="/security" element={<Security />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route path="/quiz" element={<DeepfakeQuiz />} />
-                  <Route path="/sustainability" element={<Sustainability />} />
-                  <Route path="/team" element={<Team />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                  <ErrorBoundary title="App crashed">
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/history" element={<History />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/shared" element={<SharedAnalysis />} />
+                      <Route path="/bookmarklet" element={<Bookmarklet />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
+                      <Route path="/terms" element={<TermsOfService />} />
+                      <Route path="/cookies" element={<CookiePolicy />} />
+                      <Route path="/gdpr" element={<GDPR />} />
+                      <Route path="/desktop" element={<DesktopApp />} />
+                      <Route path="/api" element={<API />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/blog" element={<Blog />} />
+                      <Route path="/careers" element={<Careers />} />
+                      <Route path="/press" element={<PressKit />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/docs" element={<Documentation />} />
+                      <Route path="/help" element={<HelpCenter />} />
+                      <Route path="/community" element={<Community />} />
+                      <Route path="/status" element={<Status />} />
+                      <Route path="/security" element={<Security />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/admin/login" element={<AdminLogin />} />
+                      <Route path="/quiz" element={<DeepfakeQuiz />} />
+                      <Route path="/sustainability" element={<Sustainability />} />
+                      <Route path="/team" element={<Team />} />
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </ErrorBoundary>
                 </ThemeTransitionProvider>
               </AccessibilityProvider>
             </AuthProvider>
