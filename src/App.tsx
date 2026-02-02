@@ -41,6 +41,14 @@ import Team from "./pages/Team";
 
 const queryClient = new QueryClient();
 
+// Global handler for unhandled promise rejections to prevent white screen crashes
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("Unhandled promise rejection:", event.reason);
+    event.preventDefault(); // Prevent the default browser crash behavior
+  });
+}
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
