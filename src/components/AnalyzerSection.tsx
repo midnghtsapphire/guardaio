@@ -266,20 +266,43 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   }, [analysisMode]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles) return;
+    try {
+      const selectedFiles = e.target.files;
+      if (!selectedFiles || selectedFiles.length === 0) return;
 
-    if (analysisMode === "batch") {
-      addBatchFiles(Array.from(selectedFiles));
-    } else {
-      const selectedFile = selectedFiles[0];
-      if (selectedFile) {
-        processFile(selectedFile);
-      }
+      // Clone files to allow clearing the input immediately (prevents
+      // in-app browser WebViews from crashing when they lose reference)
+      const files = Array.from(selectedFiles);
+      const selectedFile = files[0];
+
+      // Reset the input immediately to detach from DOM before heavy work
+      e.target.value = "";
+
+      // Defer heavy work to next tick so WebView finishes its event handling
+      setTimeout(() => {
+        try {
+          if (analysisMode === "batch") {
+            addBatchFiles(files);
+          } else if (selectedFile) {
+            processFile(selectedFile);
+          }
+        } catch (deferredErr) {
+          console.error("Deferred file handling error:", deferredErr);
+          toast({
+            title: "Error processing file",
+            description: "Please try again or use a different browser.",
+            variant: "destructive",
+          });
+        }
+      }, 0);
+    } catch (immediateErr) {
+      console.error("Immediate file selection error:", immediateErr);
+      toast({
+        title: "Error selecting file",
+        description: "Please try again or use a different browser.",
+        variant: "destructive",
+      });
     }
-    
-    // Reset the input
-    e.target.value = "";
   };
 
   const addBatchFiles = (files: File[]) => {
@@ -508,19 +531,31 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
       const analysisId = await saveToHistory(selectedFile, analysisResult);
       setLastAnalysisId(analysisId);
 
-      // Play sound effect for analysis result
-      if (soundEnabled) {
-        playAnalysisComplete(analysisResult.status);
+      // Play sound effect for analysis result (wrap in try-catch to avoid WebView crashes)
+      try {
+        if (soundEnabled) {
+          playAnalysisComplete(analysisResult.status);
+        }
+      } catch (soundErr) {
+        console.warn("Sound playback error (ignored):", soundErr);
       }
 
-      // Fire confetti celebration for authentic files
-      if (analysisResult.status === "safe") {
-        fireCelebration();
+      // Fire confetti celebration for authentic files (wrap in try-catch)
+      try {
+        if (analysisResult.status === "safe") {
+          fireCelebration();
+        }
+      } catch (confettiErr) {
+        console.warn("Confetti error (ignored):", confettiErr);
       }
 
-      // Send browser notification if enabled
-      if (notificationsEnabled) {
-        notifyAnalysisComplete(analysisResult.status, selectedFile.name);
+      // Send browser notification if enabled (wrap in try-catch)
+      try {
+        if (notificationsEnabled) {
+          notifyAnalysisComplete(analysisResult.status, selectedFile.name);
+        }
+      } catch (notifErr) {
+        console.warn("Notification error (ignored):", notifErr);
       }
 
       if (user) {
