@@ -341,60 +341,91 @@ const SubscriptionManager = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredSubscriptions.map((sub) => (
-                <TableRow key={sub.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{sub.customerName}</p>
-                      <p className="text-sm text-muted-foreground">{sub.customerEmail}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{sub.plan}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      {getStatusBadge(sub.status)}
-                      {sub.cancelAtPeriodEnd && (
-                        <span className="text-xs text-muted-foreground">Cancels at period end</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{formatCurrency(sub.amount, sub.currency)}/mo</TableCell>
-                  <TableCell>{formatDate(sub.currentPeriodEnd)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewDetails(sub)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      {sub.status === "active" && !sub.cancelAtPeriodEnd && (
+              {isLoading && subscriptions.length === 0 ? (
+                [...Array(5)].map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-40" />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-20 rounded-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Skeleton className="h-8 w-8 rounded" />
+                        <Skeleton className="h-8 w-8 rounded" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                filteredSubscriptions.map((sub) => (
+                  <TableRow key={sub.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{sub.customerName}</p>
+                        <p className="text-sm text-muted-foreground">{sub.customerEmail}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{sub.plan}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        {getStatusBadge(sub.status)}
+                        {sub.cancelAtPeriodEnd && (
+                          <span className="text-xs text-muted-foreground">Cancels at period end</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{formatCurrency(sub.amount, sub.currency)}/mo</TableCell>
+                    <TableCell>{formatDate(sub.currentPeriodEnd)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleCancelSubscription(sub)}
+                          onClick={() => handleViewDetails(sub)}
                         >
-                          <Ban className="w-4 h-4" />
+                          <Eye className="w-4 h-4" />
                         </Button>
-                      )}
-                      {sub.cancelAtPeriodEnd && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-primary hover:text-primary"
-                          onClick={() => handleReactivateSubscription(sub)}
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        {sub.status === "active" && !sub.cancelAtPeriodEnd && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleCancelSubscription(sub)}
+                          >
+                            <Ban className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {sub.cancelAtPeriodEnd && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-primary hover:text-primary"
+                            onClick={() => handleReactivateSubscription(sub)}
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
