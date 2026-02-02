@@ -8,10 +8,10 @@ import Footer from "@/components/Footer";
 
 const PressKit = () => {
   const pressReleases = [
-    { date: "Jan 15, 2026", title: "DeepGuard Launches Enterprise API with 99.9% Uptime SLA" },
-    { date: "Dec 10, 2025", title: "DeepGuard Expands to 150 Countries, Surpasses 10M Analyses" },
-    { date: "Nov 5, 2025", title: "DeepGuard Partners with EU Commission to Combat Electoral Disinformation" },
-    { date: "Sep 20, 2025", title: "DeepGuard Closes $25M Series A Led by Sequoia Capital" },
+    { date: "Jan 15, 2026", title: "Guardaio Launches Enterprise API with 99.9% Uptime SLA" },
+    { date: "Dec 10, 2025", title: "Guardaio Expands to 150 Countries, Surpasses 10M Analyses" },
+    { date: "Nov 5, 2025", title: "Guardaio Partners with EU Commission to Combat Electoral Disinformation" },
+    { date: "Sep 20, 2025", title: "Guardaio Closes $25M Series A Led by Sequoia Capital" },
   ];
 
   const stats = [
@@ -22,17 +22,17 @@ const PressKit = () => {
   ];
 
   const coverage = [
-    { outlet: "TechCrunch", headline: "DeepGuard raises $25M to fight AI-generated disinformation" },
+    { outlet: "TechCrunch", headline: "Guardaio raises $25M to fight AI-generated disinformation" },
     { outlet: "Wired", headline: "The startup making deepfake detection accessible to everyone" },
-    { outlet: "The Verge", headline: "DeepGuard's AI can spot fakes that fool the human eye" },
-    { outlet: "MIT Tech Review", headline: "How DeepGuard stays ahead of synthetic media creators" },
+    { outlet: "The Verge", headline: "Guardaio's AI can spot fakes that fool the human eye" },
+    { outlet: "MIT Tech Review", headline: "How Guardaio stays ahead of synthetic media creators" },
   ];
 
   return (
     <>
       <Helmet>
-        <title>Press Kit | DeepGuard</title>
-        <meta name="description" content="Download DeepGuard logos, brand assets, and press materials. Find press releases and media contact information." />
+        <title>Press Kit | Guardaio</title>
+        <meta name="description" content="Download Guardaio logos, brand assets, and press materials. Find press releases and media contact information." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -51,7 +51,7 @@ const PressKit = () => {
               </div>
               <h1 className="font-display text-5xl font-bold mb-4">Press Kit</h1>
               <p className="text-xl text-muted-foreground">
-                Everything you need to write about DeepGuard. Logos, brand assets, and company information.
+                Everything you need to write about Guardaio. Logos, brand assets, and company information.
               </p>
             </motion.div>
 
@@ -141,9 +141,9 @@ const PressKit = () => {
               transition={{ delay: 0.3 }}
               className="glass rounded-3xl p-8 mb-16"
             >
-              <h2 className="font-display text-3xl font-bold mb-4">About DeepGuard</h2>
+              <h2 className="font-display text-3xl font-bold mb-4">About Guardaio</h2>
               <p className="text-muted-foreground mb-4">
-                DeepGuard is an AI-powered platform that helps individuals and organizations detect deepfakes and synthetic media. Founded in 2023 by AI researchers from Stanford and Google, DeepGuard has analyzed over 10 million files and serves users in 150+ countries.
+                Guardaio is an AI-powered platform that helps individuals and organizations detect deepfakes and synthetic media. Founded in 2023 by AI researchers from Stanford and Google, Guardaio has analyzed over 10 million files and serves users in 150+ countries.
               </p>
               <p className="text-muted-foreground mb-4">
                 Our technology combines advanced computer vision with machine learning to identify manipulated images, videos, and audio with industry-leading accuracy. We're backed by leading investors including Sequoia Capital, and are on a mission to protect truth in the age of AI.
@@ -210,7 +210,7 @@ const PressKit = () => {
               </p>
               <Button className="gap-2">
                 <Mail className="w-4 h-4" />
-                press@deepguard.ai
+                press@guardaio.com
               </Button>
             </motion.div>
           </div>

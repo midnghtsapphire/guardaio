@@ -36,13 +36,13 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>DeepGuard - AI-Powered Deepfake & Disinformation Detector</title>
+        <title>Guardaio - AI-Powered Deepfake & Disinformation Detector</title>
         <meta
           name="description"
-          content="Protect yourself from AI-generated manipulation with DeepGuard's advanced deepfake detection technology. Analyze images, videos, and audio in real-time."
+          content="Protect yourself from AI-generated manipulation with Guardaio's advanced deepfake detection technology. Analyze images, videos, and audio in real-time."
         />
         <meta name="keywords" content="deepfake detection, AI manipulation, disinformation, fact-checking, media analysis" />
-        <link rel="canonical" href="https://deepguard.ai" />
+        <link rel="canonical" href="https://guardaio.com" />
       </Helmet>
 
       <main className="min-h-screen bg-background">

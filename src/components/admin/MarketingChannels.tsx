@@ -27,8 +27,8 @@ const MarketingChannels = () => {
 
   const youtubeStrategy = {
     channel: {
-      name: "DeepGuard AI",
-      handle: "@deepguard",
+      name: "Guardaio",
+      handle: "@guardaio",
       description: "Protecting truth in the age of AI. Learn to detect deepfakes, understand AI manipulation, and stay safe online.",
       targetSubs: "100K by Q4 2026",
     },
@@ -60,7 +60,7 @@ const MarketingChannels = () => {
         frequency: "1x/week",
         format: "5-10 min",
         examples: [
-          "DeepGuard Full Walkthrough",
+          "Guardaio Full Walkthrough",
           "Batch Analysis Tutorial",
           "API Integration Guide",
           "Mobile App Features"
@@ -103,7 +103,7 @@ const MarketingChannels = () => {
       platform: "YouTube",
       icon: Youtube,
       color: "text-red-500",
-      handle: "@deepguard",
+      handle: "@guardaio",
       strategy: "Long-form educational + Shorts for virality",
       kpis: ["Watch time", "Subscribers", "CTR"],
       priority: "High",
@@ -112,7 +112,7 @@ const MarketingChannels = () => {
       platform: "Twitter/X",
       icon: Twitter,
       color: "text-blue-400",
-      handle: "@DeepGuardAI",
+      handle: "@GuardaioAI",
       strategy: "Breaking deepfake news, quick tips, engagement threads",
       kpis: ["Impressions", "Engagement rate", "Followers"],
       priority: "High",
@@ -121,7 +121,7 @@ const MarketingChannels = () => {
       platform: "LinkedIn",
       icon: Linkedin,
       color: "text-blue-600",
-      handle: "DeepGuard",
+      handle: "Guardaio",
       strategy: "B2B content, enterprise features, thought leadership",
       kpis: ["Post views", "Company follows", "Demo requests"],
       priority: "Medium",
@@ -130,7 +130,7 @@ const MarketingChannels = () => {
       platform: "Instagram",
       icon: Instagram,
       color: "text-pink-500",
-      handle: "@deepguard.ai",
+      handle: "@guardaio.ai",
       strategy: "Visual comparisons, Reels, Stories for tips",
       kpis: ["Reach", "Saves", "Shares"],
       priority: "Medium",
@@ -139,7 +139,7 @@ const MarketingChannels = () => {
       platform: "TikTok",
       icon: Video,
       color: "text-black dark:text-white",
-      handle: "@deepguard",
+      handle: "@guardaio",
       strategy: "Viral deepfake reveals, quick detection tips",
       kpis: ["Views", "Shares", "Profile visits"],
       priority: "High",
@@ -148,20 +148,20 @@ const MarketingChannels = () => {
 
   const contentTemplates = {
     youtube: {
-      title: `🔍 Is This Image REAL or AI? | DeepGuard Detection Tutorial`,
-      description: `Learn how to spot AI-generated images in seconds! In this video, I'll show you the telltale signs of deepfakes and how to use DeepGuard to verify any image.
+      title: `🔍 Is This Image REAL or AI? | Guardaio Detection Tutorial`,
+      description: `Learn how to spot AI-generated images in seconds! In this video, I'll show you the telltale signs of deepfakes and how to use Guardaio to verify any image.
 
-🛡️ Try DeepGuard FREE: https://deepguard.app
+🛡️ Try Guardaio FREE: https://guardaio.com
 📱 Download our app: [App Store/Play Store links]
 
 ⏱️ Timestamps:
 0:00 - Introduction
 1:30 - Common AI artifacts
-4:00 - Using DeepGuard
+4:00 - Using Guardaio
 7:00 - Advanced techniques
 10:00 - Practice examples
 
-#deepfake #AIdetection #factcheck #deepguard`,
+#deepfake #AIdetection #factcheck #guardaio`,
       tags: "deepfake, AI detection, fake image, deepfake detector, how to spot deepfakes, AI generated, synthetic media, media forensics, fact check, misinformation"
     },
     twitter: {
@@ -256,12 +256,12 @@ Section 2: The Signs (3-4 min)
 - "Notice how the edges blur here..."
 
 Section 3: The Solution (2 min)
-- Introduce DeepGuard tool
+- Introduce Guardaio tool
 - Live demo with real analysis
 - Show the confidence score and findings
 
 [CTA - 8:00-8:30]
-- "Try DeepGuard free at deepguard.app"
+- "Try Guardaio free at guardaio.com"
 - Like, subscribe, notification bell
 - Tease next video topic
 

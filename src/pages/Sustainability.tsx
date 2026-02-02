@@ -28,9 +28,9 @@ const Sustainability = () => {
   return (
     <>
       <Helmet>
-        <title>GreenWeb Sustainability & Digital Wellness Platform | DeepGuard</title>
-        <meta name="description" content="DeepGuard's open source digital carbon footprint calculator and digital wellness hub. Measure website environmental impact with SWD/SCI methodologies. Includes 20-20-20 eye break reminders, blue light filtering recommendations for f.lux, CareUEyes, and PangoBright. Protect your health while protecting truth online." />
-        <meta name="keywords" content="DeepGuard, digital wellness, 20-20-20 rule, f.lux, CareUEyes, PangoBright, blue light filter, melatonin, eye strain, carbon footprint, green software, sustainability, SWD, SCI" />
+        <title>GreenWeb Sustainability & Digital Wellness Platform | Guardaio</title>
+        <meta name="description" content="Guardaio's open source digital carbon footprint calculator and digital wellness hub. Measure website environmental impact with SWD/SCI methodologies. Includes 20-20-20 eye break reminders, blue light filtering recommendations for f.lux, CareUEyes, and PangoBright. Protect your health while protecting truth online." />
+        <meta name="keywords" content="Guardaio, digital wellness, 20-20-20 rule, f.lux, CareUEyes, PangoBright, blue light filter, melatonin, eye strain, carbon footprint, green software, sustainability, SWD, SCI" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

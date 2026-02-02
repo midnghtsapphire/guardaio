@@ -338,7 +338,7 @@ const ProjectHistory = () => {
         "  - Created public/manifest.json for PWA support",
         "",
         "SEO & META ENHANCEMENTS (index.html):",
-        "  - Updated title to 'DeepGuard - AI Deepfake Detection'",
+        "  - Updated title to 'Guardaio - AI Deepfake Detection'",
         "  - Added comprehensive meta tags for SEO",
         "  - Open Graph and Twitter Card optimization",
         "  - PWA meta tags (theme-color, apple-mobile-web-app)",
@@ -517,7 +517,7 @@ const ProjectHistory = () => {
       items: [
         "USER PROVIDED: Stripe API key for payment integration",
         "APPROVED: Stripe integration enablement",
-        "Created Stripe product 'DeepGuard Pro' at $29.00/month",
+        "Created Stripe product 'Guardaio Pro' at $29.00/month",
         "DATABASE MIGRATION: Created user_roles table with admin/moderator/user enum",
         "DATABASE MIGRATION: Created affiliates table with referral tracking",
         "DATABASE MIGRATION: Created affiliate_referrals table",
