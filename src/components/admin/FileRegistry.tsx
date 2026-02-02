@@ -66,6 +66,7 @@ const FileRegistry = () => {
     { name: "AdminSearch.tsx", path: "src/components/admin/", description: "Global search across admin panel components", type: "component" },
     { name: "DependencyMap.tsx", path: "src/components/admin/", description: "Visual component dependency graph with zoom/pan", type: "component" },
     { name: "SampleData.tsx", path: "src/components/admin/", description: "Test data repository for FAQs, reviews, and testimonials", type: "component" },
+    { name: "ProjectChecklist.tsx", path: "src/components/admin/", description: "Comprehensive step-by-step checklist of 200+ features across 18 categories with XP/Lean/RUP methodology", type: "component" },
   ];
 
   const sustainabilityComponents: FileEntry[] = [
