@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import AccessibilityMenu from "@/components/AccessibilityMenu";
-import guardaioLogo from "@/assets/guardaio-logo.jpg";
+import guardaioLogo from "@/assets/guardaio-hero-logo.jpg";
 import {
   DropdownMenu,
   DropdownMenuContent,
