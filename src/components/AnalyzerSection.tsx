@@ -83,6 +83,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  const [videoPreviewEnabled, setVideoPreviewEnabled] = useState(false);
+  const [videoPreviewError, setVideoPreviewError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [progress, setProgress] = useState(0);
@@ -468,6 +470,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setShowHeatmap(true);
     setLastAnalysisId(null);
     setLinkCopied(false);
+    setVideoPreviewEnabled(false);
+    setVideoPreviewError(null);
 
     // Create preview URL for images and videos
     try {
@@ -480,9 +484,10 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
         img.onload = () => setImageElement(img);
         img.src = url;
       } else if (selectedFile.type.startsWith("video/")) {
-        console.log("Creating video preview URL");
-        const url = URL.createObjectURL(selectedFile);
-        setFilePreviewUrl(url);
+        // Some mobile / in-app browsers can hard-crash the WebView when a <video> is
+        // mounted with a blob: URL. To prevent the "all white screen" issue, we
+        // only create the blob preview if the user explicitly opts in.
+        setFilePreviewUrl(null);
         setImageElement(null);
       } else {
         setFilePreviewUrl(null);
@@ -630,6 +635,25 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setShowHeatmap(true);
     setLastAnalysisId(null);
     setLinkCopied(false);
+    setVideoPreviewEnabled(false);
+    setVideoPreviewError(null);
+  };
+
+  const enableVideoPreview = () => {
+    if (!file || !file.type.startsWith("video/")) return;
+
+    try {
+      if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+      const url = URL.createObjectURL(file);
+      setFilePreviewUrl(url);
+      setVideoPreviewEnabled(true);
+      setVideoPreviewError(null);
+    } catch (err) {
+      console.error("Failed to enable video preview:", err);
+      setVideoPreviewEnabled(false);
+      setVideoPreviewError("Video preview isn't supported in this browser. You can still analyze the file.");
+      setFilePreviewUrl(null);
+    }
   };
 
   const getFileIcon = (type: string) => {
@@ -1443,7 +1467,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                         })()}
 
                         {/* Video preview for videos */}
-                        {filePreviewUrl && file?.type.startsWith("video/") && (
+                        {file?.type.startsWith("video/") && (
                           <motion.div 
                             className="glass rounded-xl p-4"
                             initial={{ opacity: 0, y: 20 }}
@@ -1454,15 +1478,39 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                               <FileVideo className="w-4 h-4 text-primary" />
                               Video Preview
                             </h4>
-                            <video 
-                              src={filePreviewUrl} 
-                              controls 
-                                className="w-full rounded-lg max-h-[400px] bg-muted"
-                              preload="metadata"
-                            />
-                            <p className="text-xs text-muted-foreground mt-2 text-center">
-                              Video analyzed for deepfake patterns
-                            </p>
+                            {!videoPreviewEnabled && (
+                              <div className="space-y-3">
+                                <p className="text-sm text-muted-foreground">
+                                  Video previews are off by default to prevent the white-screen crash on some mobile browsers.
+                                </p>
+                                {videoPreviewError && (
+                                  <p className="text-sm text-destructive">{videoPreviewError}</p>
+                                )}
+                                <Button variant="outline" onClick={enableVideoPreview} className="w-full">
+                                  Load video preview
+                                </Button>
+                              </div>
+                            )}
+
+                            {videoPreviewEnabled && filePreviewUrl && (
+                              <>
+                                <video
+                                  src={filePreviewUrl}
+                                  controls
+                                  playsInline
+                                  className="w-full rounded-lg max-h-[400px] bg-muted"
+                                  preload="metadata"
+                                  onError={() => {
+                                    setVideoPreviewError("Video preview failed to load. You can still analyze the file.");
+                                    setVideoPreviewEnabled(false);
+                                    setFilePreviewUrl(null);
+                                  }}
+                                />
+                                <p className="text-xs text-muted-foreground mt-2 text-center">
+                                  Video analyzed for deepfake patterns
+                                </p>
+                              </>
+                            )}
                           </motion.div>
                         )}
 
