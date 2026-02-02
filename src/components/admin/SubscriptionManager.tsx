@@ -242,57 +242,63 @@ const SubscriptionManager = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card className="glass border-border/50">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-              <Users className="w-4 h-4" />
-              Active
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
+              <Users className="w-5 h-5" />
+              Active Subscribers
             </div>
-            <p className="text-2xl font-bold">{stats.totalActive}</p>
+            <p className="text-4xl font-bold">{stats.totalActive}</p>
+            <p className="text-xs text-muted-foreground mt-1">Total active</p>
           </CardContent>
         </Card>
         <Card className="glass border-border/50">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-              <DollarSign className="w-4 h-4" />
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
+              <DollarSign className="w-5 h-5" />
               Total Revenue
             </div>
-            <p className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+            <p className="text-4xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">All time</p>
           </CardContent>
         </Card>
         <Card className="glass border-border/50">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-              <TrendingUp className="w-4 h-4" />
-              MRR
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
+              <TrendingUp className="w-5 h-5" />
+              Monthly Recurring
             </div>
-            <p className="text-2xl font-bold">${stats.mrr.toLocaleString()}</p>
+            <p className="text-4xl font-bold">${stats.mrr.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">MRR</p>
           </CardContent>
         </Card>
         <Card className="glass border-border/50">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-              <AlertTriangle className="w-4 h-4" />
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
+              <AlertTriangle className="w-5 h-5" />
               Churn Rate
             </div>
-            <p className="text-2xl font-bold">{stats.churnRate}%</p>
+            <p className="text-4xl font-bold">{stats.churnRate}%</p>
+            <p className="text-xs text-muted-foreground mt-1">Monthly</p>
           </CardContent>
         </Card>
         <Card className="glass border-border/50">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              New (Month)
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              New This Month
             </div>
-            <p className="text-2xl font-bold text-green-500">+{stats.newThisMonth}</p>
+            <p className="text-4xl font-bold text-green-500">+{stats.newThisMonth}</p>
+            <p className="text-xs text-muted-foreground mt-1">Subscribers</p>
           </CardContent>
         </Card>
         <Card className="glass border-border/50">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-              <XCircle className="w-4 h-4 text-red-500" />
+          <CardContent className="py-6">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
+              <XCircle className="w-5 h-5 text-red-500" />
               Canceled
             </div>
-            <p className="text-2xl font-bold text-red-500">-{stats.canceledThisMonth}</p>
+            <p className="text-4xl font-bold text-red-500">-{stats.canceledThisMonth}</p>
+            <p className="text-xs text-muted-foreground mt-1">This month</p>
           </CardContent>
         </Card>
       </div>
