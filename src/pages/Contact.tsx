@@ -73,8 +73,8 @@ const Contact = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Us | DeepGuard</title>
-        <meta name="description" content="Get in touch with the DeepGuard team. We're here to help with support, sales, press inquiries, and partnerships." />
+        <title>Contact Us | Guardaio</title>
+        <meta name="description" content="Get in touch with the Guardaio team. We're here to help with support, sales, press inquiries, and partnerships." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -206,7 +206,7 @@ const Contact = () => {
                     <div className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-medium">DeepGuard</p>
+                        <p className="font-medium">Guardaio</p>
                         <p className="text-muted-foreground">PO Box 1433<br />Wellington, Colorado 80549<br />United States</p>
                       </div>
                     </div>

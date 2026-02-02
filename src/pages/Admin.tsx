@@ -237,7 +237,7 @@ const Admin = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Panel | DeepGuard</title>
+        <title>Admin Panel | Guardaio</title>
       </Helmet>
 
       <div className="min-h-screen bg-background">

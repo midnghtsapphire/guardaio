@@ -350,7 +350,7 @@ const History = () => {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `deepguard-analysis-history-${format(new Date(), "yyyy-MM-dd")}.csv`);
+    link.setAttribute("download", `guardaio-analysis-history-${format(new Date(), "yyyy-MM-dd")}.csv`);
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -380,7 +380,7 @@ const History = () => {
     // Add title
     doc.setFontSize(20);
     doc.setTextColor(99, 102, 241); // Primary color
-    doc.text("DeepGuard Analysis History", 14, 22);
+    doc.text("Guardaio Analysis History", 14, 22);
     
     // Add export date
     doc.setFontSize(10);
@@ -456,7 +456,7 @@ const History = () => {
     }
 
     // Save the PDF
-    doc.save(`deepguard-analysis-history-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    doc.save(`guardaio-analysis-history-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 
     toast({
       title: "Export successful",
@@ -474,7 +474,7 @@ const History = () => {
     // Title
     doc.setFontSize(20);
     doc.setTextColor(99, 102, 241);
-    doc.text("DeepGuard Comparison Report", 14, 22);
+    doc.text("Guardaio Comparison Report", 14, 22);
     
     // Export date
     doc.setFontSize(10);
@@ -563,7 +563,7 @@ const History = () => {
     }
     
     // Save PDF
-    doc.save(`deepguard-comparison-${format(new Date(), "yyyy-MM-dd-HHmm")}.pdf`);
+    doc.save(`guardaio-comparison-${format(new Date(), "yyyy-MM-dd-HHmm")}.pdf`);
     
     toast({
       title: "Export successful",

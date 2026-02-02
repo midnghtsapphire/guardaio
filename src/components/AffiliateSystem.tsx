@@ -81,7 +81,7 @@ const AffiliateSystem = () => {
       const { error } = await supabase.functions.invoke("send-analysis-report", {
         body: {
           to: inviteEmail,
-          subject: "Join DeepGuard - AI Deepfake Detection",
+          subject: "Join Guardaio - AI Deepfake Detection",
           template: "affiliate_invite",
           data: {
             affiliateCode: affiliateData.affiliate_code,
@@ -164,7 +164,7 @@ const AffiliateSystem = () => {
               <p className="text-sm text-muted-foreground">One-click via Stripe</p>
             </div>
           </div>
-          <Button className="w-full" onClick={() => toast.info("Apply at affiliates@deepguard.ai")}>
+          <Button className="w-full" onClick={() => toast.info("Apply at affiliates@guardaio.com")}>
             Apply to Become an Affiliate
           </Button>
         </CardContent>

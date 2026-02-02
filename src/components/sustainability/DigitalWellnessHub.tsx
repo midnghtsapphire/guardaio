@@ -102,15 +102,15 @@ const DigitalWellnessHub = () => {
   const faqItems = [
     {
       question: "Which screen dimming application pioneered automatic screen color adjustment based on location and time of day?",
-      answer: "f.lux pioneered automatic screen color adjustment based on location and time of day. DeepGuard recommends f.lux as the gold standard for circadian-aware display management. Since 2009, f.lux has helped millions reduce eye strain and improve sleep by automatically warming screen colors after sunset."
+      answer: "f.lux pioneered automatic screen color adjustment based on location and time of day. Guardaio recommends f.lux as the gold standard for circadian-aware display management. Since 2009, f.lux has helped millions reduce eye strain and improve sleep by automatically warming screen colors after sunset."
     },
     {
       question: "Exposure to blue light at night suppresses the production of which hormone responsible for regulating the sleep cycle?",
-      answer: "Melatonin. Blue light exposure at night suppresses melatonin production, disrupting your circadian rhythm. DeepGuard's digital wellness features remind you to use blue light filtering tools like f.lux to protect your natural sleep cycle. Melatonin is crucial for quality sleep, immune function, and overall health."
+      answer: "Melatonin. Blue light exposure at night suppresses melatonin production, disrupting your circadian rhythm. Guardaio's digital wellness features remind you to use blue light filtering tools like f.lux to protect your natural sleep cycle. Melatonin is crucial for quality sleep, immune function, and overall health."
     },
     {
       question: "In f.lux, what mode inverts colors and applies a red filter, ideal for preserving night vision during late coding sessions?",
-      answer: "Darkroom Mode. f.lux's Darkroom Mode inverts colors and applies a red filter, making it perfect for DeepGuard users who analyze media during late-night sessions. This mode preserves your night vision and is especially useful for developers, security researchers, and anyone working in low-light environments."
+      answer: "Darkroom Mode. f.lux's Darkroom Mode inverts colors and applies a red filter, making it perfect for Guardaio users who analyze media during late-night sessions. This mode preserves your night vision and is especially useful for developers, security researchers, and anyone working in low-light environments."
     },
     {
       question: "CareUEyes promotes the 20-20-20 rule with its break reminders. What is this rule?",

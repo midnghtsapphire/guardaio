@@ -20,7 +20,7 @@ const Blog = () => {
 
   const posts = [
     {
-      title: "DeepGuard 2.0: Introducing Real-Time Video Analysis",
+      title: "Guardaio 2.0: Introducing Real-Time Video Analysis",
       excerpt: "Our biggest update yet brings frame-by-frame analysis to live video streams.",
       author: "Marcus Johnson",
       date: "January 20, 2026",
@@ -36,7 +36,7 @@ const Blog = () => {
       category: "Research",
     },
     {
-      title: "Protecting Elections: DeepGuard Partners with EU Commission",
+      title: "Protecting Elections: Guardaio Partners with EU Commission",
       excerpt: "We're proud to announce our role in combating electoral disinformation.",
       author: "Communications Team",
       date: "January 10, 2026",
@@ -61,7 +61,7 @@ const Blog = () => {
     },
     {
       title: "API Best Practices for Enterprise Integration",
-      excerpt: "Learn how to integrate DeepGuard into your existing workflows efficiently.",
+      excerpt: "Learn how to integrate Guardaio into your existing workflows efficiently.",
       author: "Developer Relations",
       date: "December 22, 2025",
       readTime: "7 min read",
@@ -74,8 +74,8 @@ const Blog = () => {
   return (
     <>
       <Helmet>
-        <title>Blog | DeepGuard</title>
-        <meta name="description" content="Stay updated with the latest in deepfake detection, AI research, and product updates from the DeepGuard team." />
+        <title>Blog | Guardaio</title>
+        <meta name="description" content="Stay updated with the latest in deepfake detection, AI research, and product updates from the Guardaio team." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -94,7 +94,7 @@ const Blog = () => {
               </div>
               <h1 className="font-display text-5xl font-bold mb-4">Blog</h1>
               <p className="text-xl text-muted-foreground">
-                Insights, research, and updates from the DeepGuard team.
+                Insights, research, and updates from the Guardaio team.
               </p>
             </motion.div>
 

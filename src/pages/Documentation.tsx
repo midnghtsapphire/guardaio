@@ -69,8 +69,8 @@ const Documentation = () => {
   return (
     <>
       <Helmet>
-        <title>Documentation | DeepGuard</title>
-        <meta name="description" content="Complete documentation for DeepGuard. API reference, tutorials, and guides for deepfake detection." />
+        <title>Documentation | Guardaio</title>
+        <meta name="description" content="Complete documentation for Guardaio. API reference, tutorials, and guides for deepfake detection." />
       </Helmet>
       
       <div className="min-h-screen bg-background">

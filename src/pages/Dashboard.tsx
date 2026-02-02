@@ -181,7 +181,7 @@ const Dashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Dashboard - DeepGuard</title>
+        <title>Dashboard - Guardaio</title>
         <meta name="description" content="View your analysis statistics and usage metrics" />
       </Helmet>
 

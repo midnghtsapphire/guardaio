@@ -49,14 +49,14 @@ const Careers = () => {
       department: "Developer Relations",
       location: "Remote (Global)",
       type: "Full-time",
-      description: "Help developers integrate DeepGuard through content and community.",
+      description: "Help developers integrate Guardaio through content and community.",
     },
     {
       title: "Enterprise Account Executive",
       department: "Sales",
       location: "New York, NY",
       type: "Full-time",
-      description: "Drive enterprise adoption of DeepGuard's detection platform.",
+      description: "Drive enterprise adoption of Guardaio's detection platform.",
     },
   ];
 
@@ -72,8 +72,8 @@ const Careers = () => {
   return (
     <>
       <Helmet>
-        <title>Careers | DeepGuard</title>
-        <meta name="description" content="Join DeepGuard and help protect truth in the age of AI. View open positions in engineering, research, design, and more." />
+        <title>Careers | Guardaio</title>
+        <meta name="description" content="Join Guardaio and help protect truth in the age of AI. View open positions in engineering, research, design, and more." />
       </Helmet>
       
       <div className="min-h-screen bg-background">

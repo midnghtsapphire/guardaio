@@ -95,7 +95,7 @@ const MobileInstallPrompt = () => {
               </div>
               
               <div className="flex-1">
-                <h3 className="font-semibold mb-1">Install DeepGuard App</h3>
+                <h3 className="font-semibold mb-1">Install Guardaio App</h3>
                 <p className="text-sm text-muted-foreground mb-3">
                   {isIOS 
                     ? "Tap Share → Add to Home Screen to install"
