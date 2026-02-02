@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { reportError, normalizeError } from "@/lib/error-reporting";
 
 type ErrorBoundaryProps = {
   children: React.ReactNode;
@@ -20,9 +21,17 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return { hasError: true };
   }
 
-  componentDidCatch(error: unknown) {
-    // Keep this as console logging so we can diagnose without breaking UX.
+  componentDidCatch(error: unknown, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught an error:", error);
+    
+    const { message, stack } = normalizeError(error);
+    reportError({
+      errorMessage: message,
+      errorStack: stack,
+      errorType: "boundary",
+      componentName: errorInfo.componentStack?.split("\n")[1]?.trim(),
+      metadata: { componentStack: errorInfo.componentStack },
+    });
   }
 
   private handleReload = () => {

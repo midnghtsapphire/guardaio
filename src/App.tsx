@@ -45,7 +45,17 @@ const queryClient = new QueryClient();
 if (typeof window !== "undefined") {
   window.addEventListener("unhandledrejection", (event) => {
     console.error("Unhandled promise rejection:", event.reason);
-    event.preventDefault(); // Prevent the default browser crash behavior
+    event.preventDefault();
+    
+    // Dynamically import to avoid circular dependencies
+    import("@/lib/error-reporting").then(({ reportError, normalizeError }) => {
+      const { message, stack } = normalizeError(event.reason);
+      reportError({
+        errorMessage: message,
+        errorStack: stack,
+        errorType: "unhandled_rejection",
+      });
+    });
   });
 }
 
