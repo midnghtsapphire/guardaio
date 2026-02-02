@@ -25,7 +25,7 @@ const Team = () => {
   return (
     <>
       <Helmet>
-        <title>Team Collaboration Hub | DeepGuard</title>
+        <title>Team Collaboration Hub | Guardaio</title>
         <meta name="description" content="Open source team collaboration platform with real-time chat, kanban boards, and sprint planning. Built with RUP, XP, Lean, and Scrum methodologies." />
       </Helmet>
 

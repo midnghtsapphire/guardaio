@@ -63,7 +63,7 @@ export const useNotifications = () => {
         ? `${fileName}: ${statusMessages[status]}`
         : statusMessages[status];
 
-      return sendNotification("DeepGuard Analysis Complete", {
+      return sendNotification("Guardaio Analysis Complete", {
         body,
         tag: "analysis-complete",
         requireInteraction: false,

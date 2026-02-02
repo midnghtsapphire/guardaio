@@ -64,8 +64,8 @@ const Security = () => {
   return (
     <>
       <Helmet>
-        <title>Security | DeepGuard</title>
-        <meta name="description" content="Learn about DeepGuard's security practices, certifications, and how we protect your data." />
+        <title>Security | Guardaio</title>
+        <meta name="description" content="Learn about Guardaio's security practices, certifications, and how we protect your data." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -209,11 +209,11 @@ const Security = () => {
             >
               <h2 className="font-display text-2xl font-bold mb-4">Responsible Disclosure</h2>
               <p className="text-muted-foreground mb-6">
-                Found a security vulnerability? We appreciate your help in keeping DeepGuard secure. Please report any security issues to our security team.
+                Found a security vulnerability? We appreciate your help in keeping Guardaio secure. Please report any security issues to our security team.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button className="gap-2">
-                  security@deepguard.ai
+                  security@guardaio.com
                 </Button>
                 <Button variant="outline" onClick={() => navigate("/privacy")} className="gap-2">
                   Privacy Policy

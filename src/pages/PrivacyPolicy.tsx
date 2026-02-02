@@ -51,7 +51,7 @@ const PrivacyPolicy = () => {
 
 - With service providers who assist in our operations
 - To comply with legal obligations or court orders
-- To protect the rights, property, or safety of DeepGuard, our users, or others
+- To protect the rights, property, or safety of Guardaio, our users, or others
 - With your consent or at your direction`
     },
     {
@@ -76,7 +76,7 @@ While we strive to protect your information, no method of transmission over the 
 - Data portability
 - Withdraw consent at any time
 
-To exercise these rights, contact us at privacy@deepguard.ai`
+To exercise these rights, contact us at privacy@guardaio.com`
     },
     {
       title: "7. Contact Us",
@@ -90,8 +90,8 @@ To exercise these rights, contact us at privacy@deepguard.ai`
   return (
     <>
       <Helmet>
-        <title>Privacy Policy | DeepGuard</title>
-        <meta name="description" content="Learn how DeepGuard collects, uses, and protects your personal information." />
+        <title>Privacy Policy | Guardaio</title>
+        <meta name="description" content="Learn how Guardaio collects, uses, and protects your personal information." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -122,7 +122,7 @@ To exercise these rights, contact us at privacy@deepguard.ai`
 
             <div className="prose prose-invert max-w-none">
               <p className="text-lg text-muted-foreground mb-8">
-                At DeepGuard, we take your privacy seriously. This Privacy Policy explains how we collect, 
+                At Guardaio, we take your privacy seriously. This Privacy Policy explains how we collect,
                 use, disclose, and safeguard your information when you use our deepfake detection service.
               </p>
 

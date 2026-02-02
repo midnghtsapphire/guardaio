@@ -23,7 +23,7 @@ const API = () => {
   ];
 
   const codeExamples = {
-    curl: `curl -X POST https://api.deepguard.ai/v1/analyze \\
+    curl: `curl -X POST https://api.guardaio.com/v1/analyze \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -36,7 +36,7 @@ const API = () => {
     python: `import requests
 
 response = requests.post(
-    "https://api.deepguard.ai/v1/analyze",
+    "https://api.guardaio.com/v1/analyze",
     headers={
         "Authorization": "Bearer YOUR_API_KEY",
         "Content-Type": "application/json"
@@ -53,7 +53,7 @@ response = requests.post(
 result = response.json()
 print(f"Confidence: {result['confidence']}%")
 print(f"Status: {result['status']}")`,
-    javascript: `const response = await fetch('https://api.deepguard.ai/v1/analyze', {
+    javascript: `const response = await fetch('https://api.guardaio.com/v1/analyze', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -125,8 +125,8 @@ console.log(\`Status: \${result.status}\`);`,
   return (
     <>
       <Helmet>
-        <title>API Documentation | DeepGuard</title>
-        <meta name="description" content="Integrate deepfake detection into your applications with the DeepGuard API. RESTful endpoints, SDKs, and comprehensive documentation." />
+        <title>API Documentation | Guardaio</title>
+        <meta name="description" content="Integrate deepfake detection into your applications with the Guardaio API. RESTful endpoints, SDKs, and comprehensive documentation." />
       </Helmet>
       
       <div className="min-h-screen bg-background">

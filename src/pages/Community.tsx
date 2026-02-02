@@ -66,8 +66,8 @@ const Community = () => {
   return (
     <>
       <Helmet>
-        <title>Community | DeepGuard</title>
-        <meta name="description" content="Join the DeepGuard community. Connect with other users, get help, and contribute to deepfake detection research." />
+        <title>Community | Guardaio</title>
+        <meta name="description" content="Join the Guardaio community. Connect with other users, get help, and contribute to deepfake detection research." />
       </Helmet>
       
       <div className="min-h-screen bg-background">

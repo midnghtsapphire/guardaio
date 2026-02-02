@@ -1,8 +1,8 @@
 /**
- * DeepGuard Mobile Deployment Utilities
+ * Guardaio Mobile Deployment Utilities
  * 
  * This module provides helper functions and configuration for deploying
- * the DeepGuard application to iOS App Store and Google Play Store.
+ * the Guardaio application to iOS App Store and Google Play Store.
  * 
  * @module mobile-deploy
  * @version 1.0.0
@@ -16,10 +16,10 @@ export const appStoreMetadata = {
   // Apple App Store
   ios: {
     appId: 'app.lovable.7cfb769f672d44b286db9ddcc712f9eb',
-    bundleId: 'app.lovable.deepguard',
-    appName: 'DeepGuard - AI Deepfake Detection',
+    bundleId: 'com.guardaio.app',
+    appName: 'Guardaio - AI Deepfake Detection',
     subtitle: 'Protect Yourself from Synthetic Media',
-    description: `DeepGuard uses advanced AI to detect deepfake images, videos, and audio in real-time. Protect yourself and loved ones from AI-generated scams, virtual kidnapping, romance fraud, and synthetic media manipulation.
+    description: `Guardaio uses advanced AI to detect deepfake images, videos, and audio in real-time. Protect yourself and loved ones from AI-generated scams, virtual kidnapping, romance fraud, and synthetic media manipulation.
 
 FEATURES:
 • Real-time deepfake detection for images, videos, and audio
@@ -31,15 +31,15 @@ FEATURES:
 • PDF report generation
 • Share analysis results
 
-WHY DEEPGUARD:
-In 2024, Americans lost over $12.5 billion to fraud, with deepfakes playing an increasing role. DeepGuard helps you:
+WHY GUARDAIO:
+In 2024, Americans lost over $12.5 billion to fraud, with deepfakes playing an increasing role. Guardaio helps you:
 - Verify suspicious photos and videos
 - Detect AI-cloned voices in scam calls
 - Protect elderly family members from romance scams
 - Identify pig butchering and virtual kidnapping attempts
 
 PRIVACY FIRST:
-Your media is analyzed securely and never stored. DeepGuard is GDPR compliant and respects your privacy.`,
+Your media is analyzed securely and never stored. Guardaio is GDPR compliant and respects your privacy.`,
     keywords: [
       'deepfake',
       'detection',
@@ -62,17 +62,17 @@ Your media is analyzed securely and never stored. DeepGuard is GDPR compliant an
       iphone5_5: ['iPhone 5.5" screenshots'],
       ipad: ['iPad screenshots'],
     },
-    supportUrl: 'https://deepguard.ai/help',
-    marketingUrl: 'https://deepguard.ai',
-    privacyUrl: 'https://deepguard.ai/privacy',
+    supportUrl: 'https://guardaio.com/help',
+    marketingUrl: 'https://guardaio.com',
+    privacyUrl: 'https://guardaio.com/privacy',
   },
 
   // Google Play Store
   android: {
-    packageName: 'app.lovable.deepguard',
-    appName: 'DeepGuard - AI Deepfake Detection',
+    packageName: 'com.guardaio.app',
+    appName: 'Guardaio - AI Deepfake Detection',
     shortDescription: 'Detect deepfake images, videos & audio. Protect from AI scams.',
-    fullDescription: `DeepGuard uses advanced AI to detect deepfake images, videos, and audio in real-time. Protect yourself and loved ones from AI-generated scams, virtual kidnapping, romance fraud, and synthetic media manipulation.
+    fullDescription: `Guardaio uses advanced AI to detect deepfake images, videos, and audio in real-time. Protect yourself and loved ones from AI-generated scams, virtual kidnapping, romance fraud, and synthetic media manipulation.
 
 ★ POWERFUL DETECTION
 Real-time analysis of photos, videos, and audio files to identify AI-generated or manipulated content.
@@ -97,12 +97,12 @@ Get manipulation heatmaps, confidence scores, and exportable PDF reports for eac
 ★ PRIVACY FOCUSED
 Your media is analyzed securely and never stored. GDPR compliant.
 
-Download DeepGuard today and stay protected from synthetic media threats.`,
+Download Guardaio today and stay protected from synthetic media threats.`,
     category: 'Tools',
     contentRating: 'Everyone',
     targetAge: 'All ages',
-    contactEmail: 'support@deepguard.ai',
-    privacyPolicy: 'https://deepguard.ai/privacy',
+    contactEmail: 'support@guardaio.com',
+    privacyPolicy: 'https://guardaio.com/privacy',
     tags: [
       'deepfake',
       'ai detection',
@@ -132,8 +132,8 @@ export const buildConfig = {
     versionCode: 1,
     versionName: '1.0.0',
     signingConfig: {
-      keyAlias: 'deepguard',
-      keystorePath: './android/app/deepguard.keystore',
+      keyAlias: 'guardaio',
+      keystorePath: './android/app/guardaio.keystore',
     },
   },
 
@@ -144,7 +144,7 @@ export const buildConfig = {
     bundleVersion: '1',
     bundleShortVersion: '1.0.0',
     teamId: 'YOUR_TEAM_ID', // Replace with Apple Developer Team ID
-    provisioningProfile: 'DeepGuard App Store',
+    provisioningProfile: 'Guardaio App Store',
   },
 };
 
@@ -251,7 +251,7 @@ export function getSafeAreaInsets(): { top: number; bottom: number; left: number
 
 export const cliCommands = `
 # ============================================================================
-# DEEPGUARD MOBILE APP BUILD COMMANDS
+# GUARDAIO MOBILE APP BUILD COMMANDS
 # ============================================================================
 
 # INITIAL SETUP (one time only)
@@ -259,7 +259,7 @@ export const cliCommands = `
 
 # 1. Clone the repository
 git clone <your-github-repo-url>
-cd deepguard
+cd guardaio
 
 # 2. Install dependencies
 npm install

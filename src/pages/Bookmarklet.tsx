@@ -22,12 +22,12 @@ const Bookmarklet = () => {
     var imgs=document.querySelectorAll('img');
     if(imgs.length===0){alert('No images found on this page.');return;}
     var overlay=document.createElement('div');
-    overlay.id='deepguard-overlay';
+    overlay.id='guardaio-overlay';
     overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:system-ui,-apple-system,sans-serif;';
-    overlay.innerHTML='<div style="color:white;font-size:24px;margin-bottom:20px;font-weight:bold;">🛡️ DeepGuard</div><div style="color:white;font-size:16px;margin-bottom:20px;">Click on any image to analyze it for AI manipulation</div><div style="color:rgba(255,255,255,0.6);font-size:14px;">Press ESC to cancel</div>';
+    overlay.innerHTML='<div style="color:white;font-size:24px;margin-bottom:20px;font-weight:bold;">🛡️ Guardaio</div><div style="color:white;font-size:16px;margin-bottom:20px;">Click on any image to analyze it for AI manipulation</div><div style="color:rgba(255,255,255,0.6);font-size:14px;">Press ESC to cancel</div>';
     document.body.appendChild(overlay);
     var style=document.createElement('style');
-    style.textContent='#deepguard-overlay img{cursor:crosshair !important;outline:3px solid #22c55e !important;transition:outline 0.2s;}#deepguard-overlay img:hover{outline:3px solid #3b82f6 !important;}';
+    style.textContent='#guardaio-overlay img{cursor:crosshair !important;outline:3px solid #22c55e !important;transition:outline 0.2s;}#guardaio-overlay img:hover{outline:3px solid #3b82f6 !important;}';
     document.head.appendChild(style);
     imgs.forEach(function(img){img.style.position='relative';img.style.zIndex='1000000';img.style.cursor='crosshair';});
     function cleanup(){overlay.remove();style.remove();imgs.forEach(function(img){img.style.position='';img.style.zIndex='';img.style.cursor='';});}
@@ -87,10 +87,10 @@ const Bookmarklet = () => {
   return (
     <>
       <Helmet>
-        <title>DeepGuard Bookmarklet - Analyze Images Anywhere</title>
+        <title>Guardaio Bookmarklet - Analyze Images Anywhere</title>
         <meta
           name="description"
-          content="Install the DeepGuard bookmarklet to analyze any image on the web for AI manipulation with a single click."
+          content="Install the Guardaio bookmarklet to analyze any image on the web for AI manipulation with a single click."
         />
       </Helmet>
 
@@ -140,7 +140,7 @@ const Bookmarklet = () => {
                   draggable="true"
                 >
                   <Bookmark className="w-5 h-5" />
-                  🛡️ DeepGuard Analyzer
+                  🛡️ Guardaio Analyzer
                 </a>
               </div>
 

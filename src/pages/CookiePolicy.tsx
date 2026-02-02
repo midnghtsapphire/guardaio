@@ -45,7 +45,7 @@ Cookies can be "session" cookies (deleted when you close your browser) or "persi
     },
     {
       title: "How We Use Cookies",
-      content: `DeepGuard uses cookies for the following purposes:
+      content: `Guardaio uses cookies for the following purposes:
 
 **Essential Cookies:** Required for the website to function properly. Without these, you cannot use our service.
 
@@ -100,8 +100,8 @@ We will notify you of any material changes by posting the new policy on this pag
   return (
     <>
       <Helmet>
-        <title>Cookie Policy | DeepGuard</title>
-        <meta name="description" content="Learn about how DeepGuard uses cookies to improve your experience on our platform." />
+        <title>Cookie Policy | Guardaio</title>
+        <meta name="description" content="Learn about how Guardaio uses cookies to improve your experience on our platform." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -132,7 +132,7 @@ We will notify you of any material changes by posting the new policy on this pag
 
             <div className="prose prose-invert max-w-none">
               <p className="text-lg text-muted-foreground mb-8">
-                This Cookie Policy explains how DeepGuard uses cookies and similar technologies 
+                This Cookie Policy explains how Guardaio uses cookies and similar technologies
                 to recognize you when you visit our website.
               </p>
 

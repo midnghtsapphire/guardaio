@@ -70,7 +70,7 @@ const AdminLogin = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Login | DeepGuard</title>
+        <title>Admin Login | Guardaio</title>
       </Helmet>
 
       <div className="min-h-screen bg-background flex items-center justify-center p-4">

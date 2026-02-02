@@ -431,7 +431,7 @@ const About = () => {
   ];
 
   const milestones = [
-    { year: "2023", event: "DeepGuard founded after witnessing friends victimized by deepfake scams. Raised $5M seed funding." },
+    { year: "2023", event: "Guardaio founded after witnessing friends victimized by deepfake scams. Raised $5M seed funding." },
     { year: "2024", event: "Launched public beta. Reached 10K users in first month. Taylor Swift incident drove massive awareness." },
     { year: "2024", event: "Series A funding of $25M led by Sequoia. Partnered with anti-trafficking organizations." },
     { year: "2025", event: "Expanded to 150+ countries. Processed 1M monthly analyses. Launched API for enterprise." },
@@ -441,13 +441,13 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>About DeepGuard | Protecting Truth in the Age of AI Deepfakes</title>
-        <meta name="description" content="Learn how DeepGuard protects against deepfakes, virtual kidnapping scams, romance fraud, and pig butchering schemes. FBI-cited resources, real victim stories, and detection tips without software." />
+        <title>About Guardaio | Protecting Truth in the Age of AI Deepfakes</title>
+        <meta name="description" content="Learn how Guardaio protects against deepfakes, virtual kidnapping scams, romance fraud, and pig butchering schemes. FBI-cited resources, real victim stories, and detection tips without software." />
         <meta name="keywords" content="deepfake detection, virtual kidnapping scam, romance scam, pig butchering, Taylor Swift deepfake, FBI warning, how to detect deepfakes, fake image detection, AI generated content, synthetic media" />
-        <link rel="canonical" href="https://deepguard.ai/about" />
+        <link rel="canonical" href="https://guardaio.com/about" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="About DeepGuard | Fighting Deepfakes & AI Scams" />
+        <meta property="og:title" content="About Guardaio | Fighting Deepfakes & AI Scams" />
         <meta property="og:description" content="Real stories of deepfake victims. FBI warnings about virtual kidnapping. How to protect yourself from AI-powered scams." />
         <meta property="og:type" content="article" />
         
@@ -456,9 +456,9 @@ const About = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "DeepGuard",
+            "name": "Guardaio",
             "description": "AI-powered deepfake detection platform protecting against synthetic media fraud",
-            "url": "https://deepguard.ai",
+            "url": "https://guardaio.com",
             "foundingDate": "2023",
             "founders": [
               { "@type": "Person", "name": "Dr. Sarah Chen" },

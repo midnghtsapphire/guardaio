@@ -88,8 +88,8 @@ const Status = () => {
   return (
     <>
       <Helmet>
-        <title>System Status | DeepGuard</title>
-        <meta name="description" content="Check the current status of DeepGuard services. View uptime, incidents, and scheduled maintenance." />
+        <title>System Status | Guardaio</title>
+        <meta name="description" content="Check the current status of Guardaio services. View uptime, incidents, and scheduled maintenance." />
       </Helmet>
       
       <div className="min-h-screen bg-background">

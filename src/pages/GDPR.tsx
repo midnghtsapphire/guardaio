@@ -55,7 +55,7 @@ const GDPR = () => {
   const sections = [
     {
       title: "Our Commitment to GDPR",
-      content: `DeepGuard is committed to protecting your personal data in compliance with the General Data Protection Regulation (GDPR). This page explains how we handle your data and your rights as a data subject.
+      content: `Guardaio is committed to protecting your personal data in compliance with the General Data Protection Regulation (GDPR). This page explains how we handle your data and your rights as a data subject.
 
 We process personal data lawfully, fairly, and transparently. We collect data only for specified, explicit, and legitimate purposes.`
     },
@@ -148,8 +148,8 @@ We encourage you to contact us first so we can address your concerns directly.`
   return (
     <>
       <Helmet>
-        <title>GDPR Compliance | DeepGuard</title>
-        <meta name="description" content="Learn about DeepGuard's GDPR compliance and your data protection rights." />
+        <title>GDPR Compliance | Guardaio</title>
+        <meta name="description" content="Learn about Guardaio's GDPR compliance and your data protection rights." />
       </Helmet>
       
       <div className="min-h-screen bg-background">

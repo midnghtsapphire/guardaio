@@ -42,8 +42,8 @@ const DesktopApp = () => {
   return (
     <>
       <Helmet>
-        <title>Desktop App | DeepGuard</title>
-        <meta name="description" content="Download the DeepGuard desktop app for native deepfake detection on Windows, macOS, and Linux." />
+        <title>Desktop App | Guardaio</title>
+        <meta name="description" content="Download the Guardaio desktop app for native deepfake detection on Windows, macOS, and Linux." />
       </Helmet>
       
       <div className="min-h-screen bg-background">
