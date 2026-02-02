@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Shield, CheckCircle, XCircle, AlertTriangle, Play, Loader2, Eye, Brain, Accessibility, FileText, Lock, Globe, Cpu } from "lucide-react";
+import { Shield, CheckCircle, XCircle, AlertTriangle, Play, Loader2, Eye, Brain, Accessibility, FileText, Lock, Globe, Cpu, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HardwareSecurityPanel from "@/components/security/HardwareSecurityPanel";
+import BotProtectionPanel from "@/components/security/BotProtectionPanel";
 
 interface TestResult {
   name: string;
@@ -166,6 +167,10 @@ const SecurityModule = () => {
             <Shield className="w-4 h-4" />
             Compliance & Tests
           </TabsTrigger>
+          <TabsTrigger value="bot-protection" className="gap-2">
+            <Bot className="w-4 h-4" />
+            Bot Protection
+          </TabsTrigger>
           <TabsTrigger value="hardware" className="gap-2">
             <Cpu className="w-4 h-4" />
             Hardware Security
@@ -315,6 +320,10 @@ const SecurityModule = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="bot-protection" className="mt-6">
+          <BotProtectionPanel />
         </TabsContent>
 
         <TabsContent value="hardware" className="mt-6">

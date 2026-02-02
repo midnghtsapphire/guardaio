@@ -85,6 +85,7 @@ const FileRegistry = () => {
 
   const securityComponents: FileEntry[] = [
     { name: "HardwareSecurityPanel.tsx", path: "src/components/security/", description: "COVERT Trojan detection, side-channel analysis (power/thermal/timing), TPM 2.0 attestation, supply chain traceability", type: "component" },
+    { name: "BotProtectionPanel.tsx", path: "src/components/security/", description: "Multi-layer bot defense: CrowdSec, BunkerWeb WAF, ALTCHA PoW, BotD detection, rate limiting, honeypots (XP/Lean/RUP methodology)", type: "component" },
   ];
 
   const helpComponents: FileEntry[] = [
@@ -160,6 +161,7 @@ const FileRegistry = () => {
     { name: "criminal-signature-tracker.ts", path: "src/lib/", description: "Criminal/hacker digital signature detection: sextortion, fraud, disinformation patterns with reporting agencies", type: "util" },
     { name: "hardware-security.ts", path: "src/lib/", description: "COVERT microarchitectural Trojan detection, side-channel analysis (power/thermal/timing), ERM dV/dt detection, TPM 2.0 simulation, SHA-3 supply chain traceability", type: "util" },
     { name: "mobile-deploy.ts", path: "src/lib/", description: "Mobile deployment utilities, app store metadata, build commands, and CLI reference", type: "util" },
+    { name: "bot-protection.ts", path: "src/lib/", description: "Bot swarm defense library: CrowdSec IP blocking, BunkerWeb WAF, ALTCHA PoW challenges, BotD fingerprinting, rate limiting, honeypots (XP/Lean/RUP)", type: "util" },
   ];
 
   const uiComponents: FileEntry[] = [

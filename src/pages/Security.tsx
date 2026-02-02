@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { Shield, Lock, Eye, Server, Key, FileCheck, CheckCircle, AlertTriangle, ExternalLink } from "lucide-react";
+import { Shield, Lock, Eye, Server, Key, FileCheck, CheckCircle, AlertTriangle, ExternalLink, Bot, Zap, Globe, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -59,6 +60,45 @@ const Security = () => {
     "Network segmentation and firewalls",
     "Vulnerability disclosure program",
     "Security-focused code review process",
+  ];
+
+  const botProtectionLayers = [
+    {
+      icon: Globe,
+      name: "CrowdSec Collaborative IP Blocking",
+      description: "Community-powered threat intelligence. IPs that attacked other sites in the network are preemptively blocked.",
+      status: "active"
+    },
+    {
+      icon: Shield,
+      name: "BunkerWeb WAF Engine",
+      description: "NGINX-based WAF with antibot features, bad behavior detection, and automatic blacklist integration.",
+      status: "active"
+    },
+    {
+      icon: Zap,
+      name: "ALTCHA Proof-of-Work",
+      description: "Privacy-first computational challenges. Bots must expend CPU cycles before accessing analysis endpoints.",
+      status: "active"
+    },
+    {
+      icon: Bot,
+      name: "BotD Client Detection",
+      description: "JavaScript fingerprinting detects Selenium, Puppeteer, Playwright, and headless browsers.",
+      status: "active"
+    },
+    {
+      icon: Activity,
+      name: "Rate Limiting & Tarpitting",
+      description: "Leaky bucket algorithm with 60 req/min limit. Excessive requests trigger automatic penalties.",
+      status: "active"
+    },
+    {
+      icon: AlertTriangle,
+      name: "Honeypot Traps",
+      description: "Hidden endpoints and form fields that automatically trap and block bots scanning the site.",
+      status: "active"
+    },
   ];
 
   return (
@@ -157,6 +197,37 @@ const Security = () => {
                   </div>
                 </CardContent>
               </Card>
+            </motion.div>
+
+            {/* Bot Protection */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="mb-20"
+            >
+              <h2 className="font-display text-3xl font-bold text-center mb-4">Bot Swarm Protection</h2>
+              <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Multi-layer defense system using open-source tools to protect against DoS/DoW attacks targeting our GPU-intensive deepfake analysis.
+              </p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {botProtectionLayers.map((layer) => (
+                  <Card key={layer.name} className="glass border-border/50">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <layer.icon className="w-10 h-10 text-primary mb-2" />
+                        <Badge variant="outline" className="text-emerald-500 border-emerald-500/50">
+                          Active
+                        </Badge>
+                      </div>
+                      <CardTitle className="text-lg">{layer.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription>{layer.description}</CardDescription>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </motion.div>
 
             {/* Data Handling */}

@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Shield, Github, Twitter, Linkedin, RotateCcw } from "lucide-react";
+import { Github, Twitter, Linkedin, RotateCcw } from "lucide-react";
 import { restartOnboardingTour } from "@/components/OnboardingTour";
 import { useNavigate } from "react-router-dom";
+import guardaioLogo from "@/assets/guardaio-logo.jpg";
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -67,10 +68,11 @@ const Footer = () => {
             className="md:col-span-2"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-                <Shield className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="font-display text-xl font-bold">Guardaio</span>
+              <img 
+                src={guardaioLogo} 
+                alt="Guardaio Logo" 
+                className="h-16 w-auto object-contain"
+              />
             </div>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs">
               Protecting truth in the age of AI. Advanced deepfake detection for everyone.
