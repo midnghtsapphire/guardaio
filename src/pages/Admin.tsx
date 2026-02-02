@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow, CheckSquare } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow, CheckSquare, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,6 +29,7 @@ import MetadataAnomalyDashboard from "@/components/admin/MetadataAnomalyDashboar
 import QAAgent from "@/components/admin/QAAgent";
 import DevOpsTools from "@/components/admin/DevOpsTools";
 import ProjectChecklist from "@/components/admin/ProjectChecklist";
+import ContentManager from "@/components/admin/ContentManager";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -315,8 +316,12 @@ const Admin = () => {
             </div>
 
             {/* Main Tabs */}
-            <Tabs defaultValue="tests" className="space-y-6">
+            <Tabs defaultValue="content" className="space-y-6">
               <TabsList className="flex flex-wrap gap-1">
+                <TabsTrigger value="content" className="gap-2">
+                  <Pencil className="w-4 h-4" />
+                  Content
+                </TabsTrigger>
                 <TabsTrigger value="qa-agent" className="gap-2">
                   <Bot className="w-4 h-4" />
                   QA Agent
@@ -382,6 +387,11 @@ const Admin = () => {
                   Checklist
                 </TabsTrigger>
               </TabsList>
+
+              {/* Content Manager Tab */}
+              <TabsContent value="content">
+                <ContentManager />
+              </TabsContent>
 
               {/* QA Agent Tab */}
               <TabsContent value="qa-agent">

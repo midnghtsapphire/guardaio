@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Github, Twitter, Linkedin, RotateCcw } from "lucide-react";
 import { restartOnboardingTour } from "@/components/OnboardingTour";
 import { useNavigate } from "react-router-dom";
-import guardaioLogo from "@/assets/guardaio-logo.jpg";
+import guardaioLogo from "@/assets/guardaio-hero-logo.jpg";
 
 const Footer = () => {
   const navigate = useNavigate();
