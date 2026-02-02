@@ -108,7 +108,7 @@ const AdminLogin = () => {
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
-                      placeholder="admin@deepguard.ai"
+                      placeholder="admin@guardaio.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
@@ -167,7 +167,7 @@ const AdminLogin = () => {
           </Card>
 
           <p className="text-center text-xs text-muted-foreground mt-4">
-            Protected by DeepGuard Security
+            Protected by Guardaio Security
           </p>
         </motion.div>
       </div>

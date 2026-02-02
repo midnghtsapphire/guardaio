@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow, CheckSquare, Pencil } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow, CheckSquare, Pencil, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +30,7 @@ import QAAgent from "@/components/admin/QAAgent";
 import DevOpsTools from "@/components/admin/DevOpsTools";
 import ProjectChecklist from "@/components/admin/ProjectChecklist";
 import ContentManager from "@/components/admin/ContentManager";
+import SubscriptionManager from "@/components/admin/SubscriptionManager";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -322,6 +323,10 @@ const Admin = () => {
                   <Pencil className="w-4 h-4" />
                   Content
                 </TabsTrigger>
+                <TabsTrigger value="subscriptions" className="gap-2">
+                  <CreditCard className="w-4 h-4" />
+                  Subscriptions
+                </TabsTrigger>
                 <TabsTrigger value="qa-agent" className="gap-2">
                   <Bot className="w-4 h-4" />
                   QA Agent
@@ -391,6 +396,11 @@ const Admin = () => {
               {/* Content Manager Tab */}
               <TabsContent value="content">
                 <ContentManager />
+              </TabsContent>
+
+              {/* Subscriptions Tab */}
+              <TabsContent value="subscriptions">
+                <SubscriptionManager />
               </TabsContent>
 
               {/* QA Agent Tab */}
