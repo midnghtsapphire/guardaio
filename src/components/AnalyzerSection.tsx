@@ -399,6 +399,29 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   };
 
   const analyzeFile = async (selectedFile: File): Promise<AnalysisResult> => {
+    const normalizeAnalysisResult = (raw: any): AnalysisResult => {
+      const status: AnalysisResult["status"] =
+        raw?.status === "safe" || raw?.status === "warning" || raw?.status === "danger"
+          ? raw.status
+          : "warning";
+
+      const confidenceRaw = typeof raw?.confidence === "number" ? raw.confidence : 0;
+      const confidence = Math.max(0, Math.min(100, Math.round(confidenceRaw)));
+
+      const findings = Array.isArray(raw?.findings)
+        ? raw.findings.filter((f: unknown): f is string => typeof f === "string")
+        : ["No findings returned from analysis."];
+
+      const heatmapRegions = Array.isArray(raw?.heatmapRegions) ? raw.heatmapRegions : undefined;
+
+      return {
+        status,
+        confidence,
+        findings,
+        heatmapRegions,
+      };
+    };
+
     let fileBase64 = "";
     if (selectedFile.type.startsWith("image/")) {
       fileBase64 = await fileToBase64(selectedFile);
@@ -416,7 +439,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     if (error) throw error;
     if (data.error) throw new Error(data.error);
 
-    return data as AnalysisResult;
+    return normalizeAnalysisResult(data);
   };
 
   const getSensitivityLabel = (value: number) => {
@@ -1434,7 +1457,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                             <video 
                               src={filePreviewUrl} 
                               controls 
-                              className="w-full rounded-lg max-h-[400px] bg-black"
+                                className="w-full rounded-lg max-h-[400px] bg-muted"
                               preload="metadata"
                             />
                             <p className="text-xs text-muted-foreground mt-2 text-center">
@@ -1508,7 +1531,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                             AI Analysis Findings
                           </h4>
                           <ul className="space-y-3">
-                            {result.findings.map((finding, index) => (
+                            {(result.findings ?? []).map((finding, index) => (
                               <motion.li
                                 key={index}
                                 initial={{ opacity: 0, x: -20 }}
