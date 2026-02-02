@@ -1421,7 +1421,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                             <video 
                               src={filePreviewUrl} 
                               controls 
-                              className="w-full rounded-lg max-h-[400px]"
+                              className="w-full rounded-lg max-h-[400px] bg-black"
+                              preload="metadata"
                             />
                             <p className="text-xs text-muted-foreground mt-2 text-center">
                               Video analyzed for deepfake patterns
