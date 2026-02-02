@@ -426,6 +426,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   };
 
   const processFile = async (selectedFile: File) => {
+    console.log("processFile called:", selectedFile.name, selectedFile.type, selectedFile.size);
+    
     if (selectedFile.size > 10 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -445,25 +447,34 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setLinkCopied(false);
 
     // Create preview URL for images and videos
-    if (selectedFile.type.startsWith("image/")) {
-      const url = URL.createObjectURL(selectedFile);
-      setFilePreviewUrl(url);
-      
-      // Create image element for forensic analysis
-      const img = new Image();
-      img.onload = () => setImageElement(img);
-      img.src = url;
-    } else if (selectedFile.type.startsWith("video/")) {
-      const url = URL.createObjectURL(selectedFile);
-      setFilePreviewUrl(url);
-      setImageElement(null);
-    } else {
+    try {
+      if (selectedFile.type.startsWith("image/")) {
+        const url = URL.createObjectURL(selectedFile);
+        setFilePreviewUrl(url);
+        
+        // Create image element for forensic analysis
+        const img = new Image();
+        img.onload = () => setImageElement(img);
+        img.src = url;
+      } else if (selectedFile.type.startsWith("video/")) {
+        console.log("Creating video preview URL");
+        const url = URL.createObjectURL(selectedFile);
+        setFilePreviewUrl(url);
+        setImageElement(null);
+      } else {
+        setFilePreviewUrl(null);
+        setImageElement(null);
+      }
+    } catch (previewError) {
+      console.error("Error creating preview:", previewError);
       setFilePreviewUrl(null);
       setImageElement(null);
     }
 
     try {
+      console.log("Starting analysis for:", selectedFile.name);
       const analysisResult = await analyzeFile(selectedFile);
+      console.log("Analysis complete:", analysisResult);
       setResult(analysisResult);
 
       const analysisId = await saveToHistory(selectedFile, analysisResult);
@@ -494,10 +505,12 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
       console.error("Analysis error:", error);
       toast({
         title: "Analysis failed",
-        description: error instanceof Error ? error.message : "Failed to analyze file",
+        description: error instanceof Error ? error.message : "Failed to analyze file. Please try again.",
         variant: "destructive",
       });
       setFile(null);
+      setFilePreviewUrl(null);
+      setResult(null);
     } finally {
       setAnalyzing(false);
     }
