@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Shield, LogOut, User, History, Settings, BarChart3 } from "lucide-react";
+import { Menu, X, LogOut, User, History, Settings, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import AccessibilityMenu from "@/components/AccessibilityMenu";
+import guardaioLogo from "@/assets/guardaio-logo.jpg";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,12 +73,13 @@ const Navbar = () => {
           {/* Logo */}
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-3"
+            className="flex items-center gap-2"
           >
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-              <Shield className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-display text-xl font-bold">Guardaio</span>
+            <img 
+              src={guardaioLogo} 
+              alt="Guardaio Logo" 
+              className="h-12 w-auto object-contain"
+            />
           </button>
 
           {/* Desktop Nav */}

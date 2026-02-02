@@ -109,6 +109,45 @@ const DocumentationCenter = () => {
 - ISO 27001 framework alignment`
     },
     {
+      title: "Bot Protection Suite (XP/Lean/RUP)",
+      content: `**Multi-Layer Defense Architecture:**
+Built using XP (Extreme Programming), Lean, and RUP methodologies for robust, iterative security.
+
+**Layer 1: CrowdSec Collaborative IP Blocking**
+- Community-powered threat intelligence network
+- Herd immunity approach - IPs that attacked other sites are preemptively blocked
+- Real-time blocklist synchronization via LAPI
+- GitHub: github.com/crowdsecurity/crowdsec
+
+**Layer 2: BunkerWeb WAF Engine**
+- NGINX-based open-source WAF with antibot features
+- Bad behavior detection (auto-bans excessive 403/404 errors)
+- External blacklist integration (Tor exits, known bad agents)
+- GitHub: github.com/bunkerity/bunkerweb
+
+**Layer 3: ALTCHA Proof-of-Work**
+- Privacy-first computational challenges (no cookies/tracking)
+- SHA-256 hash mining with configurable difficulty
+- Forces bots to expend CPU cycles before accessing analysis
+- GitHub: github.com/altcha-org/altcha
+
+**Layer 4: BotD Client Detection**
+- JavaScript fingerprinting for automation detection
+- Detects Selenium, Puppeteer, Playwright, PhantomJS
+- Canvas/WebGL/AudioContext fingerprinting
+- GitHub: github.com/nicedoc/nicedoc
+
+**Layer 5: Rate Limiting (Leaky Bucket)**
+- 60 requests per minute with burst allowance of 10
+- Automatic penalty (5 min ban) for limit violations
+- Per-IP tracking with sliding window
+
+**Layer 6: Honeypot Traps**
+- Hidden endpoints: /wp-login.php, /.env, /phpmyadmin
+- Hidden form fields trap bots filling invisible inputs
+- Automatic permanent IP banning for trap triggers`
+    },
+    {
       title: "Hardware Security Module",
       content: `**COVERT Microarchitectural Testing:**
 - 5 tests targeting rare pipeline hazards, cache evictions, branch mispredictions
