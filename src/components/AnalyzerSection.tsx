@@ -444,7 +444,7 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     setLastAnalysisId(null);
     setLinkCopied(false);
 
-    // Create preview URL and image element for images
+    // Create preview URL for images and videos
     if (selectedFile.type.startsWith("image/")) {
       const url = URL.createObjectURL(selectedFile);
       setFilePreviewUrl(url);
@@ -453,6 +453,10 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
       const img = new Image();
       img.onload = () => setImageElement(img);
       img.src = url;
+    } else if (selectedFile.type.startsWith("video/")) {
+      const url = URL.createObjectURL(selectedFile);
+      setFilePreviewUrl(url);
+      setImageElement(null);
     } else {
       setFilePreviewUrl(null);
       setImageElement(null);
@@ -1402,8 +1406,31 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                           );
                         })()}
 
+                        {/* Video preview for videos */}
+                        {filePreviewUrl && file?.type.startsWith("video/") && (
+                          <motion.div 
+                            className="glass rounded-xl p-4"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.25 }}
+                          >
+                            <h4 className="font-display font-semibold flex items-center gap-2 mb-3">
+                              <FileVideo className="w-4 h-4 text-primary" />
+                              Video Preview
+                            </h4>
+                            <video 
+                              src={filePreviewUrl} 
+                              controls 
+                              className="w-full rounded-lg max-h-[400px]"
+                            />
+                            <p className="text-xs text-muted-foreground mt-2 text-center">
+                              Video analyzed for deepfake patterns
+                            </p>
+                          </motion.div>
+                        )}
+
                         {/* Heatmap visualization for images */}
-                        {filePreviewUrl && result.heatmapRegions && result.heatmapRegions.length > 0 && (
+                        {filePreviewUrl && file?.type.startsWith("image/") && result.heatmapRegions && result.heatmapRegions.length > 0 && (
                           <motion.div 
                             className="glass rounded-xl p-4"
                             initial={{ opacity: 0, y: 20 }}
