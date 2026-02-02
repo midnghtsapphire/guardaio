@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,6 +28,7 @@ import MarketingChannels from "@/components/admin/MarketingChannels";
 import MetadataAnomalyDashboard from "@/components/admin/MetadataAnomalyDashboard";
 import QAAgent from "@/components/admin/QAAgent";
 import DevOpsTools from "@/components/admin/DevOpsTools";
+import ProjectChecklist from "@/components/admin/ProjectChecklist";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -376,6 +377,10 @@ const Admin = () => {
                   <Settings className="w-4 h-4" />
                   Settings
                 </TabsTrigger>
+                <TabsTrigger value="checklist" className="gap-2">
+                  <CheckSquare className="w-4 h-4" />
+                  Checklist
+                </TabsTrigger>
               </TabsList>
 
               {/* QA Agent Tab */}
@@ -555,6 +560,11 @@ const Admin = () => {
                     <p className="text-muted-foreground">Additional settings coming soon...</p>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              {/* Checklist Tab */}
+              <TabsContent value="checklist">
+                <ProjectChecklist />
               </TabsContent>
             </Tabs>
           </div>
