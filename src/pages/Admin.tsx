@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow, CheckSquare, Pencil, CreditCard } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, TestTube, AlertTriangle, CheckCircle, XCircle, Play, Loader2, FileText, DollarSign, Link as LinkIcon, FileCode, Book, Map, History, GitCommit, Network, Database, Building2, Megaphone, Fingerprint, Bot, Workflow, CheckSquare, Pencil, CreditCard, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,6 +31,7 @@ import DevOpsTools from "@/components/admin/DevOpsTools";
 import ProjectChecklist from "@/components/admin/ProjectChecklist";
 import ContentManager from "@/components/admin/ContentManager";
 import SubscriptionManager from "@/components/admin/SubscriptionManager";
+import AttackMonitoringDashboard from "@/components/admin/AttackMonitoringDashboard";
 import { toast } from "sonner";
 
 interface TestResult {
@@ -343,6 +344,10 @@ const Admin = () => {
                   <Shield className="w-4 h-4" />
                   Security
                 </TabsTrigger>
+                <TabsTrigger value="attacks" className="gap-2">
+                  <Activity className="w-4 h-4" />
+                  Attacks
+                </TabsTrigger>
                 <TabsTrigger value="files" className="gap-2">
                   <FileCode className="w-4 h-4" />
                   Files
@@ -512,6 +517,11 @@ const Admin = () => {
               {/* Security Tab */}
               <TabsContent value="security">
                 <SecurityModule />
+              </TabsContent>
+
+              {/* Attack Monitoring Tab */}
+              <TabsContent value="attacks">
+                <AttackMonitoringDashboard />
               </TabsContent>
 
               {/* Files Tab */}

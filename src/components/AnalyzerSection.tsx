@@ -28,6 +28,8 @@ import ForensicAnalysisPanel from "@/components/ForensicAnalysisPanel";
 import { extractVideoFrames, ExtractedFrame } from "@/lib/video-frame-extractor";
 import { useBotProtection } from "@/hooks/use-bot-protection";
 import { Badge } from "@/components/ui/badge";
+import SecurityStatusBadge from "@/components/security/SecurityStatusBadge";
+import ProofOfWorkGuard from "@/components/security/ProofOfWorkGuard";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -136,7 +138,9 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
     isBlocked, 
     remainingRequests, 
     checkRateLimit, 
-    detectionResult 
+    detectionResult,
+    requiresChallenge,
+    completeChallenge
   } = useBotProtection({ 
     enabled: true, 
     sessionKey: "analyzer" 
@@ -1076,6 +1080,13 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            {/* Security Status Badge */}
+            <SecurityStatusBadge
+              isBlocked={isBlocked}
+              remainingRequests={remainingRequests}
+              requiresChallenge={requiresChallenge}
+              confidence={detectionResult?.confidence || 0}
+            />
           </div>
 
           {/* Sensitivity Panel */}
@@ -1124,12 +1135,19 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
           </AnimatePresence>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto"
+        {/* Wrap analyzer content with PoW guard for high-risk clients */}
+        <ProofOfWorkGuard
+          enabled={requiresChallenge}
+          difficulty={16}
+          onVerified={completeChallenge}
+          sessionKey="analyzer"
         >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto"
+          >
           {analysisMode === "compare" ? (
             // Comparison mode
             <ComparisonView sensitivity={sensitivity} />
@@ -1903,7 +1921,8 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
               </AnimatePresence>
             </div>
           )}
-        </motion.div>
+          </motion.div>
+        </ProofOfWorkGuard>
       </div>
 
       {/* Email Share Dialog */}
