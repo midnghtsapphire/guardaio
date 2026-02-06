@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check, Scale, Keyboard, Fingerprint } from "lucide-react";
+import { Upload, FileImage, FileVideo, FileAudio, X, CheckCircle2, AlertTriangle, XCircle, Loader2, Shield, Sparkles, Zap, Files, Trash2, Link, Search, Volume2, Bell, BellOff, Volume1, VolumeX, Eye, EyeOff, SlidersHorizontal, Download, Mail, Link2, Check, Scale, Keyboard, Fingerprint, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
@@ -26,6 +26,8 @@ import ProgressRing from "@/components/ProgressRing";
 import SocialShareButtons from "@/components/SocialShareButtons";
 import ForensicAnalysisPanel from "@/components/ForensicAnalysisPanel";
 import { extractVideoFrames, ExtractedFrame } from "@/lib/video-frame-extractor";
+import { useBotProtection } from "@/hooks/use-bot-protection";
+import { Badge } from "@/components/ui/badge";
 
 type AnalysisResult = {
   status: "safe" | "warning" | "danger";
@@ -128,6 +130,17 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   const [showForensicPanel, setShowForensicPanel] = useState(false);
   const [imageElement, setImageElement] = useState<HTMLImageElement | null>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+
+  // Bot protection integration
+  const { 
+    isBlocked, 
+    remainingRequests, 
+    checkRateLimit, 
+    detectionResult 
+  } = useBotProtection({ 
+    enabled: true, 
+    sessionKey: "analyzer" 
+  });
 
   // Handle export for keyboard shortcut
   const handleKeyboardExport = useCallback(() => {
@@ -602,6 +615,22 @@ const AnalyzerSection = ({ externalImageUrl, onExternalImageProcessed }: Analyze
   const processFile = async (selectedFile: File) => {
     console.log("processFile called:", selectedFile.name, selectedFile.type, selectedFile.size);
     
+    // Bot protection: Check rate limit before expensive analysis
+    const rateCheck = checkRateLimit("analyzer");
+    if (!rateCheck.allowed) {
+      toast({
+        title: "Rate limit exceeded",
+        description: "Too many requests. Please wait a moment before trying again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Log remaining requests for monitoring
+    if (rateCheck.remaining < 10) {
+      console.log(`[BotProtection] Low remaining requests: ${rateCheck.remaining}`);
+    }
+
     if (selectedFile.size > 10 * 1024 * 1024) {
       toast({
         title: "File too large",
