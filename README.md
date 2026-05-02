@@ -77,3 +77,16 @@ Proprietary - All rights reserved
 ## Support
 
 For support, email support@example.com
+
+---
+
+## Test
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Frontend Build | ✅ Ready | `npm run build` |
+| Backend | ✅ Ready | Requires Docker/Redis |
+| Stripe Integration | ✅ Ready | Test mode available |
+| Auth | ✅ Ready | JWT + Google OAuth |
+
+**Test:** `npm test`, `pytest`
