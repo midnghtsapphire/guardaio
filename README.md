@@ -1,5 +1,9 @@
 # Guardaio
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 Security and protection platform
 
 ## Features
